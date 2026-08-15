@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     phone: formData.get("phone"),
     description: formData.get("description"),
     bodyLocation: formData.get("bodyLocation"),
-    sizeCm: formData.get("sizeCm"),
+    sizeCm: Number(formData.get("sizeCm")),
     preferredDate: formData.get("preferredDate"),
     timeSlot: formData.get("timeSlot"),
     images,
