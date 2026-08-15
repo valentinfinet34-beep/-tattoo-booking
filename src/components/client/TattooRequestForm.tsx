@@ -8,7 +8,6 @@ import {
   BODY_LOCATIONS,
   TIME_SLOTS,
   tattooRequestSchema,
-  type TattooRequestFormValues,
   type TattooRequestInput,
 } from "@/lib/validations/tattooRequest.schema";
 import { ImageUploader } from "./ImageUploader";
@@ -22,7 +21,7 @@ export function TattooRequestForm() {
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<TattooRequestFormValues, unknown, TattooRequestInput>({
+  } = useForm<TattooRequestInput>({
     resolver: zodResolver(tattooRequestSchema),
     defaultValues: {
       bodyLocation: BODY_LOCATIONS[0],
@@ -107,7 +106,7 @@ export function TattooRequestForm() {
             min={1}
             max={100}
             className="input-field"
-            {...register("sizeCm")}
+            {...register("sizeCm", { valueAsNumber: true })}
           />
         </Field>
       </div>
