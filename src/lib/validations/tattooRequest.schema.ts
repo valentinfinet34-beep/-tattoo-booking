@@ -53,4 +53,9 @@ export const tattooRequestSchema = z.object({
     .max(MAX_IMAGES, `${MAX_IMAGES} images maximum`),
 });
 
-export type TattooRequestInput = z.infer<typeof tattooRequestSchema>;
+// Type des valeurs telles que react-hook-form les manipule avant validation
+// (sizeCm y est "unknown" à cause du z.coerce.number()).
+export type TattooRequestFormValues = z.input<typeof tattooRequestSchema>;
+
+// Type des valeurs une fois validées/coercées par Zod (sizeCm est un number).
+export type TattooRequestInput = z.output<typeof tattooRequestSchema>;
