@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #140f0d;
+  --color-surface: #1e1714;
+  --color-surface-hover: #281f1a;
+  --color-border: #33281f;
+  --color-foreground: #f2f0e9;
+  --color-muted: #8a8a85;
+  --color-accent: #c81e1e;
+  --color-accent-hover: #e02424;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+
+  --font-display: var(--font-bebas);
+  --font-sans: var(--font-inter);
+
+  --shadow-glow: 0 0 24px -8px rgba(200, 30, 30, 0.35);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+  background-image: radial-gradient(
+    ellipse 80% 50% at 50% -20%,
+    rgba(200, 30, 30, 0.08),
+    transparent
+  );
+  background-attachment: fixed;
+}
+
+h1,
+h2,
+h3 {
+  @apply font-display tracking-tight;
+}
+
+::selection {
+  @apply bg-accent/30 text-foreground;
+}
+
+.card {
+  @apply bg-surface border border-border rounded-lg;
+}
+
+.input-field {
+  @apply w-full bg-surface border border-border rounded-md px-4 py-3
+    text-foreground placeholder:text-muted
+    focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent
+    transition-colors;
+}
+
+.btn-primary {
+  @apply bg-accent hover:bg-accent-hover text-white font-medium
+    rounded-md px-6 py-3 transition-colors
+    shadow-glow disabled:opacity-40 disabled:pointer-events-none;
+}
+
+.btn-secondary {
+  @apply bg-surface hover:bg-surface-hover border border-border
+    text-foreground font-medium rounded-md px-6 py-3 transition-colors;
+}
+
+.badge {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+    text-xs font-medium border;
+}
+.badge-pending {
+  @apply bg-warning/10 text-warning border-warning/20;
+}
+.badge-accepted {
+  @apply bg-accent/10 text-accent border-accent/20;
+}
+.badge-paid {
+  @apply bg-success/10 text-success border-success/20;
+}
+.badge-declined {
+  @apply bg-muted/10 text-muted border-border;
+}
