@@ -66,9 +66,9 @@ h3 {
 }
 
 .input-field {
-  @apply w-full bg-surface border border-border rounded-md px-4 py-3
+  @apply w-full bg-white/[0.06] border border-white/15 rounded-md px-4 py-3
     text-foreground placeholder:text-muted
-    focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent
+    focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent focus:bg-white/[0.08]
     transition-colors;
 }
 
