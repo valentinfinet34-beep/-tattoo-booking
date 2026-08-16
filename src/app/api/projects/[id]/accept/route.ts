@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
+import { sendDepositLinkEmail } from "@/lib/email";
 
 const acceptSchema = z.object({
   depositAmountEur: z.coerce.number().positive().max(5000),
@@ -32,7 +33,7 @@ export async function POST(
   // ce projet que s'il appartient bien à l'artiste connecté.
   const { data: project, error: fetchError } = await supabase
     .from("projects")
-    .select("id, first_name, last_name, description")
+    .select("id, first_name, last_name, email, description")
     .eq("id", id)
     .single();
 
@@ -80,6 +81,19 @@ export async function POST(
       { error: "Échec de la mise à jour du projet" },
       { status: 500 }
     );
+  }
+
+  if (session.url) {
+    try {
+      await sendDepositLinkEmail({
+        to: project.email,
+        firstName: project.first_name,
+        depositAmountEur: parsed.data.depositAmountEur,
+        checkoutUrl: session.url,
+      });
+    } catch {
+      // Le lien reste affiché dans le dashboard même si l'email échoue.
+    }
   }
 
   return NextResponse.json({ checkoutUrl: session.url });
