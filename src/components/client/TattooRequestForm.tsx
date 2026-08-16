@@ -25,7 +25,7 @@ export function TattooRequestForm() {
     resolver: zodResolver(tattooRequestSchema),
     defaultValues: {
       bodyLocation: BODY_LOCATIONS[0],
-      timeSlot: TIME_SLOTS[3],
+      timeSlot: TIME_SLOTS[0],
       images: [],
     },
   });
@@ -92,9 +92,17 @@ export function TattooRequestForm() {
 
       <div className="grid grid-cols-2 gap-3">
         <Field label="Emplacement" error={errors.bodyLocation?.message}>
-          <select className="input-field" {...register("bodyLocation")}>
+          <select
+            className="input-field"
+            style={{ colorScheme: "dark" }}
+            {...register("bodyLocation")}
+          >
             {BODY_LOCATIONS.map((loc) => (
-              <option key={loc} value={loc}>
+              <option
+                key={loc}
+                value={loc}
+                style={{ backgroundColor: "#1e1714", color: "#f2f0e9" }}
+              >
                 {loc}
               </option>
             ))}
@@ -128,14 +136,24 @@ export function TattooRequestForm() {
         <Field label="Date souhaitée" error={errors.preferredDate?.message}>
           <input
             type="date"
+            min={new Date().toISOString().split("T")[0]}
             className="input-field"
+            style={{ colorScheme: "dark" }}
             {...register("preferredDate")}
           />
         </Field>
         <Field label="Créneau" error={errors.timeSlot?.message}>
-          <select className="input-field" {...register("timeSlot")}>
+          <select
+            className="input-field"
+            style={{ colorScheme: "dark" }}
+            {...register("timeSlot")}
+          >
             {TIME_SLOTS.map((slot) => (
-              <option key={slot} value={slot}>
+              <option
+                key={slot}
+                value={slot}
+                style={{ backgroundColor: "#1e1714", color: "#f2f0e9" }}
+              >
                 {slot}
               </option>
             ))}

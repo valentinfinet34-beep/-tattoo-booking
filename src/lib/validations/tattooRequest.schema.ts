@@ -14,7 +14,13 @@ export const BODY_LOCATIONS = [
   "Autre",
 ] as const;
 
-export const TIME_SLOTS = ["Matin", "Après-midi", "Soirée", "Peu importe"] as const;
+export const TIME_SLOTS = [
+  "09h00 - 11h00",
+  "11h00 - 13h00",
+  "14h00 - 16h00",
+  "16h00 - 18h00",
+  "18h00 - 20h00",
+] as const;
 
 const MAX_IMAGES = 3;
 const MAX_IMAGE_SIZE_MB = 5;
