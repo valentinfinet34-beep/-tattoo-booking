@@ -167,7 +167,9 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs text-muted">{label}</label>
+      <label className="mb-1.5 block text-xs font-medium text-foreground/90 [text-shadow:_0_1px_4px_rgb(0_0_0_/_60%)]">
+        {label}
+      </label>
       {children}
       {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
     </div>

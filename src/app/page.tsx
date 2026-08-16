@@ -4,7 +4,7 @@ import { TattooRequestForm } from "@/components/client/TattooRequestForm";
 export default function Home() {
   return (
     <div className="relative flex min-h-full flex-col items-center px-5 py-10">
-      <div className="fixed inset-0 -z-10 overflow-hidden bg-background">
+      <div className="absolute inset-0 -z-10 overflow-hidden bg-background">
         <Image
           src="https://images.unsplash.com/photo-1532543149533-f0ed72f555c3?fm=jpg&q=80&w=1920&auto=format&fit=crop"
           alt=""
