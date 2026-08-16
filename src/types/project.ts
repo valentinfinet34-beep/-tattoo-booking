@@ -15,6 +15,8 @@ export interface Project {
   image_urls: string[];
   status: ProjectStatus;
   deposit_amount_cents: number | null;
+  scheduled_start_time: string | null;
+  duration_hours: number | null;
   stripe_checkout_url: string | null;
   stripe_session_id: string | null;
   created_at: string;

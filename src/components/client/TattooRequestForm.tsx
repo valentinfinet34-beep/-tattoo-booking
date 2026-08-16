@@ -6,12 +6,12 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   BODY_LOCATIONS,
-  TIME_SLOTS,
   tattooRequestSchema,
   type TattooRequestInput,
 } from "@/lib/validations/tattooRequest.schema";
 import { ImageUploader } from "./ImageUploader";
 import { DatePicker } from "./DatePicker";
+import { TimeSlotPicker } from "./TimeSlotPicker";
 
 export function TattooRequestForm({
   blockedDates,
@@ -25,15 +25,19 @@ export function TattooRequestForm({
     register,
     handleSubmit,
     control,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<TattooRequestInput>({
     resolver: zodResolver(tattooRequestSchema),
     defaultValues: {
       bodyLocation: BODY_LOCATIONS[0],
-      timeSlot: TIME_SLOTS[0],
+      preferredDate: "",
+      preferredTime: "",
       images: [],
     },
   });
+
+  const watchedDate = watch("preferredDate");
 
   const onSubmit = async (data: TattooRequestInput) => {
     setSubmitError(null);
@@ -47,7 +51,7 @@ export function TattooRequestForm({
     formData.append("bodyLocation", data.bodyLocation);
     formData.append("sizeCm", String(data.sizeCm));
     formData.append("preferredDate", data.preferredDate);
-    formData.append("timeSlot", data.timeSlot);
+    formData.append("preferredTime", data.preferredTime);
     data.images.forEach((file) => formData.append("images", file));
 
     const res = await fetch("/api/requests", {
@@ -59,6 +63,7 @@ export function TattooRequestForm({
       const body = await res.json().catch(() => null);
       const message =
         body?.error?.preferredDate?.[0] ??
+        body?.error?.preferredTime?.[0] ??
         "Une erreur est survenue, réessaie dans un instant.";
       setSubmitError(message);
       return;
@@ -155,22 +160,18 @@ export function TattooRequestForm({
         />
       </Field>
 
-      <Field label="Créneau" error={errors.timeSlot?.message}>
-        <select
-          className="input-field"
-          style={{ colorScheme: "dark" }}
-          {...register("timeSlot")}
-        >
-          {TIME_SLOTS.map((slot) => (
-            <option
-              key={slot}
-              value={slot}
-              style={{ backgroundColor: "#1e1714", color: "#f2f0e9" }}
-            >
-              {slot}
-            </option>
-          ))}
-        </select>
+      <Field label="Horaire souhaité" error={errors.preferredTime?.message}>
+        <Controller
+          name="preferredTime"
+          control={control}
+          render={({ field }) => (
+            <TimeSlotPicker
+              date={watchedDate}
+              value={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
       </Field>
 
       {submitError && <p className="text-sm text-red-400">{submitError}</p>}

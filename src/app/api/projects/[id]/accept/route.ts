@@ -6,6 +6,10 @@ import { sendDepositLinkEmail } from "@/lib/email";
 
 const acceptSchema = z.object({
   depositAmountEur: z.coerce.number().positive().max(5000),
+  scheduledStartTime: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Heure invalide"),
+  durationHours: z.coerce.number().positive().max(12),
 });
 
 export async function POST(
@@ -70,6 +74,8 @@ export async function POST(
     .update({
       status: "accepted",
       deposit_amount_cents: amountCents,
+      scheduled_start_time: parsed.data.scheduledStartTime,
+      duration_hours: parsed.data.durationHours,
       stripe_checkout_url: session.url,
       stripe_session_id: session.id,
       updated_at: new Date().toISOString(),

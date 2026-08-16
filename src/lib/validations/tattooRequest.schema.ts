@@ -14,14 +14,6 @@ export const BODY_LOCATIONS = [
   "Autre",
 ] as const;
 
-export const TIME_SLOTS = [
-  "09h00 - 11h00",
-  "11h00 - 13h00",
-  "14h00 - 16h00",
-  "16h00 - 18h00",
-  "18h00 - 20h00",
-] as const;
-
 const MAX_IMAGES = 3;
 const MAX_IMAGE_SIZE_MB = 5;
 
@@ -45,7 +37,9 @@ export const tattooRequestSchema = z.object({
     .positive("Taille invalide")
     .max(100, "100 cm maximum"),
   preferredDate: z.string().min(1, "Choisis une date"),
-  timeSlot: z.enum(TIME_SLOTS),
+  preferredTime: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Choisis un horaire"),
   images: z
     .array(
       z

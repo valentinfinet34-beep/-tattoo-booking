@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { tattooRequestSchema } from "@/lib/validations/tattooRequest.schema";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { generateAvailableSlots } from "@/lib/scheduling";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
     bodyLocation: formData.get("bodyLocation"),
     sizeCm: Number(formData.get("sizeCm")),
     preferredDate: formData.get("preferredDate"),
-    timeSlot: formData.get("timeSlot"),
+    preferredTime: formData.get("preferredTime"),
     images,
   });
 
@@ -65,6 +66,36 @@ export async function POST(request: Request) {
     );
   }
 
+  const { data: bookings } = await supabase
+    .from("projects")
+    .select("scheduled_start_time, duration_hours")
+    .eq("artist_id", artist.id)
+    .eq("preferred_date", parsed.data.preferredDate)
+    .in("status", ["accepted", "deposit_paid"])
+    .not("scheduled_start_time", "is", null);
+
+  const occupied = (bookings ?? [])
+    .filter((b) => b.scheduled_start_time && b.duration_hours)
+    .map((b) => ({
+      startTime: (b.scheduled_start_time as string).slice(0, 5),
+      durationHours: b.duration_hours as number,
+    }));
+
+  const availableSlots = generateAvailableSlots(occupied);
+
+  if (!availableSlots.includes(parsed.data.preferredTime)) {
+    return NextResponse.json(
+      {
+        error: {
+          preferredTime: [
+            "Ce créneau n'est plus disponible, merci d'en choisir un autre.",
+          ],
+        },
+      },
+      { status: 400 }
+    );
+  }
+
   const imageUrls: string[] = [];
 
   for (const image of parsed.data.images) {
@@ -99,7 +130,7 @@ export async function POST(request: Request) {
     body_location: parsed.data.bodyLocation,
     size_cm: parsed.data.sizeCm,
     preferred_date: parsed.data.preferredDate,
-    time_slot: parsed.data.timeSlot,
+    time_slot: parsed.data.preferredTime,
     image_urls: imageUrls,
   });
 
