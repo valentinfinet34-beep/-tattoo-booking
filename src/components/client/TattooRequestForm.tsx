@@ -62,7 +62,7 @@ export function TattooRequestForm() {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="card flex flex-col gap-5 p-5"
+      className="flex flex-col gap-5 rounded-lg border border-white/10 bg-surface/50 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl"
     >
       <div className="grid grid-cols-2 gap-3">
         <Field label="Prénom" error={errors.firstName?.message}>
