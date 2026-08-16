@@ -17,7 +17,7 @@
 
   --shadow-glow: 0 0 24px -8px rgba(200, 30, 30, 0.35);
 
-  --animate-fade-in-up: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in-up: fade-in-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes fade-in-up {

@@ -148,7 +148,7 @@ export function TattooRequestForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="btn-primary w-full animate-fade-in-up [animation-delay:550ms]"
+        className="btn-primary w-full animate-fade-in-up [animation-delay:1100ms]"
       >
         {isSubmitting ? "Envoi..." : "Envoyer ma demande"}
       </button>

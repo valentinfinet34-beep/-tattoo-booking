@@ -23,14 +23,14 @@ export default function Home() {
           </span>
         </div>
 
-        <h1 className="mb-2 animate-fade-in-up text-4xl [animation-delay:120ms] [text-shadow:_0_2px_14px_rgb(0_0_0_/_75%)]">
+        <h1 className="mb-2 animate-fade-in-up text-4xl [animation-delay:250ms] [text-shadow:_0_2px_14px_rgb(0_0_0_/_75%)]">
           Réservez votre séance
         </h1>
-        <p className="mb-6 animate-fade-in-up text-sm text-muted [animation-delay:220ms] [text-shadow:_0_1px_8px_rgb(0_0_0_/_85%)]">
+        <p className="mb-6 animate-fade-in-up text-sm text-muted [animation-delay:450ms] [text-shadow:_0_1px_8px_rgb(0_0_0_/_85%)]">
           Remplissez le formulaire, l&apos;artiste valide sous 24-48h.
         </p>
 
-        <div className="animate-fade-in-up [animation-delay:340ms]">
+        <div className="animate-fade-in-up [animation-delay:700ms]">
           <TattooRequestForm />
         </div>
       </div>
