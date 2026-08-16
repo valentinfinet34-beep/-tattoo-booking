@@ -11,8 +11,13 @@ import {
   type TattooRequestInput,
 } from "@/lib/validations/tattooRequest.schema";
 import { ImageUploader } from "./ImageUploader";
+import { DatePicker } from "./DatePicker";
 
-export function TattooRequestForm() {
+export function TattooRequestForm({
+  blockedDates,
+}: {
+  blockedDates: string[];
+}) {
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -32,30 +37,34 @@ export function TattooRequestForm() {
 
   const onSubmit = async (data: TattooRequestInput) => {
     setSubmitError(null);
-    try {
-      const formData = new FormData();
-      formData.append("firstName", data.firstName);
-      formData.append("lastName", data.lastName);
-      formData.append("email", data.email);
-      formData.append("phone", data.phone);
-      formData.append("description", data.description);
-      formData.append("bodyLocation", data.bodyLocation);
-      formData.append("sizeCm", String(data.sizeCm));
-      formData.append("preferredDate", data.preferredDate);
-      formData.append("timeSlot", data.timeSlot);
-      data.images.forEach((file) => formData.append("images", file));
 
-      const res = await fetch("/api/requests", {
-        method: "POST",
-        body: formData,
-      });
+    const formData = new FormData();
+    formData.append("firstName", data.firstName);
+    formData.append("lastName", data.lastName);
+    formData.append("email", data.email);
+    formData.append("phone", data.phone);
+    formData.append("description", data.description);
+    formData.append("bodyLocation", data.bodyLocation);
+    formData.append("sizeCm", String(data.sizeCm));
+    formData.append("preferredDate", data.preferredDate);
+    formData.append("timeSlot", data.timeSlot);
+    data.images.forEach((file) => formData.append("images", file));
 
-      if (!res.ok) throw new Error("submission failed");
+    const res = await fetch("/api/requests", {
+      method: "POST",
+      body: formData,
+    });
 
-      router.push("/confirmation");
-    } catch {
-      setSubmitError("Une erreur est survenue, réessaie dans un instant.");
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      const message =
+        body?.error?.preferredDate?.[0] ??
+        "Une erreur est survenue, réessaie dans un instant.";
+      setSubmitError(message);
+      return;
     }
+
+    router.push("/confirmation");
   };
 
   return (
@@ -132,34 +141,37 @@ export function TattooRequestForm() {
         />
       </Field>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Date souhaitée" error={errors.preferredDate?.message}>
-          <input
-            type="date"
-            min={new Date().toISOString().split("T")[0]}
-            className="input-field"
-            style={{ colorScheme: "dark" }}
-            {...register("preferredDate")}
-          />
-        </Field>
-        <Field label="Créneau" error={errors.timeSlot?.message}>
-          <select
-            className="input-field"
-            style={{ colorScheme: "dark" }}
-            {...register("timeSlot")}
-          >
-            {TIME_SLOTS.map((slot) => (
-              <option
-                key={slot}
-                value={slot}
-                style={{ backgroundColor: "#1e1714", color: "#f2f0e9" }}
-              >
-                {slot}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
+      <Field label="Date souhaitée" error={errors.preferredDate?.message}>
+        <Controller
+          name="preferredDate"
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              value={field.value}
+              onChange={field.onChange}
+              blockedDates={blockedDates}
+            />
+          )}
+        />
+      </Field>
+
+      <Field label="Créneau" error={errors.timeSlot?.message}>
+        <select
+          className="input-field"
+          style={{ colorScheme: "dark" }}
+          {...register("timeSlot")}
+        >
+          {TIME_SLOTS.map((slot) => (
+            <option
+              key={slot}
+              value={slot}
+              style={{ backgroundColor: "#1e1714", color: "#f2f0e9" }}
+            >
+              {slot}
+            </option>
+          ))}
+        </select>
+      </Field>
 
       {submitError && <p className="text-sm text-red-400">{submitError}</p>}
 

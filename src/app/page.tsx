@@ -1,7 +1,32 @@
 import Image from "next/image";
 import { TattooRequestForm } from "@/components/client/TattooRequestForm";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+async function getBlockedDates(): Promise<string[]> {
+  const supabase = createAdminClient();
+
+  const { data: artist } = await supabase
+    .from("artists")
+    .select("id")
+    .limit(1)
+    .single();
+
+  if (!artist) return [];
+
+  const { data } = await supabase
+    .from("blocked_dates")
+    .select("blocked_date")
+    .eq("artist_id", artist.id)
+    .gte("blocked_date", new Date().toISOString().split("T")[0]);
+
+  return (data ?? []).map((row) => row.blocked_date as string);
+}
+
+export default async function Home() {
+  const blockedDates = await getBlockedDates();
+
   return (
     <div className="relative flex min-h-full flex-col items-center px-5 py-10">
       <div className="absolute inset-0 -z-10 overflow-hidden bg-background">
@@ -31,7 +56,7 @@ export default function Home() {
         </p>
 
         <div className="animate-fade-in-up [animation-delay:700ms]">
-          <TattooRequestForm />
+          <TattooRequestForm blockedDates={blockedDates} />
         </div>
       </div>
     </div>

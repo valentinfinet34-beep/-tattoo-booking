@@ -45,6 +45,26 @@ export async function POST(request: Request) {
     );
   }
 
+  const { data: blocked } = await supabase
+    .from("blocked_dates")
+    .select("id")
+    .eq("artist_id", artist.id)
+    .eq("blocked_date", parsed.data.preferredDate)
+    .maybeSingle();
+
+  if (blocked) {
+    return NextResponse.json(
+      {
+        error: {
+          preferredDate: [
+            "Le tatoueur est complet pour cette date, merci de choisir un autre créneau.",
+          ],
+        },
+      },
+      { status: 400 }
+    );
+  }
+
   const imageUrls: string[] = [];
 
   for (const image of parsed.data.images) {
