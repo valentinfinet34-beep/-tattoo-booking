@@ -145,7 +145,11 @@ export function TattooRequestForm() {
 
       {submitError && <p className="text-sm text-red-400">{submitError}</p>}
 
-      <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="btn-primary w-full animate-fade-in-up [animation-delay:550ms]"
+      >
         {isSubmitting ? "Envoi..." : "Envoyer ma demande"}
       </button>
     </form>
