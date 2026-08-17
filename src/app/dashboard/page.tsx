@@ -66,15 +66,17 @@ function Section({
   return (
     <section>
       <div className="mb-3 flex items-center gap-2">
-        <h2 className="font-display text-lg tracking-wide">{title}</h2>
+        <h2 className="font-display text-lg tracking-wide text-zinc-100">
+          {title}
+        </h2>
         {count > 0 && (
-          <span className="rounded-full bg-surface px-2 py-0.5 text-xs text-muted">
+          <span className="rounded-full bg-zinc-800/80 px-2 py-0.5 text-xs text-zinc-400">
             {count}
           </span>
         )}
       </div>
       {count === 0 && emptyLabel ? (
-        <p className="text-sm text-muted">{emptyLabel}</p>
+        <p className="text-sm text-zinc-500">{emptyLabel}</p>
       ) : (
         <div className="flex flex-col gap-4">{children}</div>
       )}

@@ -21,10 +21,10 @@ const STATUS_BADGE_CLASSES: Record<Project["status"], string> = {
 };
 
 const STATUS_BORDER_COLOR: Record<Project["status"], string> = {
-  pending: "#d97706",
-  accepted: "#c81e1e",
-  deposit_paid: "#16a34a",
-  declined: "#33281f",
+  pending: "#eab308",
+  accepted: "#3b82f6",
+  deposit_paid: "#22c55e",
+  declined: "#c81e1e",
 };
 
 function formatDate(iso: string) {
@@ -71,7 +71,7 @@ export function ProjectCard({ project }: { project: Project }) {
 
   return (
     <div
-      className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-5 transition-colors hover:border-white/20"
+      className="flex flex-col gap-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-5 transition-all hover:border-zinc-700"
       style={{
         borderLeftWidth: 4,
         borderLeftColor: STATUS_BORDER_COLOR[project.status],
@@ -79,10 +79,10 @@ export function ProjectCard({ project }: { project: Project }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-medium">
+          <p className="font-medium text-zinc-100">
             {project.first_name} {project.last_name}
           </p>
-          <p className="text-xs text-muted">
+          <p className="text-xs text-zinc-500">
             {project.email} · {project.phone}
           </p>
         </div>
@@ -99,15 +99,15 @@ export function ProjectCard({ project }: { project: Project }) {
               key={url}
               src={url}
               alt={`Inspiration ${i + 1}`}
-              className="aspect-square rounded-md border border-border object-cover"
+              className="aspect-square rounded-md border border-zinc-800 object-cover"
             />
           ))}
         </div>
       )}
 
-      <p className="text-sm text-foreground">{project.description}</p>
+      <p className="text-sm text-zinc-300">{project.description}</p>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted">
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-zinc-500">
         <span className="flex items-center gap-1.5">
           <MapPin size={13} /> {project.body_location}
         </span>
@@ -123,10 +123,10 @@ export function ProjectCard({ project }: { project: Project }) {
       </div>
 
       {project.status === "pending" && (
-        <div className="flex flex-col gap-3 border-t border-border pt-4">
+        <div className="flex flex-col gap-3 border-t border-zinc-800 pt-4">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="mb-1 block text-xs text-muted">
+              <label className="mb-1 block text-xs text-zinc-500">
                 Heure de début réelle
               </label>
               <input
@@ -138,7 +138,7 @@ export function ProjectCard({ project }: { project: Project }) {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-muted">
+              <label className="mb-1 block text-xs text-zinc-500">
                 Durée estimée
               </label>
               <select
@@ -151,7 +151,7 @@ export function ProjectCard({ project }: { project: Project }) {
                   <option
                     key={h}
                     value={h}
-                    style={{ backgroundColor: "#1e1714", color: "#f2f0e9" }}
+                    style={{ backgroundColor: "#18181b", color: "#f4f4f5" }}
                   >
                     {h} h
                   </option>
@@ -161,7 +161,7 @@ export function ProjectCard({ project }: { project: Project }) {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs text-muted">
+            <label className="mb-1 block text-xs text-zinc-500">
               Montant de l&apos;acompte (€)
             </label>
             <div className="flex gap-2">
@@ -189,15 +189,15 @@ export function ProjectCard({ project }: { project: Project }) {
 
       {(project.status === "accepted" || project.status === "deposit_paid") &&
         project.stripe_checkout_url && (
-          <div className="flex flex-col gap-2 border-t border-border pt-4">
+          <div className="flex flex-col gap-2 border-t border-zinc-800 pt-4">
             {project.scheduled_start_time && project.duration_hours && (
-              <p className="text-xs text-muted">
+              <p className="text-xs text-zinc-500">
                 RDV confirmé : {formatDate(project.preferred_date)} à{" "}
                 {project.scheduled_start_time.slice(0, 5)} (
                 {project.duration_hours} h)
               </p>
             )}
-            <label className="text-xs text-muted">
+            <label className="text-xs text-zinc-500">
               Lien de paiement ({(project.deposit_amount_cents ?? 0) / 100} €)
             </label>
             <a

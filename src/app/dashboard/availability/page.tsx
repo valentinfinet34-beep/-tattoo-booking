@@ -13,8 +13,8 @@ export default async function AvailabilityPage() {
 
   return (
     <div>
-      <h1 className="mb-2 text-3xl">Disponibilités</h1>
-      <p className="mb-6 text-sm text-muted">
+      <h1 className="mb-2 text-3xl text-zinc-100">Disponibilités</h1>
+      <p className="mb-6 text-sm text-zinc-500">
         Clique sur un jour pour le marquer comme complet. Les clients ne
         pourront plus le sélectionner dans le formulaire de réservation.
       </p>

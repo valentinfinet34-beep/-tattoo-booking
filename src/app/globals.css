@@ -9,8 +9,9 @@
   --color-muted: #8a8a85;
   --color-accent: #c81e1e;
   --color-accent-hover: #e02424;
-  --color-success: #16a34a;
-  --color-warning: #d97706;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-info: #3b82f6;
 
   --font-display: var(--font-bebas);
   --font-sans: var(--font-inter);
@@ -88,14 +89,14 @@ h3 {
     text-xs font-medium border;
 }
 .badge-pending {
-  @apply bg-warning/10 text-warning border-warning/20;
+  @apply bg-warning/15 text-warning border-warning/30;
 }
 .badge-accepted {
-  @apply bg-accent/10 text-accent border-accent/20;
+  @apply bg-info/15 text-info border-info/30;
 }
 .badge-paid {
-  @apply bg-success/10 text-success border-success/20;
+  @apply bg-success/15 text-success border-success/30;
 }
 .badge-declined {
-  @apply bg-muted/10 text-muted border-border;
+  @apply bg-accent/15 text-accent border-accent/30;
 }

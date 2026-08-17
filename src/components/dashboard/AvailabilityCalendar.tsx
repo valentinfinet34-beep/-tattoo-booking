@@ -65,31 +65,31 @@ export function AvailabilityCalendar({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="card p-5">
+      <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-5">
         <div className="mb-4 flex items-center justify-between">
           <button
             type="button"
             onClick={() => setViewMonth((m) => subMonths(m, 1))}
             disabled={isSameMonth(viewMonth, today)}
             aria-label="Mois précédent"
-            className="rounded-md p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+            className="rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100 disabled:pointer-events-none disabled:opacity-30"
           >
             <ChevronLeft size={18} />
           </button>
-          <span className="text-sm font-medium capitalize">
+          <span className="text-sm font-medium capitalize text-zinc-100">
             {format(viewMonth, "MMMM yyyy", { locale: fr })}
           </span>
           <button
             type="button"
             onClick={() => setViewMonth((m) => addMonths(m, 1))}
             aria-label="Mois suivant"
-            className="rounded-md p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+            className="rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-zinc-800 hover:text-zinc-100"
           >
             <ChevronRight size={18} />
           </button>
         </div>
 
-        <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-muted">
+        <div className="grid grid-cols-7 gap-1 text-center text-[11px] text-zinc-500">
           {WEEKDAY_LABELS.map((d, i) => (
             <span key={i}>{d}</span>
           ))}
@@ -113,7 +113,7 @@ export function AvailabilityCalendar({
                 className={`aspect-square rounded-md border text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-25 ${
                   isBlocked
                     ? "border-accent/40 bg-accent/20 text-accent"
-                    : "border-transparent text-foreground hover:bg-surface-hover"
+                    : "border-transparent text-zinc-200 hover:bg-zinc-800"
                 }`}
               >
                 {format(day, "d")}
@@ -124,13 +124,13 @@ export function AvailabilityCalendar({
       </div>
 
       <div>
-        <p className="mb-2 text-xs text-muted">
+        <p className="mb-2 text-xs text-zinc-500">
           {sortedBlocked.length} jour{sortedBlocked.length > 1 ? "s" : ""}{" "}
           bloqué
           {sortedBlocked.length > 1 ? "s" : ""}
         </p>
         {sortedBlocked.length === 0 ? (
-          <p className="text-sm text-muted">
+          <p className="text-sm text-zinc-500">
             Aucun jour bloqué pour l&apos;instant.
           </p>
         ) : (
@@ -144,7 +144,7 @@ export function AvailabilityCalendar({
                   type="button"
                   onClick={() => toggleDate(isoDate)}
                   aria-label="Débloquer cette date"
-                  className="text-muted transition-colors hover:text-accent"
+                  className="text-zinc-500 transition-colors hover:text-accent"
                 >
                   <Trash2 size={12} />
                 </button>
