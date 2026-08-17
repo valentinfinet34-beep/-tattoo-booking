@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { MapPin, Ruler, CalendarDays, Clock } from "lucide-react";
 import type { Project } from "@/types/project";
 import { DURATION_OPTIONS } from "@/lib/scheduling";
 
@@ -12,12 +13,28 @@ const STATUS_LABELS: Record<Project["status"], string> = {
   declined: "Refusé",
 };
 
-const STATUS_CLASSES: Record<Project["status"], string> = {
+const STATUS_BADGE_CLASSES: Record<Project["status"], string> = {
   pending: "badge-pending",
   accepted: "badge-accepted",
   deposit_paid: "badge-paid",
   declined: "badge-declined",
 };
+
+const STATUS_BORDER_COLOR: Record<Project["status"], string> = {
+  pending: "#d97706",
+  accepted: "#c81e1e",
+  deposit_paid: "#16a34a",
+  declined: "#33281f",
+};
+
+function formatDate(iso: string) {
+  const date = new Date(`${iso}T00:00:00`);
+  return date.toLocaleDateString("fr-FR", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+}
 
 export function ProjectCard({ project }: { project: Project }) {
   const router = useRouter();
@@ -53,7 +70,13 @@ export function ProjectCard({ project }: { project: Project }) {
   };
 
   return (
-    <div className="card flex flex-col gap-4 p-5">
+    <div
+      className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-5 transition-colors hover:border-white/20"
+      style={{
+        borderLeftWidth: 4,
+        borderLeftColor: STATUS_BORDER_COLOR[project.status],
+      }}
+    >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-medium">
@@ -63,7 +86,7 @@ export function ProjectCard({ project }: { project: Project }) {
             {project.email} · {project.phone}
           </p>
         </div>
-        <span className={`badge ${STATUS_CLASSES[project.status]}`}>
+        <span className={`badge ${STATUS_BADGE_CLASSES[project.status]}`}>
           {STATUS_LABELS[project.status]}
         </span>
       </div>
@@ -84,11 +107,19 @@ export function ProjectCard({ project }: { project: Project }) {
 
       <p className="text-sm text-foreground">{project.description}</p>
 
-      <div className="grid grid-cols-2 gap-2 text-xs text-muted">
-        <span>Emplacement : {project.body_location}</span>
-        <span>Taille : {project.size_cm} cm</span>
-        <span>Date souhaitée : {project.preferred_date}</span>
-        <span>Heure souhaitée : {project.time_slot}</span>
+      <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted">
+        <span className="flex items-center gap-1.5">
+          <MapPin size={13} /> {project.body_location}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Ruler size={13} /> {project.size_cm} cm
+        </span>
+        <span className="flex items-center gap-1.5">
+          <CalendarDays size={13} /> {formatDate(project.preferred_date)}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <Clock size={13} /> {project.time_slot}
+        </span>
       </div>
 
       {project.status === "pending" && (
@@ -161,7 +192,7 @@ export function ProjectCard({ project }: { project: Project }) {
           <div className="flex flex-col gap-2 border-t border-border pt-4">
             {project.scheduled_start_time && project.duration_hours && (
               <p className="text-xs text-muted">
-                RDV confirmé : {project.preferred_date} à{" "}
+                RDV confirmé : {formatDate(project.preferred_date)} à{" "}
                 {project.scheduled_start_time.slice(0, 5)} (
                 {project.duration_hours} h)
               </p>
