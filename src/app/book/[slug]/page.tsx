@@ -2,15 +2,23 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { TattooRequestForm } from "@/components/client/TattooRequestForm";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  ACCENT_PRESETS,
+  DEFAULT_ACCENT,
+  isAccentColorKey,
+} from "@/lib/theme-presets";
 
 export const dynamic = "force-dynamic";
+
+const DEFAULT_COVER_IMAGE =
+  "https://images.unsplash.com/photo-1532543149533-f0ed72f555c3?fm=jpg&q=80&w=1920&auto=format&fit=crop";
 
 async function getArtistAndBlockedDates(slug: string) {
   const supabase = createAdminClient();
 
   const { data: artist } = await supabase
     .from("artists")
-    .select("id, display_name")
+    .select("id, display_name, cover_image_url, accent_color")
     .eq("slug", slug)
     .maybeSingle();
 
@@ -39,11 +47,25 @@ export default async function BookingPage({
 
   const { artist, blockedDates } = result;
 
+  const accentKey =
+    artist.accent_color && isAccentColorKey(artist.accent_color)
+      ? artist.accent_color
+      : DEFAULT_ACCENT;
+  const accent = ACCENT_PRESETS[accentKey];
+
   return (
-    <div className="relative flex min-h-full flex-col items-center px-5 py-10">
+    <div
+      className="relative flex min-h-full flex-col items-center px-5 py-10"
+      style={
+        {
+          "--color-accent": accent.base,
+          "--color-accent-hover": accent.hover,
+        } as React.CSSProperties
+      }
+    >
       <div className="absolute inset-0 -z-10 overflow-hidden bg-background">
         <Image
-          src="https://images.unsplash.com/photo-1532543149533-f0ed72f555c3?fm=jpg&q=80&w=1920&auto=format&fit=crop"
+          src={artist.cover_image_url || DEFAULT_COVER_IMAGE}
           alt=""
           fill
           priority
