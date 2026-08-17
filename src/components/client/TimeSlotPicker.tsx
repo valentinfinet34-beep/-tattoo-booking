@@ -6,9 +6,15 @@ interface TimeSlotPickerProps {
   date: string;
   value: string;
   onChange: (time: string) => void;
+  artistSlug: string;
 }
 
-export function TimeSlotPicker({ date, value, onChange }: TimeSlotPickerProps) {
+export function TimeSlotPicker({
+  date,
+  value,
+  onChange,
+  artistSlug,
+}: TimeSlotPickerProps) {
   const [slots, setSlots] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +27,7 @@ export function TimeSlotPicker({ date, value, onChange }: TimeSlotPickerProps) {
     let cancelled = false;
     setLoading(true);
 
-    fetch(`/api/availability?date=${date}`)
+    fetch(`/api/availability?date=${date}&slug=${artistSlug}`)
       .then((res) => res.json())
       .then((data) => {
         if (!cancelled) setSlots(data.slots ?? []);
@@ -36,7 +42,7 @@ export function TimeSlotPicker({ date, value, onChange }: TimeSlotPickerProps) {
     return () => {
       cancelled = true;
     };
-  }, [date]);
+  }, [date, artistSlug]);
 
   if (!date) {
     return (

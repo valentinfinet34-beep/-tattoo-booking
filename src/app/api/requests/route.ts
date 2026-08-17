@@ -30,19 +30,23 @@ export async function POST(request: Request) {
     );
   }
 
+  const artistSlug = formData.get("artistSlug");
+  if (typeof artistSlug !== "string" || !artistSlug) {
+    return NextResponse.json({ error: "Artiste manquant" }, { status: 400 });
+  }
+
   const supabase = createAdminClient();
 
-  // MVP mono-artiste : on rattache la demande au seul artiste existant.
   const { data: artist, error: artistError } = await supabase
     .from("artists")
     .select("id")
-    .limit(1)
-    .single();
+    .eq("slug", artistSlug)
+    .maybeSingle();
 
   if (artistError || !artist) {
     return NextResponse.json(
-      { error: "Aucun artiste configuré sur ce studio" },
-      { status: 500 }
+      { error: "Studio introuvable" },
+      { status: 404 }
     );
   }
 

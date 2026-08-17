@@ -5,9 +5,13 @@ import { generateAvailableSlots } from "@/lib/scheduling";
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const date = searchParams.get("date");
+  const slug = searchParams.get("slug");
 
-  if (!date) {
-    return NextResponse.json({ error: "Date manquante" }, { status: 400 });
+  if (!date || !slug) {
+    return NextResponse.json(
+      { error: "Date ou artiste manquant" },
+      { status: 400 }
+    );
   }
 
   const supabase = createAdminClient();
@@ -15,8 +19,8 @@ export async function GET(request: Request) {
   const { data: artist } = await supabase
     .from("artists")
     .select("id")
-    .limit(1)
-    .single();
+    .eq("slug", slug)
+    .maybeSingle();
 
   if (!artist) {
     return NextResponse.json({ slots: [] });

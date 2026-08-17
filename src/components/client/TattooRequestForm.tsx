@@ -15,8 +15,10 @@ import { TimeSlotPicker } from "./TimeSlotPicker";
 
 export function TattooRequestForm({
   blockedDates,
+  artistSlug,
 }: {
   blockedDates: string[];
+  artistSlug: string;
 }) {
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -43,6 +45,7 @@ export function TattooRequestForm({
     setSubmitError(null);
 
     const formData = new FormData();
+    formData.append("artistSlug", artistSlug);
     formData.append("firstName", data.firstName);
     formData.append("lastName", data.lastName);
     formData.append("email", data.email);
@@ -69,7 +72,7 @@ export function TattooRequestForm({
       return;
     }
 
-    router.push("/confirmation");
+    router.push(`/confirmation?slug=${artistSlug}`);
   };
 
   return (
@@ -169,6 +172,7 @@ export function TattooRequestForm({
               date={watchedDate}
               value={field.value}
               onChange={field.onChange}
+              artistSlug={artistSlug}
             />
           )}
         />
