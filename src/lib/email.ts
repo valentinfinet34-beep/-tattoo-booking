@@ -59,12 +59,12 @@ export async function sendDeclineEmail({
   to,
   firstName,
   artistMessage,
-  bookingUrl,
+  rescheduleUrl,
 }: {
   to: string;
   firstName: string;
   artistMessage: string | null;
-  bookingUrl: string;
+  rescheduleUrl: string;
 }) {
   const fromAddress =
     process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
@@ -72,13 +72,14 @@ export async function sendDeclineEmail({
   await getResend().emails.send({
     from: fromAddress,
     to,
-    subject: "Concernant ta demande de tatouage",
+    subject: "Choisis une autre date pour ta demande de tatouage",
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 22px;">Bonjour ${firstName},</h1>
         <p style="font-size: 15px; line-height: 1.6;">
-          L'artiste ne peut malheureusement pas donner suite à ta demande de
-          tatouage pour le moment.
+          La date demandée ne convient pas à l'artiste. Pas besoin de tout
+          resaisir : choisis directement une autre date disponible pour ta
+          demande.
         </p>
         ${
           artistMessage
@@ -87,10 +88,10 @@ export async function sendDeclineEmail({
         }
         <p style="margin: 28px 0;">
           <a
-            href="${bookingUrl}"
+            href="${rescheduleUrl}"
             style="background: #c81e1e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;"
           >
-            Faire une nouvelle demande
+            Choisir une autre date
           </a>
         </p>
       </div>

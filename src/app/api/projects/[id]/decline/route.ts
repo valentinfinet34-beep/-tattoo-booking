@@ -40,12 +40,6 @@ export async function POST(
     return NextResponse.json({ error: "Projet introuvable" }, { status: 404 });
   }
 
-  const { data: artist } = await supabase
-    .from("artists")
-    .select("slug")
-    .eq("id", user.id)
-    .single();
-
   const { error: updateError } = await supabase
     .from("projects")
     .update({ status: "declined", updated_at: new Date().toISOString() })
@@ -58,18 +52,16 @@ export async function POST(
     );
   }
 
-  if (artist?.slug) {
-    const origin = request.headers.get("origin") ?? "http://localhost:3000";
-    try {
-      await sendDeclineEmail({
-        to: project.email,
-        firstName: project.first_name,
-        artistMessage: parsed.data.message || null,
-        bookingUrl: `${origin}/book/${artist.slug}`,
-      });
-    } catch {
-      // Le statut est mis à jour même si l'email échoue.
-    }
+  const origin = request.headers.get("origin") ?? "http://localhost:3000";
+  try {
+    await sendDeclineEmail({
+      to: project.email,
+      firstName: project.first_name,
+      artistMessage: parsed.data.message || null,
+      rescheduleUrl: `${origin}/reschedule/${project.id}`,
+    });
+  } catch {
+    // Le statut est mis à jour même si l'email échoue.
   }
 
   return NextResponse.json({ success: true });
