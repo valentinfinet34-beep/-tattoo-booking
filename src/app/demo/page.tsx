@@ -118,9 +118,17 @@ export default function DemoPage() {
               STUDIO INK
             </span>
           </div>
-          <Link href="/signup" className="btn-primary text-sm">
-            Créer mon compte
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="text-xs text-zinc-500 hover:text-zinc-100"
+            >
+              Se connecter
+            </Link>
+            <Link href="/signup" className="btn-primary text-sm">
+              Créer mon compte
+            </Link>
+          </div>
         </div>
 
         <div className="mb-8 rounded-2xl border border-accent/30 bg-accent/10 p-4">
