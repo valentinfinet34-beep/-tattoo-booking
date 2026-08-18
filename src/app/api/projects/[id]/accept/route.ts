@@ -45,29 +45,48 @@ export async function POST(
     return NextResponse.json({ error: "Projet introuvable" }, { status: 404 });
   }
 
+  const { data: artistRow } = await supabase
+    .from("artists")
+    .select("stripe_account_id, stripe_charges_enabled")
+    .eq("id", user.id)
+    .single();
+
+  if (!artistRow?.stripe_account_id || !artistRow.stripe_charges_enabled) {
+    return NextResponse.json(
+      {
+        error:
+          "Connecte ton compte Stripe (onglet Paiements) avant d'accepter un projet.",
+      },
+      { status: 400 }
+    );
+  }
+
   const amountCents = Math.round(parsed.data.depositAmountEur * 100);
   const origin = request.headers.get("origin") ?? "http://localhost:3000";
 
-  const session = await getStripe().checkout.sessions.create({
-    mode: "payment",
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        price_data: {
-          currency: "eur",
-          unit_amount: amountCents,
-          product_data: {
-            name: `Acompte tatouage — ${project.first_name} ${project.last_name}`,
-            description: project.description.slice(0, 200),
+  const session = await getStripe().checkout.sessions.create(
+    {
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "eur",
+            unit_amount: amountCents,
+            product_data: {
+              name: `Acompte tatouage — ${project.first_name} ${project.last_name}`,
+              description: project.description.slice(0, 200),
+            },
           },
+          quantity: 1,
         },
-        quantity: 1,
-      },
-    ],
-    success_url: `${origin}/dashboard?paid=1`,
-    cancel_url: `${origin}/dashboard?canceled=1`,
-    metadata: { project_id: project.id },
-  });
+      ],
+      success_url: `${origin}/dashboard?paid=1`,
+      cancel_url: `${origin}/dashboard?canceled=1`,
+      metadata: { project_id: project.id },
+    },
+    { stripeAccount: artistRow.stripe_account_id }
+  );
 
   const { error: updateError } = await supabase
     .from("projects")

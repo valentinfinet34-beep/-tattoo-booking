@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     event = getStripe().webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_CONNECT_WEBHOOK_SECRET!
     );
   } catch {
     return NextResponse.json({ error: "Signature invalide" }, { status: 400 });
@@ -33,26 +33,6 @@ export async function POST(request: Request) {
         .from("projects")
         .update({ status: "deposit_paid", updated_at: new Date().toISOString() })
         .eq("id", projectId);
-    }
-  }
-
-  if (
-    event.type === "customer.subscription.created" ||
-    event.type === "customer.subscription.updated" ||
-    event.type === "customer.subscription.deleted"
-  ) {
-    const subscription = event.data.object as Stripe.Subscription;
-    const artistId = subscription.metadata?.artist_id;
-
-    if (artistId) {
-      const admin = createAdminClient();
-      await admin
-        .from("artists")
-        .update({
-          stripe_subscription_id: subscription.id,
-          subscription_status: subscription.status,
-        })
-        .eq("id", artistId);
     }
   }
 

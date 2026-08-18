@@ -7,6 +7,8 @@ const TABS = [
   { href: "/dashboard", label: "Demandes" },
   { href: "/dashboard/availability", label: "Disponibilités" },
   { href: "/dashboard/settings", label: "Ma page" },
+  { href: "/dashboard/payments", label: "Paiements" },
+  { href: "/dashboard/billing", label: "Abonnement" },
 ];
 
 export function DashboardNav() {

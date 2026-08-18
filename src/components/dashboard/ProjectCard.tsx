@@ -59,7 +59,15 @@ export function ProjectCard({ project }: { project: Project }) {
         }),
       });
 
-      if (!res.ok) throw new Error("failed");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setError(
+          typeof body?.error === "string"
+            ? body.error
+            : "Échec de la génération du lien. Réessaie."
+        );
+        return;
+      }
 
       router.refresh();
     } catch {
