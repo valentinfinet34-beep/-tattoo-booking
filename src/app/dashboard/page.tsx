@@ -1,16 +1,28 @@
 import { createClient } from "@/lib/supabase/server";
 import { ProjectCard } from "@/components/dashboard/ProjectCard";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
+import { OnboardingCard } from "@/components/dashboard/OnboardingCard";
 import type { Project } from "@/types/project";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const { data } = await supabase
-    .from("projects")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .returns<Project[]>();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const [{ data }, { data: artist }] = await Promise.all([
+    supabase
+      .from("projects")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .returns<Project[]>(),
+    supabase
+      .from("artists")
+      .select("slug, stripe_charges_enabled, cover_image_url")
+      .eq("id", user!.id)
+      .single(),
+  ]);
 
   const projects = data ?? [];
   const pending = projects.filter((p) => p.status === "pending");
@@ -21,6 +33,14 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
+      {artist && (
+        <OnboardingCard
+          slug={artist.slug}
+          stripeConnected={artist.stripe_charges_enabled}
+          pageCustomized={!!artist.cover_image_url}
+        />
+      )}
+
       <DashboardStats projects={projects} />
 
       <Section
