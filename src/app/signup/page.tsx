@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/slug";
+
+const RESEND_COOLDOWN_SECONDS = 30;
 
 export default function SignupPage() {
   const router = useRouter();
@@ -15,6 +17,17 @@ export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [pendingConfirmation, setPendingConfirmation] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((c) => Math.max(0, c - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const handleNameChange = (value: string) => {
     setDisplayName(value);
@@ -64,10 +77,35 @@ export default function SignupPage() {
       }
 
       setPendingConfirmation(true);
+      setCooldown(RESEND_COOLDOWN_SECONDS);
     } catch {
       setError("Une erreur est survenue, réessaie dans un instant.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+    setResendMessage(null);
+
+    try {
+      const supabase = createClient();
+      const { error: resendError } = await supabase.auth.resend({
+        type: "signup",
+        email,
+      });
+
+      if (resendError) {
+        setResendMessage("Échec de l'envoi, réessaie dans un instant.");
+      } else {
+        setResendMessage("Email renvoyé !");
+        setCooldown(RESEND_COOLDOWN_SECONDS);
+      }
+    } catch {
+      setResendMessage("Échec de l'envoi, réessaie dans un instant.");
+    } finally {
+      setResending(false);
     }
   };
 
@@ -77,9 +115,28 @@ export default function SignupPage() {
         <div className="w-full max-w-sm">
           <h1 className="mb-3 text-3xl">Vérifie ta boîte mail</h1>
           <p className="text-sm text-muted">
-            On t&apos;a envoyé un email de confirmation. Clique sur le lien
-            pour activer ton compte, puis connecte-toi.
+            On a envoyé un email de confirmation à <strong>{email}</strong>.
+            Clique sur le lien pour activer ton compte, puis connecte-toi.
           </p>
+
+          <div className="mt-6 flex flex-col items-center gap-2">
+            <p className="text-xs text-muted">Rien reçu ?</p>
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resending || cooldown > 0}
+              className="btn-secondary text-sm"
+            >
+              {resending
+                ? "Envoi..."
+                : cooldown > 0
+                  ? `Renvoyer (${cooldown}s)`
+                  : "Renvoyer l'email de confirmation"}
+            </button>
+            {resendMessage && (
+              <p className="text-xs text-muted">{resendMessage}</p>
+            )}
+          </div>
         </div>
       </div>
     );

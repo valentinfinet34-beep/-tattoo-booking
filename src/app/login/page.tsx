@@ -10,11 +10,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [unconfirmed, setUnconfirmed] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setUnconfirmed(false);
+    setResendMessage(null);
 
     const supabase = createClient();
     const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -23,13 +28,41 @@ export default function LoginPage() {
     });
 
     if (signInError) {
-      setError("Email ou mot de passe incorrect.");
+      if (signInError.message.toLowerCase().includes("email not confirmed")) {
+        setUnconfirmed(true);
+        setError("Ton email n'est pas encore confirmé.");
+      } else {
+        setError("Email ou mot de passe incorrect.");
+      }
       setLoading(false);
       return;
     }
 
     router.push("/dashboard");
     router.refresh();
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+    setResendMessage(null);
+
+    try {
+      const supabase = createClient();
+      const { error: resendError } = await supabase.auth.resend({
+        type: "signup",
+        email,
+      });
+
+      setResendMessage(
+        resendError
+          ? "Échec de l'envoi, réessaie dans un instant."
+          : "Email de confirmation renvoyé !"
+      );
+    } catch {
+      setResendMessage("Échec de l'envoi, réessaie dans un instant.");
+    } finally {
+      setResending(false);
+    }
   };
 
   return (
@@ -68,6 +101,23 @@ export default function LoginPage() {
             />
           </div>
           {error && <p className="text-sm text-red-400">{error}</p>}
+
+          {unconfirmed && (
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resending}
+                className="btn-secondary text-sm"
+              >
+                {resending ? "Envoi..." : "Renvoyer l'email de confirmation"}
+              </button>
+              {resendMessage && (
+                <p className="text-xs text-muted">{resendMessage}</p>
+              )}
+            </div>
+          )}
+
           <button type="submit" disabled={loading} className="btn-primary w-full">
             {loading ? "Connexion..." : "Se connecter"}
           </button>
