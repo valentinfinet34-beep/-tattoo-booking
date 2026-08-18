@@ -98,6 +98,12 @@ export default function Home() {
           <Link href="/signup" className="btn-primary inline-block w-full">
             Créer mon compte
           </Link>
+          <Link
+            href="/demo"
+            className="mt-2 inline-block w-full text-xs text-muted hover:text-foreground"
+          >
+            Voir une démo avant de s&apos;inscrire →
+          </Link>
         </div>
 
         <div className="mb-16">
