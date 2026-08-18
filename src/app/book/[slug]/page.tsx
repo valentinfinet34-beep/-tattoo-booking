@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import { TattooRequestForm } from "@/components/client/TattooRequestForm";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isDayFullyBooked } from "@/lib/scheduling";
 import {
   ACCENT_PRESETS,
   DEFAULT_ACCENT,
@@ -24,13 +25,49 @@ async function getArtistAndBlockedDates(slug: string) {
 
   if (!artist) return null;
 
-  const { data } = await supabase
-    .from("blocked_dates")
-    .select("blocked_date")
-    .eq("artist_id", artist.id)
-    .gte("blocked_date", new Date().toISOString().split("T")[0]);
+  const todayIso = new Date().toISOString().split("T")[0];
 
-  const blockedDates = (data ?? []).map((row) => row.blocked_date as string);
+  const [{ data: manualBlocks }, { data: bookings }] = await Promise.all([
+    supabase
+      .from("blocked_dates")
+      .select("blocked_date")
+      .eq("artist_id", artist.id)
+      .gte("blocked_date", todayIso),
+    supabase
+      .from("projects")
+      .select("preferred_date, scheduled_start_time, duration_hours")
+      .eq("artist_id", artist.id)
+      .gte("preferred_date", todayIso)
+      .in("status", ["accepted", "deposit_paid"])
+      .not("scheduled_start_time", "is", null),
+  ]);
+
+  const bookingsByDate = new Map<
+    string,
+    { startTime: string; durationHours: number }[]
+  >();
+
+  for (const b of bookings ?? []) {
+    if (!b.scheduled_start_time || !b.duration_hours) continue;
+    const existing = bookingsByDate.get(b.preferred_date) ?? [];
+    existing.push({
+      startTime: (b.scheduled_start_time as string).slice(0, 5),
+      durationHours: b.duration_hours as number,
+    });
+    bookingsByDate.set(b.preferred_date, existing);
+  }
+
+  const fullyBookedDates = Array.from(bookingsByDate.entries())
+    .filter(([, occupied]) => isDayFullyBooked(occupied))
+    .map(([date]) => date);
+
+  const manualDates = (manualBlocks ?? []).map(
+    (row) => row.blocked_date as string
+  );
+
+  const blockedDates = Array.from(
+    new Set([...manualDates, ...fullyBookedDates])
+  );
 
   return { artist, blockedDates };
 }

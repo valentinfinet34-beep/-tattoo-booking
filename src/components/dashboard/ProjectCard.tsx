@@ -43,6 +43,9 @@ export function ProjectCard({ project }: { project: Project }) {
   const [durationHours, setDurationHours] = useState<number>(2);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showDecline, setShowDecline] = useState(false);
+  const [declineMessage, setDeclineMessage] = useState("");
+  const [declineLoading, setDeclineLoading] = useState(false);
 
   const handleAccept = async () => {
     setLoading(true);
@@ -74,6 +77,27 @@ export function ProjectCard({ project }: { project: Project }) {
       setError("Échec de la génération du lien. Réessaie.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDecline = async () => {
+    setDeclineLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(`/api/projects/${project.id}/decline`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: declineMessage }),
+      });
+
+      if (!res.ok) throw new Error("failed");
+
+      router.refresh();
+    } catch {
+      setError("Échec du refus. Réessaie.");
+    } finally {
+      setDeclineLoading(false);
     }
   };
 
@@ -192,6 +216,46 @@ export function ProjectCard({ project }: { project: Project }) {
             </div>
           </div>
           {error && <p className="text-xs text-red-400">{error}</p>}
+
+          {!showDecline ? (
+            <button
+              type="button"
+              onClick={() => setShowDecline(true)}
+              className="self-start text-xs text-zinc-500 hover:text-accent"
+            >
+              Refuser cette demande
+            </button>
+          ) : (
+            <div className="flex flex-col gap-2 rounded-md border border-zinc-800 p-3">
+              <label className="text-xs text-zinc-500">
+                Message au client (optionnel — ex: propose une autre date)
+              </label>
+              <textarea
+                rows={2}
+                value={declineMessage}
+                onChange={(e) => setDeclineMessage(e.target.value)}
+                className="input-field resize-none text-sm"
+                placeholder="Je ne suis pas disponible ce jour-là, mais je peux te proposer le..."
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleDecline}
+                  disabled={declineLoading}
+                  className="rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 text-xs text-accent transition-colors hover:bg-accent/20"
+                >
+                  {declineLoading ? "Envoi..." : "Confirmer le refus"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDecline(false)}
+                  className="text-xs text-zinc-500 hover:text-zinc-100"
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

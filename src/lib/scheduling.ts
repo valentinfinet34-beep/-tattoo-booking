@@ -48,3 +48,11 @@ export function generateAvailableSlots(occupied: OccupiedRange[]): string[] {
 
   return slots;
 }
+
+/**
+ * Une journée est considérée pleine quand plus aucune heure de début
+ * n'est disponible, même sans blocage manuel de la part de l'artiste.
+ */
+export function isDayFullyBooked(occupied: OccupiedRange[]): boolean {
+  return generateAvailableSlots(occupied).length === 0;
+}
