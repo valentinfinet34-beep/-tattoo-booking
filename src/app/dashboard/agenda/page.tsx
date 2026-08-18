@@ -85,6 +85,19 @@ export default async function AgendaPage() {
                         </span>
                       </div>
                     </div>
+                    {p.image_urls.length > 0 && (
+                      <div className="flex shrink-0 gap-1.5">
+                        {p.image_urls.slice(0, 3).map((url, i) => (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            key={url}
+                            src={url}
+                            alt={`Référence ${i + 1}`}
+                            className="h-12 w-12 rounded-md border border-zinc-800 object-cover"
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
