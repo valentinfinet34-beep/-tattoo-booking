@@ -65,7 +65,7 @@ export function AvailabilityCalendar({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-5">
+      <div className="rounded-2xl border border-white/10 bg-zinc-900/80 p-5 shadow-2xl backdrop-blur-md transition-all hover:border-red-500/40">
         <div className="mb-4 flex items-center justify-between">
           <button
             type="button"

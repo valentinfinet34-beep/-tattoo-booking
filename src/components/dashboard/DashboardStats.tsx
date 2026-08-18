@@ -34,7 +34,7 @@ export function DashboardStats({ projects }: { projects: Project[] }) {
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-4">
+    <div className="rounded-2xl border border-white/10 bg-zinc-900/80 p-4 shadow-2xl backdrop-blur-md transition-all hover:border-red-500/40">
       <p className="text-xs text-zinc-500">{label}</p>
       <p className="mt-1 font-display text-2xl text-zinc-100">{value}</p>
     </div>

@@ -103,7 +103,7 @@ export function ProjectCard({ project }: { project: Project }) {
 
   return (
     <div
-      className="flex flex-col gap-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-5 transition-all hover:border-zinc-700"
+      className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-zinc-900/80 p-5 shadow-2xl backdrop-blur-md transition-all hover:border-red-500/40"
       style={{
         borderLeftWidth: 4,
         borderLeftColor: STATUS_BORDER_COLOR[project.status],

@@ -33,7 +33,7 @@ export function OnboardingCard({
 
   if (stripeConnected) {
     return (
-      <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-4">
+      <div className="rounded-2xl border border-white/10 bg-zinc-900/80 p-4 shadow-2xl backdrop-blur-md transition-all hover:border-red-500/40">
         <p className="mb-2 text-xs text-zinc-500">
           Ton lien de réservation — mets-le en bio Instagram
         </p>
@@ -56,7 +56,7 @@ export function OnboardingCard({
   }
 
   return (
-    <div className="rounded-2xl border border-accent/30 bg-zinc-900/90 p-5">
+    <div className="rounded-2xl border border-accent/30 bg-zinc-900/80 p-5 shadow-2xl backdrop-blur-md">
       <p className="mb-4 font-display text-lg tracking-wide text-zinc-100">
         Mise en route
       </p>

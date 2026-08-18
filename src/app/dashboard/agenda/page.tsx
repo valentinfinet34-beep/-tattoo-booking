@@ -57,7 +57,7 @@ export default async function AgendaPage() {
                 {projects.map((p) => (
                   <div
                     key={p.id}
-                    className="flex items-start gap-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-4"
+                    className="flex items-start gap-4 rounded-2xl border border-white/10 bg-zinc-900/80 p-4 shadow-2xl backdrop-blur-md transition-all hover:border-red-500/40"
                   >
                     <div className="flex min-w-16 flex-col items-start">
                       <span className="font-display text-xl text-accent">

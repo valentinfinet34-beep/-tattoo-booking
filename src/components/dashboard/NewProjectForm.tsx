@@ -75,7 +75,7 @@ export function NewProjectForm({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-5">
+    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-zinc-900/80 p-5 shadow-2xl backdrop-blur-md transition-all hover:border-red-500/40">
       <div className="grid grid-cols-2 gap-3">
         <Field label="Prénom">
           <input

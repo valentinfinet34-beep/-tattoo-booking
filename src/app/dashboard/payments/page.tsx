@@ -24,7 +24,7 @@ export default async function PaymentsPage() {
         tes clients — 100% du montant, sans commission.
       </p>
 
-      <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/90 p-5">
+      <div className="rounded-2xl border border-white/10 bg-zinc-900/80 p-5 shadow-2xl backdrop-blur-md transition-all hover:border-red-500/40">
         {connected ? (
           <div className="flex items-center gap-2 text-success">
             <CheckCircle2 size={18} />
