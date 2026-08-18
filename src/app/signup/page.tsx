@@ -61,11 +61,18 @@ export default function SignupPage() {
       });
 
       if (signUpError) {
-        setError(
-          signUpError.message.includes("already registered")
-            ? "Un compte existe déjà avec cet email."
-            : "Échec de la création du compte. Réessaie."
-        );
+        if (
+          signUpError.message.toLowerCase().includes("rate limit") ||
+          signUpError.status === 429
+        ) {
+          setError(
+            "Trop de tentatives d'envoi d'email en peu de temps. Réessaie dans 15 à 60 minutes."
+          );
+        } else if (signUpError.message.includes("already registered")) {
+          setError("Un compte existe déjà avec cet email.");
+        } else {
+          setError("Échec de la création du compte. Réessaie.");
+        }
         setLoading(false);
         return;
       }
