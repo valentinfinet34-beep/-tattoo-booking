@@ -38,6 +38,24 @@ export async function uploadCoverImage(formData: FormData) {
   revalidatePath("/dashboard/settings");
 }
 
+export async function resetCoverImage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("Non authentifié");
+
+  const { error } = await supabase
+    .from("artists")
+    .update({ cover_image_url: null })
+    .eq("id", user.id);
+
+  if (error) throw new Error("Échec de la réinitialisation");
+
+  revalidatePath("/dashboard/settings");
+}
+
 export async function setAccentColor(colorKey: string) {
   if (!isAccentColorKey(colorKey)) throw new Error("Couleur invalide");
 

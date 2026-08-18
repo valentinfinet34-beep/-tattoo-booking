@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { ACCENT_PRESETS, type AccentColorKey } from "@/lib/theme-presets";
 import {
+  resetCoverImage,
   setAccentColor,
   uploadCoverImage,
 } from "@/app/dashboard/settings/actions";
@@ -18,6 +19,7 @@ export function PageSettings({
   const [preview, setPreview] = useState(coverImageUrl);
   const [selectedColor, setSelectedColor] = useState(accentColor);
   const [uploading, setUploading] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
@@ -40,6 +42,19 @@ export function PageSettings({
       setError("Échec de l'upload, réessaie.");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleReset = async () => {
+    setError(null);
+    setResetting(true);
+    try {
+      await resetCoverImage();
+      setPreview(null);
+    } catch {
+      setError("Échec de la réinitialisation, réessaie.");
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -76,14 +91,26 @@ export function PageSettings({
             )}
           </div>
           <div>
-            <button
-              type="button"
-              onClick={() => inputRef.current?.click()}
-              disabled={uploading}
-              className="btn-secondary text-sm"
-            >
-              {uploading ? "Envoi..." : "Changer la photo"}
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                disabled={uploading}
+                className="btn-secondary text-sm"
+              >
+                {uploading ? "Envoi..." : "Changer la photo"}
+              </button>
+              {preview && (
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  disabled={resetting || uploading}
+                  className="text-sm text-zinc-500 transition-colors hover:text-zinc-100"
+                >
+                  {resetting ? "..." : "Réinitialiser"}
+                </button>
+              )}
+            </div>
             <p className="mt-1.5 text-xs text-zinc-500">
               JPG ou PNG, format portrait recommandé.
             </p>
