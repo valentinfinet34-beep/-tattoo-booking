@@ -66,7 +66,6 @@ export const tattooRequestSchema = z.object({
           `Chaque image doit faire moins de ${MAX_IMAGE_SIZE_MB} Mo`
         )
     )
-    .min(1, "Ajoute au moins une image d'inspiration")
     .max(MAX_IMAGES, `${MAX_IMAGES} images maximum`),
 });
 

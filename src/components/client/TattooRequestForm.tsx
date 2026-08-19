@@ -85,30 +85,45 @@ export function TattooRequestForm({
     router.push(`/confirmation?slug=${artistSlug}`);
   };
 
+  const onInvalid = (formErrors: typeof errors) => {
+    const firstErrorField = Object.keys(formErrors)[0];
+    if (firstErrorField) {
+      document
+        .getElementById(`field-${firstErrorField}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
+  const hasErrors = Object.keys(errors).length > 0;
+
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, onInvalid)}
       noValidate
       className="flex flex-col gap-5 rounded-lg border border-white/10 bg-surface/50 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl"
     >
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Prénom" error={errors.firstName?.message}>
+        <Field name="firstName" label="Prénom" error={errors.firstName?.message}>
           <input className="input-field" {...register("firstName")} />
         </Field>
-        <Field label="Nom" error={errors.lastName?.message}>
+        <Field name="lastName" label="Nom" error={errors.lastName?.message}>
           <input className="input-field" {...register("lastName")} />
         </Field>
       </div>
 
-      <Field label="Email" error={errors.email?.message}>
+      <Field name="email" label="Email" error={errors.email?.message}>
         <input type="email" className="input-field" {...register("email")} />
       </Field>
 
-      <Field label="Téléphone" error={errors.phone?.message}>
+      <Field name="phone" label="Téléphone" error={errors.phone?.message}>
         <input type="tel" className="input-field" {...register("phone")} />
       </Field>
 
-      <Field label="Description du projet" error={errors.description?.message}>
+      <Field
+        name="description"
+        label="Description du projet"
+        error={errors.description?.message}
+      >
         <textarea
           rows={4}
           className="input-field resize-none"
@@ -118,7 +133,11 @@ export function TattooRequestForm({
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Zone du corps" error={errors.bodyLocation?.message}>
+        <Field
+          name="bodyLocation"
+          label="Zone du corps"
+          error={errors.bodyLocation?.message}
+        >
           <select
             className="input-field"
             style={{ colorScheme: "dark" }}
@@ -131,7 +150,11 @@ export function TattooRequestForm({
             ))}
           </select>
         </Field>
-        <Field label="Taille approximative" error={errors.sizeCategory?.message}>
+        <Field
+          name="sizeCategory"
+          label="Taille approximative"
+          error={errors.sizeCategory?.message}
+        >
           <select
             className="input-field"
             style={{ colorScheme: "dark" }}
@@ -147,7 +170,7 @@ export function TattooRequestForm({
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Style souhaité" error={errors.style?.message}>
+        <Field name="style" label="Style souhaité" error={errors.style?.message}>
           <select
             className="input-field"
             style={{ colorScheme: "dark" }}
@@ -160,7 +183,7 @@ export function TattooRequestForm({
             ))}
           </select>
         </Field>
-        <Field label="Couleur" error={errors.colorMode?.message}>
+        <Field name="colorMode" label="Couleur" error={errors.colorMode?.message}>
           <select
             className="input-field"
             style={{ colorScheme: "dark" }}
@@ -176,7 +199,8 @@ export function TattooRequestForm({
       </div>
 
       <Field
-        label="Photo de référence (1 à 3)"
+        name="images"
+        label="Photo de référence (optionnel, 3 max)"
         error={errors.images?.message}
       >
         <Controller
@@ -188,7 +212,11 @@ export function TattooRequestForm({
         />
       </Field>
 
-      <Field label="Date souhaitée" error={errors.preferredDate?.message}>
+      <Field
+        name="preferredDate"
+        label="Date souhaitée"
+        error={errors.preferredDate?.message}
+      >
         <Controller
           name="preferredDate"
           control={control}
@@ -202,7 +230,11 @@ export function TattooRequestForm({
         />
       </Field>
 
-      <Field label="Horaire souhaité" error={errors.preferredTime?.message}>
+      <Field
+        name="preferredTime"
+        label="Horaire souhaité"
+        error={errors.preferredTime?.message}
+      >
         <Controller
           name="preferredTime"
           control={control}
@@ -217,6 +249,11 @@ export function TattooRequestForm({
         />
       </Field>
 
+      {hasErrors && (
+        <p className="text-sm text-red-400">
+          Certains champs doivent être corrigés (voir en rouge ci-dessus).
+        </p>
+      )}
       {submitError && <p className="text-sm text-red-400">{submitError}</p>}
 
       <button
@@ -231,16 +268,18 @@ export function TattooRequestForm({
 }
 
 function Field({
+  name,
   label,
   error,
   children,
 }: {
+  name: string;
   label: string;
   error?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div>
+    <div id={`field-${name}`}>
       <label className="mb-1.5 block text-xs font-medium text-foreground/90 [text-shadow:_0_1px_4px_rgb(0_0_0_/_60%)]">
         {label}
       </label>
