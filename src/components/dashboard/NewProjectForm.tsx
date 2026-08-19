@@ -14,12 +14,35 @@ import { TimeSlotPicker } from "@/components/client/TimeSlotPicker";
 
 const optionStyle = { backgroundColor: "#18181b", color: "#f4f4f5" };
 
+type DepositDefaults = {
+  depositType: "percentage" | "fixed";
+  depositPercentage: number;
+  depositFixedAmountCents: number | null;
+};
+
+function computeDefaultAmount(
+  defaults: DepositDefaults | undefined,
+  totalPrice: string
+): string {
+  if (!defaults) return "50";
+  if (defaults.depositType === "fixed") {
+    return defaults.depositFixedAmountCents
+      ? String(defaults.depositFixedAmountCents / 100)
+      : "50";
+  }
+  const total = Number(totalPrice);
+  if (!total || total <= 0) return "";
+  return String(Math.round((total * defaults.depositPercentage) / 100));
+}
+
 export function NewProjectForm({
   artistSlug,
   blockedDates,
+  depositDefaults,
 }: {
   artistSlug: string;
   blockedDates: string[];
+  depositDefaults?: DepositDefaults;
 }) {
   const router = useRouter();
   const [firstName, setFirstName] = useState("");
@@ -40,7 +63,11 @@ export function NewProjectForm({
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [durationHours, setDurationHours] = useState<number>(2);
-  const [amount, setAmount] = useState("50");
+  const [totalPrice, setTotalPrice] = useState("");
+  const [amount, setAmount] = useState(() =>
+    computeDefaultAmount(depositDefaults, "")
+  );
+  const [amountTouched, setAmountTouched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -231,16 +258,40 @@ export function NewProjectForm({
             ))}
           </select>
         </Field>
-        <Field label="Montant de l'acompte (€)">
-          <input
-            type="number"
-            min={1}
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="input-field"
-          />
-        </Field>
+        {depositDefaults?.depositType === "percentage" ? (
+          <Field label="Prix total estimé (€)">
+            <input
+              type="number"
+              min={1}
+              value={totalPrice}
+              onChange={(e) => {
+                const value = e.target.value;
+                setTotalPrice(value);
+                if (!amountTouched) {
+                  setAmount(computeDefaultAmount(depositDefaults, value));
+                }
+              }}
+              placeholder={`Ex: 200 → acompte ${depositDefaults.depositPercentage}% auto`}
+              className="input-field"
+            />
+          </Field>
+        ) : (
+          <div />
+        )}
       </div>
+
+      <Field label="Montant de l'acompte (€)">
+        <input
+          type="number"
+          min={1}
+          value={amount}
+          onChange={(e) => {
+            setAmountTouched(true);
+            setAmount(e.target.value);
+          }}
+          className="input-field"
+        />
+      </Field>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 

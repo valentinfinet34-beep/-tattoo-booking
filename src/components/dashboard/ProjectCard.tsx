@@ -43,9 +43,40 @@ function formatDate(iso: string) {
   });
 }
 
-export function ProjectCard({ project }: { project: Project }) {
+type DepositDefaults = {
+  depositType: "percentage" | "fixed";
+  depositPercentage: number;
+  depositFixedAmountCents: number | null;
+};
+
+function computeDefaultAmount(
+  defaults: DepositDefaults | undefined,
+  totalPrice: string
+): string {
+  if (!defaults) return "50";
+  if (defaults.depositType === "fixed") {
+    return defaults.depositFixedAmountCents
+      ? String(defaults.depositFixedAmountCents / 100)
+      : "50";
+  }
+  const total = Number(totalPrice);
+  if (!total || total <= 0) return "";
+  return String(Math.round((total * defaults.depositPercentage) / 100));
+}
+
+export function ProjectCard({
+  project,
+  depositDefaults,
+}: {
+  project: Project;
+  depositDefaults?: DepositDefaults;
+}) {
   const router = useRouter();
-  const [amount, setAmount] = useState("50");
+  const [totalPrice, setTotalPrice] = useState("");
+  const [amount, setAmount] = useState(() =>
+    computeDefaultAmount(depositDefaults, "")
+  );
+  const [amountTouched, setAmountTouched] = useState(false);
   const [startTime, setStartTime] = useState(project.time_slot || "10:00");
   const [durationHours, setDurationHours] = useState<number>(2);
   const [loading, setLoading] = useState(false);
@@ -209,6 +240,29 @@ export function ProjectCard({ project }: { project: Project }) {
             </div>
           </div>
 
+          {depositDefaults?.depositType === "percentage" && (
+            <div>
+              <label className="mb-1 block text-xs text-zinc-500">
+                Prix total estimé (€) — optionnel
+              </label>
+              <input
+                type="number"
+                min={1}
+                step={1}
+                value={totalPrice}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setTotalPrice(value);
+                  if (!amountTouched) {
+                    setAmount(computeDefaultAmount(depositDefaults, value));
+                  }
+                }}
+                placeholder={`Ex: 200 → acompte ${depositDefaults.depositPercentage}% auto`}
+                className="input-field w-full"
+              />
+            </div>
+          )}
+
           <div>
             <label className="mb-1 block text-xs text-zinc-500">
               Montant de l&apos;acompte (€)
@@ -219,7 +273,10 @@ export function ProjectCard({ project }: { project: Project }) {
                 min={1}
                 step={1}
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => {
+                  setAmountTouched(true);
+                  setAmount(e.target.value);
+                }}
                 className="input-field w-28"
               />
               <button

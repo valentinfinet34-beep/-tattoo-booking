@@ -10,9 +10,19 @@ export default async function NewProjectPage() {
 
   const { data: artist } = await supabase
     .from("artists")
-    .select("slug")
+    .select(
+      "slug, deposit_type, deposit_percentage, deposit_fixed_amount_cents"
+    )
     .eq("id", user!.id)
     .single();
+
+  const depositDefaults = {
+    depositType: (artist?.deposit_type === "fixed" ? "fixed" : "percentage") as
+      | "percentage"
+      | "fixed",
+    depositPercentage: artist?.deposit_percentage ?? 20,
+    depositFixedAmountCents: artist?.deposit_fixed_amount_cents ?? null,
+  };
 
   const todayIso = new Date().toISOString().split("T")[0];
 
@@ -65,7 +75,11 @@ export default async function NewProjectPage() {
         immédiatement.
       </p>
 
-      <NewProjectForm artistSlug={artist?.slug ?? ""} blockedDates={blockedDates} />
+      <NewProjectForm
+        artistSlug={artist?.slug ?? ""}
+        blockedDates={blockedDates}
+        depositDefaults={depositDefaults}
+      />
     </div>
   );
 }

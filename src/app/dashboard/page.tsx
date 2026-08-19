@@ -19,10 +19,20 @@ export default async function DashboardPage() {
       .returns<Project[]>(),
     supabase
       .from("artists")
-      .select("slug, stripe_charges_enabled, cover_image_url")
+      .select(
+        "slug, stripe_charges_enabled, cover_image_url, deposit_type, deposit_percentage, deposit_fixed_amount_cents"
+      )
       .eq("id", user!.id)
       .single(),
   ]);
+
+  const depositDefaults = {
+    depositType: (artist?.deposit_type === "fixed" ? "fixed" : "percentage") as
+      | "percentage"
+      | "fixed",
+    depositPercentage: artist?.deposit_percentage ?? 20,
+    depositFixedAmountCents: artist?.deposit_fixed_amount_cents ?? null,
+  };
 
   const projects = data ?? [];
   const pending = projects.filter((p) => p.status === "pending");
@@ -49,14 +59,14 @@ export default async function DashboardPage() {
         emptyLabel="Aucune nouvelle demande pour l'instant."
       >
         {pending.map((project) => (
-          <ProjectCard key={project.id} project={project} />
+          <ProjectCard key={project.id} project={project} depositDefaults={depositDefaults} />
         ))}
       </Section>
 
       {awaitingPayment.length > 0 && (
         <Section title="En attente de paiement" count={awaitingPayment.length}>
           {awaitingPayment.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard key={project.id} project={project} depositDefaults={depositDefaults} />
           ))}
         </Section>
       )}
@@ -64,7 +74,7 @@ export default async function DashboardPage() {
       {confirmed.length > 0 && (
         <Section title="Rendez-vous confirmés" count={confirmed.length}>
           {confirmed.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+            <ProjectCard key={project.id} project={project} depositDefaults={depositDefaults} />
           ))}
         </Section>
       )}
