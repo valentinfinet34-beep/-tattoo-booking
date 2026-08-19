@@ -132,7 +132,7 @@ export async function POST(request: Request) {
         to: parsed.data.email,
         firstName: parsed.data.firstName,
         depositAmountEur: parsed.data.depositAmountEur,
-        checkoutUrl: session.url,
+        payUrl: `${origin}/pay/${projectId}`,
       });
     } catch {
       // Le lien reste affiché dans le dashboard même si l'email échoue.

@@ -22,6 +22,7 @@ export interface Project {
   duration_hours: number | null;
   stripe_checkout_url: string | null;
   stripe_session_id: string | null;
+  deposit_terms_accepted_at: string | null;
   created_at: string;
   updated_at: string;
 }

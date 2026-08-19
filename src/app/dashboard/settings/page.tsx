@@ -28,9 +28,13 @@ export default async function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-10">
+      <h1 className="text-3xl text-zinc-100">Paramètres</h1>
+
       <div>
-        <h1 className="mb-2 text-3xl text-zinc-100">Personnaliser ma page</h1>
-        <p className="mb-6 text-sm text-zinc-500">
+        <h2 className="mb-1 font-display text-lg tracking-wide text-zinc-100">
+          Page de réservation
+        </h2>
+        <p className="mb-4 text-xs text-zinc-500">
           Ces réglages s&apos;appliquent directement à ta page de réservation
           publique.
         </p>

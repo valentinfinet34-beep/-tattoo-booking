@@ -16,12 +16,12 @@ export async function sendDepositLinkEmail({
   to,
   firstName,
   depositAmountEur,
-  checkoutUrl,
+  payUrl,
 }: {
   to: string;
   firstName: string;
   depositAmountEur: number;
-  checkoutUrl: string;
+  payUrl: string;
 }) {
   const fromAddress =
     process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
@@ -40,15 +40,20 @@ export async function sendDepositLinkEmail({
         </p>
         <p style="margin: 28px 0;">
           <a
-            href="${checkoutUrl}"
+            href="${payUrl}"
             style="background: #c81e1e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;"
           >
             Régler l'acompte
           </a>
         </p>
         <p style="font-size: 13px; color: #666;">
+          Si tu annules le rendez-vous, l'acompte n'est pas remboursable. Si
+          l'artiste annule, il t'est intégralement remboursé sous 5 à 7 jours
+          — le détail est rappelé sur la page de paiement.
+        </p>
+        <p style="font-size: 13px; color: #666;">
           Si le bouton ne fonctionne pas, copie ce lien dans ton navigateur :
-          <br />${checkoutUrl}
+          <br />${payUrl}
         </p>
       </div>
     `,

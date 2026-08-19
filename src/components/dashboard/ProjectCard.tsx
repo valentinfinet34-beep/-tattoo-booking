@@ -347,12 +347,12 @@ export function ProjectCard({
               Lien de paiement ({(project.deposit_amount_cents ?? 0) / 100} €)
             </label>
             <a
-              href={project.stripe_checkout_url}
+              href={`/pay/${project.id}`}
               target="_blank"
               rel="noopener noreferrer"
               className="input-field block truncate text-accent hover:underline"
             >
-              {project.stripe_checkout_url}
+              {`/pay/${project.id}`}
             </a>
           </div>
         )}

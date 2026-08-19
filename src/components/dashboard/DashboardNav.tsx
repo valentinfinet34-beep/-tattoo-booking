@@ -8,9 +8,9 @@ const TABS = [
   { href: "/dashboard/agenda", label: "Agenda" },
   { href: "/dashboard/new", label: "Nouvelle demande" },
   { href: "/dashboard/availability", label: "Disponibilités" },
-  { href: "/dashboard/settings", label: "Ma page" },
   { href: "/dashboard/payments", label: "Paiements" },
   { href: "/dashboard/billing", label: "Abonnement" },
+  { href: "/dashboard/settings", label: "Paramètres" },
 ];
 
 export function DashboardNav() {

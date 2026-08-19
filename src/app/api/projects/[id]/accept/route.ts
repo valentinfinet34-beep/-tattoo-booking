@@ -114,7 +114,7 @@ export async function POST(
         to: project.email,
         firstName: project.first_name,
         depositAmountEur: parsed.data.depositAmountEur,
-        checkoutUrl: session.url,
+        payUrl: `${origin}/pay/${project.id}`,
       });
     } catch {
       // Le lien reste affiché dans le dashboard même si l'email échoue.
