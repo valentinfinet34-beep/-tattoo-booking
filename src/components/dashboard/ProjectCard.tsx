@@ -15,23 +15,29 @@ import { DURATION_OPTIONS } from "@/lib/scheduling";
 
 const STATUS_LABELS: Record<Project["status"], string> = {
   pending: "En attente",
+  quoted: "Devis envoyé",
   accepted: "Accepté",
   deposit_paid: "Acompte payé",
   declined: "Refusé",
+  quote_declined: "Devis refusé",
 };
 
 const STATUS_BADGE_CLASSES: Record<Project["status"], string> = {
   pending: "badge-pending",
+  quoted: "badge-quoted",
   accepted: "badge-accepted",
   deposit_paid: "badge-paid",
   declined: "badge-declined",
+  quote_declined: "badge-declined",
 };
 
 const STATUS_BORDER_COLOR: Record<Project["status"], string> = {
   pending: "#eab308",
+  quoted: "#71717a",
   accepted: "#3b82f6",
   deposit_paid: "#22c55e",
   declined: "#c81e1e",
+  quote_declined: "#c81e1e",
 };
 
 function formatDate(iso: string) {
@@ -72,55 +78,52 @@ export function ProjectCard({
   depositDefaults?: DepositDefaults;
 }) {
   const router = useRouter();
-  const [totalPrice, setTotalPrice] = useState("");
-  const [amount, setAmount] = useState(() =>
-    computeDefaultAmount(depositDefaults, "")
-  );
-  const [amountTouched, setAmountTouched] = useState(false);
-  const [startTime, setStartTime] = useState(project.time_slot || "10:00");
-  const [durationHours, setDurationHours] = useState<number>(2);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [quotedPrice, setQuotedPrice] = useState("");
+  const [quoteDurationHours, setQuoteDurationHours] = useState<number>(2);
+  const [quoteLoading, setQuoteLoading] = useState(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
   const [showDecline, setShowDecline] = useState(false);
   const [declineMessage, setDeclineMessage] = useState("");
   const [declineLoading, setDeclineLoading] = useState(false);
+  const [declineError, setDeclineError] = useState<string | null>(null);
 
-  const handleAccept = async () => {
-    setLoading(true);
-    setError(null);
+  const depositPreview = computeDefaultAmount(depositDefaults, quotedPrice);
+
+  const handleSendQuote = async () => {
+    setQuoteLoading(true);
+    setQuoteError(null);
 
     try {
-      const res = await fetch(`/api/projects/${project.id}/accept`, {
+      const res = await fetch(`/api/projects/${project.id}/quote`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          depositAmountEur: Number(amount),
-          scheduledStartTime: startTime,
-          durationHours,
+          quotedPriceEur: Number(quotedPrice),
+          durationHours: quoteDurationHours,
         }),
       });
 
       if (!res.ok) {
         const body = await res.json().catch(() => null);
-        setError(
+        setQuoteError(
           typeof body?.error === "string"
             ? body.error
-            : "Échec de la génération du lien. Réessaie."
+            : "Échec de l'envoi du devis. Réessaie."
         );
         return;
       }
 
       router.refresh();
     } catch {
-      setError("Échec de la génération du lien. Réessaie.");
+      setQuoteError("Échec de l'envoi du devis. Réessaie.");
     } finally {
-      setLoading(false);
+      setQuoteLoading(false);
     }
   };
 
   const handleDecline = async () => {
     setDeclineLoading(true);
-    setError(null);
+    setDeclineError(null);
 
     try {
       const res = await fetch(`/api/projects/${project.id}/decline`, {
@@ -133,7 +136,7 @@ export function ProjectCard({
 
       router.refresh();
     } catch {
-      setError("Échec du refus. Réessaie.");
+      setDeclineError("Échec du refus. Réessaie.");
     } finally {
       setDeclineLoading(false);
     }
@@ -207,13 +210,14 @@ export function ProjectCard({
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="mb-1 block text-xs text-zinc-500">
-                Heure de début réelle
+                Prix estimé du tatouage (€)
               </label>
               <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                style={{ colorScheme: "dark" }}
+                type="number"
+                min={1}
+                step={1}
+                value={quotedPrice}
+                onChange={(e) => setQuotedPrice(e.target.value)}
                 className="input-field"
               />
             </div>
@@ -222,8 +226,8 @@ export function ProjectCard({
                 Durée estimée
               </label>
               <select
-                value={durationHours}
-                onChange={(e) => setDurationHours(Number(e.target.value))}
+                value={quoteDurationHours}
+                onChange={(e) => setQuoteDurationHours(Number(e.target.value))}
                 style={{ colorScheme: "dark" }}
                 className="input-field"
               >
@@ -240,56 +244,26 @@ export function ProjectCard({
             </div>
           </div>
 
-          {depositDefaults?.depositType === "percentage" && (
-            <div>
-              <label className="mb-1 block text-xs text-zinc-500">
-                Prix total estimé (€) — optionnel
-              </label>
-              <input
-                type="number"
-                min={1}
-                step={1}
-                value={totalPrice}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setTotalPrice(value);
-                  if (!amountTouched) {
-                    setAmount(computeDefaultAmount(depositDefaults, value));
-                  }
-                }}
-                placeholder={`Ex: 200 → acompte ${depositDefaults.depositPercentage}% auto`}
-                className="input-field w-full"
-              />
-            </div>
+          {depositDefaults && quotedPrice && Number(quotedPrice) > 0 && (
+            <p className="text-xs text-zinc-500">
+              Si le client accepte, il devra payer un acompte de{" "}
+              <span className="text-zinc-300">{depositPreview} €</span>
+              {depositDefaults.depositType === "percentage"
+                ? ` (${depositDefaults.depositPercentage}%)`
+                : " (montant fixe)"}
+              .
+            </p>
           )}
 
-          <div>
-            <label className="mb-1 block text-xs text-zinc-500">
-              Montant de l&apos;acompte (€)
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="number"
-                min={1}
-                step={1}
-                value={amount}
-                onChange={(e) => {
-                  setAmountTouched(true);
-                  setAmount(e.target.value);
-                }}
-                className="input-field w-28"
-              />
-              <button
-                type="button"
-                onClick={handleAccept}
-                disabled={loading}
-                className="btn-primary flex-1"
-              >
-                {loading ? "Génération..." : "Valider & générer le lien"}
-              </button>
-            </div>
-          </div>
-          {error && <p className="text-xs text-red-400">{error}</p>}
+          <button
+            type="button"
+            onClick={handleSendQuote}
+            disabled={quoteLoading || !quotedPrice || Number(quotedPrice) <= 0}
+            className="btn-primary w-full"
+          >
+            {quoteLoading ? "Envoi..." : "Envoyer le devis"}
+          </button>
+          {quoteError && <p className="text-xs text-red-400">{quoteError}</p>}
 
           {!showDecline ? (
             <button
@@ -311,6 +285,9 @@ export function ProjectCard({
                 className="input-field resize-none text-sm"
                 placeholder="Je ne suis pas disponible ce jour-là, mais je peux te proposer le..."
               />
+              {declineError && (
+                <p className="text-xs text-red-400">{declineError}</p>
+              )}
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -330,6 +307,21 @@ export function ProjectCard({
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {project.status === "quoted" && (
+        <div className="flex flex-col gap-1 border-t border-zinc-800 pt-4">
+          <p className="text-xs text-zinc-500">
+            Devis envoyé :{" "}
+            <span className="text-zinc-300">
+              {(project.quoted_price_cents ?? 0) / 100} €
+            </span>{" "}
+            {project.duration_hours && `· ${project.duration_hours} h estimées`}
+          </p>
+          <p className="text-xs text-zinc-500">
+            En attente de la réponse du client — aucune action requise.
+          </p>
         </div>
       )}
 

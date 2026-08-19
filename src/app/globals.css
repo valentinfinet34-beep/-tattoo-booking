@@ -100,3 +100,6 @@ h3 {
 .badge-declined {
   @apply bg-accent/15 text-accent border-accent/30;
 }
+.badge-quoted {
+  @apply bg-zinc-500/15 text-zinc-300 border-zinc-500/30;
+}

@@ -60,6 +60,87 @@ export async function sendDepositLinkEmail({
   });
 }
 
+export async function sendQuoteEmail({
+  to,
+  firstName,
+  quotedPriceEur,
+  quoteUrl,
+}: {
+  to: string;
+  firstName: string;
+  quotedPriceEur: number;
+  quoteUrl: string;
+}) {
+  const fromAddress =
+    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+
+  await getResend().emails.send({
+    from: fromAddress,
+    to,
+    subject: `Ton devis est prêt — ${quotedPriceEur} €`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
+        <h1 style="font-size: 22px;">Bonjour ${firstName},</h1>
+        <p style="font-size: 15px; line-height: 1.6;">
+          L'artiste a étudié ton projet et propose un prix de
+          <strong>${quotedPriceEur} €</strong>. Tu peux accepter ou décliner
+          ce devis directement en ligne, sans rien renvoyer par message.
+        </p>
+        <p style="margin: 28px 0; display: flex; gap: 12px;">
+          <a
+            href="${quoteUrl}?action=accept"
+            style="background: #22c55e; color: #ffffff; text-decoration: none; padding: 12px 22px; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;"
+          >
+            Accepter le devis
+          </a>
+          <a
+            href="${quoteUrl}?action=decline"
+            style="background: #3f3f46; color: #ffffff; text-decoration: none; padding: 12px 22px; border-radius: 6px; font-weight: 600; display: inline-block;"
+          >
+            Décliner
+          </a>
+        </p>
+        <p style="font-size: 13px; color: #666;">
+          Si les boutons ne fonctionnent pas, copie ce lien dans ton
+          navigateur :
+          <br />${quoteUrl}
+        </p>
+      </div>
+    `,
+  });
+}
+
+export async function sendQuoteDeclinedEmail({
+  to,
+  clientFirstName,
+  clientLastName,
+  quotedPriceEur,
+}: {
+  to: string;
+  clientFirstName: string;
+  clientLastName: string;
+  quotedPriceEur: number;
+}) {
+  const fromAddress =
+    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+
+  await getResend().emails.send({
+    from: fromAddress,
+    to,
+    subject: `Devis décliné — ${clientFirstName} ${clientLastName}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
+        <h1 style="font-size: 22px;">Devis décliné</h1>
+        <p style="font-size: 15px; line-height: 1.6;">
+          ${clientFirstName} ${clientLastName} a décliné le devis de
+          <strong>${quotedPriceEur} €</strong>. La demande est archivée dans
+          ton dashboard, aucune action n'est nécessaire de ta part.
+        </p>
+      </div>
+    `,
+  });
+}
+
 export async function sendDeclineEmail({
   to,
   firstName,

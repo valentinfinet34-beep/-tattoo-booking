@@ -1,4 +1,10 @@
-export type ProjectStatus = "pending" | "accepted" | "deposit_paid" | "declined";
+export type ProjectStatus =
+  | "pending"
+  | "quoted"
+  | "accepted"
+  | "deposit_paid"
+  | "declined"
+  | "quote_declined";
 
 export interface Project {
   id: string;
@@ -17,6 +23,7 @@ export interface Project {
   time_slot: string;
   image_urls: string[];
   status: ProjectStatus;
+  quoted_price_cents: number | null;
   deposit_amount_cents: number | null;
   scheduled_start_time: string | null;
   duration_hours: number | null;

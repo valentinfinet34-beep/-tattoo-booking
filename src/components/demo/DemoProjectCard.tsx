@@ -6,23 +6,29 @@ import type { Project } from "@/types/project";
 
 const STATUS_LABELS: Record<Project["status"], string> = {
   pending: "En attente",
+  quoted: "Devis envoyé",
   accepted: "Accepté",
   deposit_paid: "Acompte payé",
   declined: "Refusé",
+  quote_declined: "Devis refusé",
 };
 
 const STATUS_BADGE_CLASSES: Record<Project["status"], string> = {
   pending: "badge-pending",
+  quoted: "badge-quoted",
   accepted: "badge-accepted",
   deposit_paid: "badge-paid",
   declined: "badge-declined",
+  quote_declined: "badge-declined",
 };
 
 const STATUS_BORDER_COLOR: Record<Project["status"], string> = {
   pending: "#eab308",
+  quoted: "#71717a",
   accepted: "#3b82f6",
   deposit_paid: "#22c55e",
   declined: "#c81e1e",
+  quote_declined: "#c81e1e",
 };
 
 function formatDate(iso: string) {
@@ -81,13 +87,13 @@ export function DemoProjectCard({ project }: { project: Project }) {
       {project.status === "pending" && (
         <div className="flex flex-col gap-2 border-t border-zinc-800 pt-4">
           <div className="flex gap-2">
-            <div className="input-field w-28 opacity-60">50</div>
+            <div className="input-field w-28 opacity-60">250 €</div>
             <button
               type="button"
               onClick={() => setHint(true)}
               className="btn-primary flex-1"
             >
-              Valider & générer le lien
+              Envoyer le devis
             </button>
           </div>
           {hint && (

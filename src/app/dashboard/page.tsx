@@ -36,6 +36,7 @@ export default async function DashboardPage() {
 
   const projects = data ?? [];
   const pending = projects.filter((p) => p.status === "pending");
+  const quoted = projects.filter((p) => p.status === "quoted");
   const awaitingPayment = projects.filter((p) => p.status === "accepted");
   const confirmed = projects
     .filter((p) => p.status === "deposit_paid")
@@ -62,6 +63,18 @@ export default async function DashboardPage() {
           <ProjectCard key={project.id} project={project} depositDefaults={depositDefaults} />
         ))}
       </Section>
+
+      {quoted.length > 0 && (
+        <Section title="Devis envoyés" count={quoted.length}>
+          {quoted.map((project) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              depositDefaults={depositDefaults}
+            />
+          ))}
+        </Section>
+      )}
 
       {awaitingPayment.length > 0 && (
         <Section title="En attente de paiement" count={awaitingPayment.length}>
