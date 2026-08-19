@@ -97,6 +97,71 @@ export async function resetAvatar() {
   revalidatePath("/dashboard/settings");
 }
 
+const MAX_PORTFOLIO_IMAGES = 4;
+
+export async function uploadPortfolioImage(formData: FormData) {
+  const { supabase, user } = await requireUser();
+
+  const file = formData.get("photo");
+  if (!(file instanceof File)) throw new Error("Fichier manquant");
+
+  const { data: artist } = await supabase
+    .from("artists")
+    .select("portfolio_images")
+    .eq("id", user.id)
+    .single();
+
+  const current = artist?.portfolio_images ?? [];
+  if (current.length >= MAX_PORTFOLIO_IMAGES) {
+    throw new Error(`${MAX_PORTFOLIO_IMAGES} photos maximum`);
+  }
+
+  const extension = file.name.split(".").pop() ?? "jpg";
+  const path = `${user.id}/${crypto.randomUUID()}.${extension}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("portfolio-images")
+    .upload(path, file, { contentType: file.type });
+
+  if (uploadError) throw new Error("Échec de l'upload");
+
+  const { data: publicUrl } = supabase.storage
+    .from("portfolio-images")
+    .getPublicUrl(path);
+
+  const { error: updateError } = await supabase
+    .from("artists")
+    .update({ portfolio_images: [...current, publicUrl.publicUrl] })
+    .eq("id", user.id);
+
+  if (updateError) throw new Error("Échec de la mise à jour");
+
+  revalidatePath("/dashboard/settings");
+}
+
+export async function removePortfolioImage(url: string) {
+  const { supabase, user } = await requireUser();
+
+  const { data: artist } = await supabase
+    .from("artists")
+    .select("portfolio_images")
+    .eq("id", user.id)
+    .single();
+
+  const next = (artist?.portfolio_images ?? []).filter(
+    (u: string) => u !== url
+  );
+
+  const { error } = await supabase
+    .from("artists")
+    .update({ portfolio_images: next })
+    .eq("id", user.id);
+
+  if (error) throw new Error("Échec de la suppression");
+
+  revalidatePath("/dashboard/settings");
+}
+
 export async function updateProfile({
   displayName,
   city,

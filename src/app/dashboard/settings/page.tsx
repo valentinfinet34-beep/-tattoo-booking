@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
 import { ProfileSettings } from "@/components/dashboard/ProfileSettings";
+import { PortfolioSettings } from "@/components/dashboard/PortfolioSettings";
 import { PageSettings } from "@/components/dashboard/PageSettings";
 import { DepositSettings } from "@/components/dashboard/DepositSettings";
 import { AvailabilitySettings } from "@/components/dashboard/AvailabilitySettings";
@@ -35,7 +36,7 @@ export default async function SettingsPage() {
       supabase
         .from("artists")
         .select(
-          "avatar_url, display_name, city, bio, instagram_handle, cover_image_url, accent_color, welcome_message, practiced_styles, deposit_type, deposit_percentage, deposit_fixed_amount_cents, deposit_expiry_hours, working_days, hours_start, hours_end, min_lead_days, notify_new_request, notify_quote_accepted, notify_deposit_paid, notify_reminder_24h, stripe_account_id, stripe_charges_enabled, stripe_subscription_id, subscription_status"
+          "avatar_url, display_name, city, bio, instagram_handle, portfolio_images, cover_image_url, accent_color, welcome_message, practiced_styles, deposit_type, deposit_percentage, deposit_fixed_amount_cents, deposit_expiry_hours, working_days, hours_start, hours_end, min_lead_days, notify_new_request, notify_quote_accepted, notify_deposit_paid, notify_reminder_24h, stripe_account_id, stripe_charges_enabled, stripe_subscription_id, subscription_status"
         )
         .eq("id", user!.id)
         .single(),
@@ -110,6 +111,9 @@ export default async function SettingsPage() {
             bio={artist?.bio ?? ""}
             instagramHandle={artist?.instagram_handle ?? ""}
           />
+          <div className="mt-8">
+            <PortfolioSettings initialImages={artist?.portfolio_images ?? []} />
+          </div>
         </section>
 
         <section id="page-client" className="scroll-mt-6">

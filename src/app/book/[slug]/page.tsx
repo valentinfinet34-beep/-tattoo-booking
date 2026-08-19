@@ -21,7 +21,7 @@ async function getArtistAndBlockedDates(slug: string) {
   const { data: artist } = await supabase
     .from("artists")
     .select(
-      "id, display_name, cover_image_url, accent_color, welcome_message, practiced_styles, working_days, min_lead_days, hours_start, hours_end"
+      "id, display_name, avatar_url, city, bio, portfolio_images, cover_image_url, accent_color, welcome_message, practiced_styles, working_days, min_lead_days, hours_start, hours_end"
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -120,12 +120,46 @@ export default async function BookingPage({
       </div>
 
       <div className="w-full max-w-sm">
-        <div className="mb-8 flex animate-fade-in-up items-center gap-2 [text-shadow:_0_2px_10px_rgb(0_0_0_/_75%)]">
-          <div className="h-5 w-1.5 bg-accent" />
-          <span className="font-display text-xl tracking-widest">
-            {artist.display_name}
-          </span>
+        <div className="mb-4 flex animate-fade-in-up items-center gap-3 [text-shadow:_0_2px_10px_rgb(0_0_0_/_75%)]">
+          {artist.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={artist.avatar_url}
+              alt={artist.display_name}
+              className="h-14 w-14 shrink-0 rounded-full border-2 border-white/25 object-cover"
+            />
+          ) : (
+            <div className="h-5 w-1.5 bg-accent" />
+          )}
+          <div>
+            <span className="font-display text-xl tracking-widest">
+              {artist.display_name}
+            </span>
+            {artist.city && (
+              <p className="text-xs text-muted">{artist.city}</p>
+            )}
+          </div>
         </div>
+
+        {artist.bio && (
+          <p className="mb-6 animate-fade-in-up text-sm text-foreground/90 [text-shadow:_0_1px_8px_rgb(0_0_0_/_85%)]">
+            {artist.bio}
+          </p>
+        )}
+
+        {artist.portfolio_images && artist.portfolio_images.length > 0 && (
+          <div className="mb-8 grid animate-fade-in-up grid-cols-4 gap-2">
+            {artist.portfolio_images.map((url: string) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={url}
+                src={url}
+                alt="Réalisation"
+                className="aspect-square rounded-md border border-white/15 object-cover"
+              />
+            ))}
+          </div>
+        )}
 
         <h1 className="mb-2 animate-fade-in-up text-4xl [animation-delay:250ms] [text-shadow:_0_2px_14px_rgb(0_0_0_/_75%)]">
           Réservez votre séance
