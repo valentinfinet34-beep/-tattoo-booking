@@ -38,7 +38,7 @@ export async function updateSession(request: NextRequest) {
   if (
     user &&
     request.nextUrl.pathname.startsWith("/dashboard") &&
-    request.nextUrl.pathname !== "/dashboard/billing"
+    request.nextUrl.pathname !== "/dashboard/settings"
   ) {
     const { data: artist } = await supabase
       .from("artists")
@@ -52,7 +52,7 @@ export async function updateSession(request: NextRequest) {
 
     if (!isActive) {
       const url = request.nextUrl.clone();
-      url.pathname = "/dashboard/billing";
+      url.pathname = "/dashboard/settings";
       return NextResponse.redirect(url);
     }
   }

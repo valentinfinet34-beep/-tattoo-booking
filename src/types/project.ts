@@ -4,7 +4,8 @@ export type ProjectStatus =
   | "accepted"
   | "deposit_paid"
   | "declined"
-  | "quote_declined";
+  | "quote_declined"
+  | "expired";
 
 export interface Project {
   id: string;
@@ -30,6 +31,7 @@ export interface Project {
   stripe_checkout_url: string | null;
   stripe_session_id: string | null;
   deposit_terms_accepted_at: string | null;
+  deposit_expires_at: string | null;
   created_at: string;
   updated_at: string;
 }

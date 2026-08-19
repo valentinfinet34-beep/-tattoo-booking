@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe";
-import { sendDepositLinkEmail } from "@/lib/email";
+import { sendDepositLinkEmail, sendQuoteAcceptedEmail } from "@/lib/email";
 
 export async function POST(
   request: Request,
@@ -25,7 +25,7 @@ export async function POST(
   const { data: artist } = await supabase
     .from("artists")
     .select(
-      "stripe_account_id, stripe_charges_enabled, deposit_type, deposit_percentage, deposit_fixed_amount_cents"
+      "stripe_account_id, stripe_charges_enabled, deposit_type, deposit_percentage, deposit_fixed_amount_cents, deposit_expiry_hours, notify_quote_accepted"
     )
     .eq("id", project.artist_id)
     .single();
@@ -47,6 +47,9 @@ export async function POST(
         );
 
   const origin = request.headers.get("origin") ?? "http://localhost:3000";
+  const depositExpiresAt = new Date(
+    Date.now() + (artist.deposit_expiry_hours ?? 48) * 60 * 60 * 1000
+  ).toISOString();
 
   const session = await getStripe().checkout.sessions.create(
     {
@@ -80,6 +83,7 @@ export async function POST(
       scheduled_start_time: project.time_slot,
       stripe_checkout_url: session.url,
       stripe_session_id: session.id,
+      deposit_expires_at: depositExpiresAt,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);
@@ -101,6 +105,25 @@ export async function POST(
       });
     } catch {
       // Le lien reste accessible sur /pay/[id] même si l'email échoue.
+    }
+  }
+
+  if (artist.notify_quote_accepted) {
+    try {
+      const { data: artistUser } = await supabase.auth.admin.getUserById(
+        project.artist_id
+      );
+      if (artistUser.user?.email) {
+        await sendQuoteAcceptedEmail({
+          to: artistUser.user.email,
+          clientFirstName: project.first_name,
+          clientLastName: project.last_name,
+          depositAmountEur: depositAmountCents / 100,
+          dashboardUrl: `${origin}/dashboard`,
+        });
+      }
+    } catch {
+      // Le devis reste accepté même si la notification échoue.
     }
   }
 

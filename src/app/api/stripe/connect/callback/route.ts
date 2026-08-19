@@ -31,5 +31,5 @@ export async function GET() {
       .eq("id", user.id);
   }
 
-  return NextResponse.redirect(`${SITE_URL}/dashboard/payments`);
+  return NextResponse.redirect(`${SITE_URL}/dashboard/settings#stripe`);
 }

@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { generateAvailableSlots } from "@/lib/scheduling";
+import { generateAvailableSlots, isDateBookable } from "@/lib/scheduling";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const date = searchParams.get("date");
   const slug = searchParams.get("slug");
+  const skipWorkingDaysCheck = searchParams.get("ignoreWorkingDays") === "1";
 
   if (!date || !slug) {
     return NextResponse.json(
@@ -18,11 +19,18 @@ export async function GET(request: Request) {
 
   const { data: artist } = await supabase
     .from("artists")
-    .select("id")
+    .select("id, working_days, min_lead_days, hours_start, hours_end")
     .eq("slug", slug)
     .maybeSingle();
 
   if (!artist) {
+    return NextResponse.json({ slots: [] });
+  }
+
+  if (
+    !skipWorkingDaysCheck &&
+    !isDateBookable(date, artist.working_days ?? [1, 2, 3, 4, 5, 6], artist.min_lead_days ?? 0)
+  ) {
     return NextResponse.json({ slots: [] });
   }
 
@@ -52,5 +60,10 @@ export async function GET(request: Request) {
       durationHours: b.duration_hours as number,
     }));
 
-  return NextResponse.json({ slots: generateAvailableSlots(occupied) });
+  return NextResponse.json({
+    slots: generateAvailableSlots(occupied, {
+      startHour: artist.hours_start ?? 9,
+      endHour: artist.hours_end ?? 19,
+    }),
+  });
 }

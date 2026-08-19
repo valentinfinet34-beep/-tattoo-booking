@@ -20,7 +20,7 @@ export async function blockDate(date: string) {
     throw new Error("Échec du blocage de la date");
   }
 
-  revalidatePath("/dashboard/availability");
+  revalidatePath("/dashboard/settings");
 }
 
 export async function unblockDate(date: string) {
@@ -38,5 +38,5 @@ export async function unblockDate(date: string) {
 
   if (error) throw new Error("Échec du déblocage de la date");
 
-  revalidatePath("/dashboard/availability");
+  revalidatePath("/dashboard/settings");
 }

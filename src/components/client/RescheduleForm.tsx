@@ -9,10 +9,14 @@ export function RescheduleForm({
   projectId,
   artistSlug,
   blockedDates,
+  workingDays,
+  minLeadDays,
 }: {
   projectId: string;
   artistSlug: string;
   blockedDates: string[];
+  workingDays?: number[];
+  minLeadDays?: number;
 }) {
   const router = useRouter();
   const [date, setDate] = useState("");
@@ -55,7 +59,13 @@ export function RescheduleForm({
         <label className="mb-1.5 block text-xs font-medium text-foreground/90">
           Nouvelle date
         </label>
-        <DatePicker value={date} onChange={setDate} blockedDates={blockedDates} />
+        <DatePicker
+          value={date}
+          onChange={setDate}
+          blockedDates={blockedDates}
+          workingDays={workingDays}
+          minLeadDays={minLeadDays}
+        />
       </div>
 
       <div>

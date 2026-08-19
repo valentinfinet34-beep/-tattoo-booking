@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { generateAvailableSlots } from "@/lib/scheduling";
+import { generateAvailableSlots, isDateBookable } from "@/lib/scheduling";
 
 const rescheduleSchema = z.object({
   preferredDate: z.string().min(1, "Choisis une date"),
@@ -35,6 +35,31 @@ export async function POST(
 
   if (!project || project.status !== "declined") {
     return NextResponse.json({ error: "Demande introuvable" }, { status: 404 });
+  }
+
+  const { data: artist } = await supabase
+    .from("artists")
+    .select("working_days, min_lead_days, hours_start, hours_end")
+    .eq("id", project.artist_id)
+    .single();
+
+  if (
+    !isDateBookable(
+      parsed.data.preferredDate,
+      artist?.working_days ?? [1, 2, 3, 4, 5, 6],
+      artist?.min_lead_days ?? 0
+    )
+  ) {
+    return NextResponse.json(
+      {
+        error: {
+          preferredDate: [
+            "Cette date n'est pas disponible, merci de choisir un autre créneau.",
+          ],
+        },
+      },
+      { status: 400 }
+    );
   }
 
   const { data: blocked } = await supabase
@@ -72,7 +97,12 @@ export async function POST(
       durationHours: b.duration_hours as number,
     }));
 
-  if (!generateAvailableSlots(occupied).includes(parsed.data.preferredTime)) {
+  const availableSlots = generateAvailableSlots(occupied, {
+    startHour: artist?.hours_start ?? 9,
+    endHour: artist?.hours_end ?? 19,
+  });
+
+  if (!availableSlots.includes(parsed.data.preferredTime)) {
     return NextResponse.json(
       {
         error: {

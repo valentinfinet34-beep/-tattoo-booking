@@ -18,7 +18,7 @@ async function getRescheduleData(projectId: string) {
 
   const { data: artist } = await supabase
     .from("artists")
-    .select("slug, display_name")
+    .select("slug, display_name, working_days, min_lead_days, hours_start, hours_end")
     .eq("id", project.artist_id)
     .single();
 
@@ -57,7 +57,12 @@ async function getRescheduleData(projectId: string) {
   }
 
   const fullyBookedDates = Array.from(bookingsByDate.entries())
-    .filter(([, occupied]) => isDayFullyBooked(occupied))
+    .filter(([, occupied]) =>
+      isDayFullyBooked(occupied, {
+        startHour: artist.hours_start ?? 9,
+        endHour: artist.hours_end ?? 19,
+      })
+    )
     .map(([date]) => date);
 
   const manualDates = (manualBlocks ?? []).map(
@@ -102,6 +107,8 @@ export default async function ReschedulePage({
           projectId={project.id}
           artistSlug={artist.slug}
           blockedDates={blockedDates}
+          workingDays={artist.working_days ?? undefined}
+          minLeadDays={artist.min_lead_days ?? undefined}
         />
       </div>
     </div>

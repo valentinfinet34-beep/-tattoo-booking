@@ -2,26 +2,60 @@
 
 import { useRef, useState, useTransition } from "react";
 import { ACCENT_PRESETS, type AccentColorKey } from "@/lib/theme-presets";
+import { STYLES } from "@/lib/validations/tattooRequest.schema";
 import {
   resetCoverImage,
   setAccentColor,
+  updatePracticedStyles,
+  updateWelcomeMessage,
   uploadCoverImage,
 } from "@/app/dashboard/settings/actions";
 
 export function PageSettings({
   coverImageUrl,
   accentColor,
+  welcomeMessage,
+  practicedStyles,
 }: {
   coverImageUrl: string | null;
   accentColor: AccentColorKey;
+  welcomeMessage: string;
+  practicedStyles: string[];
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState(coverImageUrl);
   const [selectedColor, setSelectedColor] = useState(accentColor);
+  const [message, setMessage] = useState(welcomeMessage);
+  const [styles, setStyles] = useState<Set<string>>(new Set(practicedStyles));
   const [uploading, setUploading] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
+
+  const saveMessage = () => {
+    startTransition(async () => {
+      try {
+        await updateWelcomeMessage(message);
+      } catch {
+        setError("Échec de la mise à jour du message.");
+      }
+    });
+  };
+
+  const toggleStyle = (style: string) => {
+    const next = new Set(styles);
+    if (next.has(style)) next.delete(style);
+    else next.add(style);
+    setStyles(next);
+
+    startTransition(async () => {
+      try {
+        await updatePracticedStyles(Array.from(next));
+      } catch {
+        setError("Échec de la mise à jour des styles.");
+      }
+    });
+  };
 
   const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -150,6 +184,50 @@ export function PageSettings({
         <p className="mt-2 text-xs text-zinc-500">
           {ACCENT_PRESETS[selectedColor].label}
         </p>
+      </div>
+
+      <div>
+        <h2 className="mb-3 font-display text-lg tracking-wide text-zinc-100">
+          Message d&apos;accueil
+        </h2>
+        <textarea
+          rows={2}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onBlur={saveMessage}
+          placeholder="Bienvenue ! Décris-moi ton projet en quelques mots..."
+          className="input-field resize-none"
+        />
+      </div>
+
+      <div>
+        <h2 className="mb-1 font-display text-lg tracking-wide text-zinc-100">
+          Styles pratiqués
+        </h2>
+        <p className="mb-3 text-xs text-zinc-500">
+          Seuls ces styles seront proposés aux clients sur ta page — évite
+          les demandes hors sujet. Aucune sélection = tous les styles
+          proposés.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {STYLES.map((style) => {
+            const active = styles.has(style);
+            return (
+              <button
+                key={style}
+                type="button"
+                onClick={() => toggleStyle(style)}
+                className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                  active
+                    ? "border-accent bg-accent/10 text-accent"
+                    : "border-zinc-800 text-zinc-500 hover:text-zinc-100"
+                }`}
+              >
+                {style}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {error && <p className="text-sm text-red-400">{error}</p>}

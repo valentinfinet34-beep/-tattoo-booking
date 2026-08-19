@@ -3,6 +3,7 @@ import Image from "next/image";
 import { TattooRequestForm } from "@/components/client/TattooRequestForm";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isDayFullyBooked } from "@/lib/scheduling";
+import { STYLES } from "@/lib/validations/tattooRequest.schema";
 import {
   ACCENT_PRESETS,
   DEFAULT_ACCENT,
@@ -19,7 +20,9 @@ async function getArtistAndBlockedDates(slug: string) {
 
   const { data: artist } = await supabase
     .from("artists")
-    .select("id, display_name, cover_image_url, accent_color")
+    .select(
+      "id, display_name, cover_image_url, accent_color, welcome_message, practiced_styles, working_days, min_lead_days, hours_start, hours_end"
+    )
     .eq("slug", slug)
     .maybeSingle();
 
@@ -58,7 +61,12 @@ async function getArtistAndBlockedDates(slug: string) {
   }
 
   const fullyBookedDates = Array.from(bookingsByDate.entries())
-    .filter(([, occupied]) => isDayFullyBooked(occupied))
+    .filter(([, occupied]) =>
+      isDayFullyBooked(occupied, {
+        startHour: artist.hours_start ?? 9,
+        endHour: artist.hours_end ?? 19,
+      })
+    )
     .map(([date]) => date);
 
   const manualDates = (manualBlocks ?? []).map(
@@ -123,11 +131,21 @@ export default async function BookingPage({
           Réservez votre séance
         </h1>
         <p className="mb-6 animate-fade-in-up text-sm text-muted [animation-delay:450ms] [text-shadow:_0_1px_8px_rgb(0_0_0_/_85%)]">
-          Remplissez le formulaire, l&apos;artiste valide sous 24-48h.
+          {artist.welcome_message ||
+            "Remplissez le formulaire, l'artiste valide sous 24-48h."}
         </p>
 
         <div className="animate-fade-in-up [animation-delay:700ms]">
-          <TattooRequestForm blockedDates={blockedDates} artistSlug={slug} />
+          <TattooRequestForm
+            blockedDates={blockedDates}
+            artistSlug={slug}
+            workingDays={artist.working_days ?? undefined}
+            minLeadDays={artist.min_lead_days ?? undefined}
+            practicedStyles={
+              (artist.practiced_styles as (typeof STYLES)[number][]) ??
+              undefined
+            }
+          />
         </div>
       </div>
     </div>

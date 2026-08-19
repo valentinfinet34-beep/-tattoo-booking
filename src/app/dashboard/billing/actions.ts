@@ -45,8 +45,8 @@ export async function startSubscriptionCheckout() {
       trial_period_days: 14,
       metadata: { artist_id: user.id },
     },
-    success_url: `${SITE_URL}/dashboard/billing?success=1`,
-    cancel_url: `${SITE_URL}/dashboard/billing?canceled=1`,
+    success_url: `${SITE_URL}/dashboard/settings?success=1#abonnement`,
+    cancel_url: `${SITE_URL}/dashboard/settings?canceled=1#abonnement`,
   });
 
   redirect(session.url!);
@@ -70,7 +70,7 @@ export async function openCustomerPortal() {
 
   const portalSession = await getStripe().billingPortal.sessions.create({
     customer: artist.stripe_customer_id,
-    return_url: `${SITE_URL}/dashboard/billing`,
+    return_url: `${SITE_URL}/dashboard/settings#abonnement`,
   });
 
   redirect(portalSession.url);

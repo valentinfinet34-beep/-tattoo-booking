@@ -11,7 +11,7 @@ export default async function NewProjectPage() {
   const { data: artist } = await supabase
     .from("artists")
     .select(
-      "slug, deposit_type, deposit_percentage, deposit_fixed_amount_cents"
+      "slug, deposit_type, deposit_percentage, deposit_fixed_amount_cents, hours_start, hours_end"
     )
     .eq("id", user!.id)
     .single();
@@ -57,7 +57,12 @@ export default async function NewProjectPage() {
   }
 
   const fullyBookedDates = Array.from(bookingsByDate.entries())
-    .filter(([, occupied]) => isDayFullyBooked(occupied))
+    .filter(([, occupied]) =>
+      isDayFullyBooked(occupied, {
+        startHour: artist?.hours_start ?? 9,
+        endHour: artist?.hours_end ?? 19,
+      })
+    )
     .map(([date]) => date);
 
   const manualDates = (manualBlocks ?? []).map(

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  addDays,
   addMonths,
   eachDayOfInterval,
   endOfMonth,
@@ -23,12 +24,21 @@ interface DatePickerProps {
   value: string;
   onChange: (date: string) => void;
   blockedDates: string[];
+  workingDays?: number[];
+  minLeadDays?: number;
 }
 
-export function DatePicker({ value, onChange, blockedDates }: DatePickerProps) {
+export function DatePicker({
+  value,
+  onChange,
+  blockedDates,
+  workingDays,
+  minLeadDays = 0,
+}: DatePickerProps) {
   const [viewMonth, setViewMonth] = useState(() => startOfMonth(new Date()));
 
   const today = startOfDay(new Date());
+  const earliestAllowed = minLeadDays > 0 ? addDays(today, minLeadDays) : today;
   const blockedSet = new Set(blockedDates);
   const selectedDate = value ? new Date(`${value}T00:00:00`) : null;
 
@@ -74,12 +84,15 @@ export function DatePicker({ value, onChange, blockedDates }: DatePickerProps) {
         ))}
         {days.map((day) => {
           const isoDate = format(day, "yyyy-MM-dd");
-          const isPast = isBefore(day, today);
+          const isPast = isBefore(day, earliestAllowed);
+          const isNonWorkingDay = workingDays
+            ? !workingDays.includes(getDay(day))
+            : false;
           const isBlocked = blockedSet.has(isoDate);
           const isSelected = selectedDate
             ? isSameDay(day, selectedDate)
             : false;
-          const disabled = isPast || isBlocked;
+          const disabled = isPast || isBlocked || isNonWorkingDay;
 
           return (
             <button
@@ -88,14 +101,16 @@ export function DatePicker({ value, onChange, blockedDates }: DatePickerProps) {
               disabled={disabled}
               onClick={() => onChange(isoDate)}
               title={
-                isBlocked
-                  ? "Le tatoueur est complet pour cette date, merci de choisir un autre créneau."
-                  : undefined
+                isNonWorkingDay
+                  ? "Le tatoueur ne travaille pas ce jour-là."
+                  : isBlocked
+                    ? "Le tatoueur est complet pour cette date, merci de choisir un autre créneau."
+                    : undefined
               }
               className={`aspect-square rounded-md text-xs transition-colors disabled:cursor-not-allowed ${
                 isSelected
                   ? "bg-accent text-white"
-                  : isBlocked
+                  : isBlocked || isNonWorkingDay
                     ? "text-muted/40 line-through"
                     : isPast
                       ? "text-muted/25"

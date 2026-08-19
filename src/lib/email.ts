@@ -141,6 +141,169 @@ export async function sendQuoteDeclinedEmail({
   });
 }
 
+export async function sendNewRequestEmail({
+  to,
+  clientFirstName,
+  clientLastName,
+  dashboardUrl,
+}: {
+  to: string;
+  clientFirstName: string;
+  clientLastName: string;
+  dashboardUrl: string;
+}) {
+  const fromAddress =
+    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+
+  await getResend().emails.send({
+    from: fromAddress,
+    to,
+    subject: `Nouvelle demande — ${clientFirstName} ${clientLastName}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
+        <h1 style="font-size: 22px;">Nouvelle demande reçue</h1>
+        <p style="font-size: 15px; line-height: 1.6;">
+          ${clientFirstName} ${clientLastName} vient de soumettre une
+          demande de tatouage. Va voir son projet dans ton dashboard pour lui
+          envoyer un devis.
+        </p>
+        <p style="margin: 28px 0;">
+          <a
+            href="${dashboardUrl}"
+            style="background: #c81e1e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;"
+          >
+            Voir la demande
+          </a>
+        </p>
+      </div>
+    `,
+  });
+}
+
+export async function sendQuoteAcceptedEmail({
+  to,
+  clientFirstName,
+  clientLastName,
+  depositAmountEur,
+  dashboardUrl,
+}: {
+  to: string;
+  clientFirstName: string;
+  clientLastName: string;
+  depositAmountEur: number;
+  dashboardUrl: string;
+}) {
+  const fromAddress =
+    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+
+  await getResend().emails.send({
+    from: fromAddress,
+    to,
+    subject: `Devis accepté — ${clientFirstName} ${clientLastName}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
+        <h1 style="font-size: 22px;">Devis accepté</h1>
+        <p style="font-size: 15px; line-height: 1.6;">
+          ${clientFirstName} ${clientLastName} a accepté ton devis. Un lien
+          de paiement d'acompte de <strong>${depositAmountEur} €</strong> lui
+          a été envoyé automatiquement.
+        </p>
+        <p style="margin: 28px 0;">
+          <a
+            href="${dashboardUrl}"
+            style="background: #c81e1e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;"
+          >
+            Voir dans le dashboard
+          </a>
+        </p>
+      </div>
+    `,
+  });
+}
+
+export async function sendDepositPaidEmail({
+  to,
+  clientFirstName,
+  clientLastName,
+  depositAmountEur,
+  dashboardUrl,
+}: {
+  to: string;
+  clientFirstName: string;
+  clientLastName: string;
+  depositAmountEur: number;
+  dashboardUrl: string;
+}) {
+  const fromAddress =
+    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+
+  await getResend().emails.send({
+    from: fromAddress,
+    to,
+    subject: `Acompte payé — ${clientFirstName} ${clientLastName}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
+        <h1 style="font-size: 22px;">Acompte réglé 🎉</h1>
+        <p style="font-size: 15px; line-height: 1.6;">
+          ${clientFirstName} ${clientLastName} vient de régler son acompte
+          de <strong>${depositAmountEur} €</strong>. Le rendez-vous est
+          confirmé et ajouté à ton agenda.
+        </p>
+        <p style="margin: 28px 0;">
+          <a
+            href="${dashboardUrl}"
+            style="background: #c81e1e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;"
+          >
+            Voir mon agenda
+          </a>
+        </p>
+      </div>
+    `,
+  });
+}
+
+export async function sendAppointmentReminderEmail({
+  to,
+  clientFirstName,
+  clientLastName,
+  appointmentDate,
+  appointmentTime,
+  dashboardUrl,
+}: {
+  to: string;
+  clientFirstName: string;
+  clientLastName: string;
+  appointmentDate: string;
+  appointmentTime: string;
+  dashboardUrl: string;
+}) {
+  const fromAddress =
+    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+
+  await getResend().emails.send({
+    from: fromAddress,
+    to,
+    subject: `Rappel — RDV demain avec ${clientFirstName} ${clientLastName}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
+        <h1 style="font-size: 22px;">RDV demain</h1>
+        <p style="font-size: 15px; line-height: 1.6;">
+          Rappel : tu as rendez-vous avec <strong>${clientFirstName} ${clientLastName}</strong>
+          demain (${appointmentDate}) à <strong>${appointmentTime}</strong>.
+        </p>
+        <p style="margin: 28px 0;">
+          <a
+            href="${dashboardUrl}"
+            style="background: #c81e1e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;"
+          >
+            Voir mon agenda
+          </a>
+        </p>
+      </div>
+    `,
+  });
+}
+
 export async function sendDeclineEmail({
   to,
   firstName,

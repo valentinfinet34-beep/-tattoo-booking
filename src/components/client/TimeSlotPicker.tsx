@@ -7,6 +7,7 @@ interface TimeSlotPickerProps {
   value: string;
   onChange: (time: string) => void;
   artistSlug: string;
+  ignoreWorkingDays?: boolean;
 }
 
 export function TimeSlotPicker({
@@ -14,6 +15,7 @@ export function TimeSlotPicker({
   value,
   onChange,
   artistSlug,
+  ignoreWorkingDays,
 }: TimeSlotPickerProps) {
   const [slots, setSlots] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -27,7 +29,8 @@ export function TimeSlotPicker({
     let cancelled = false;
     setLoading(true);
 
-    fetch(`/api/availability?date=${date}&slug=${artistSlug}`)
+    const ignoreParam = ignoreWorkingDays ? "&ignoreWorkingDays=1" : "";
+    fetch(`/api/availability?date=${date}&slug=${artistSlug}${ignoreParam}`)
       .then((res) => res.json())
       .then((data) => {
         if (!cancelled) setSlots(data.slots ?? []);
@@ -42,7 +45,7 @@ export function TimeSlotPicker({
     return () => {
       cancelled = true;
     };
-  }, [date, artistSlug]);
+  }, [date, artistSlug, ignoreWorkingDays]);
 
   if (!date) {
     return (

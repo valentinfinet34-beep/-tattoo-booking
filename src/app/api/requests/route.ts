@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { tattooRequestSchema } from "@/lib/validations/tattooRequest.schema";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { generateAvailableSlots } from "@/lib/scheduling";
+import { generateAvailableSlots, isDateBookable } from "@/lib/scheduling";
+import { sendNewRequestEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
 
   const { data: artist, error: artistError } = await supabase
     .from("artists")
-    .select("id")
+    .select("id, working_days, min_lead_days, hours_start, hours_end")
     .eq("slug", artistSlug)
     .maybeSingle();
 
@@ -49,6 +50,25 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Studio introuvable" },
       { status: 404 }
+    );
+  }
+
+  if (
+    !isDateBookable(
+      parsed.data.preferredDate,
+      artist.working_days ?? [1, 2, 3, 4, 5, 6],
+      artist.min_lead_days ?? 0
+    )
+  ) {
+    return NextResponse.json(
+      {
+        error: {
+          preferredDate: [
+            "Cette date n'est pas disponible, merci de choisir un autre créneau.",
+          ],
+        },
+      },
+      { status: 400 }
     );
   }
 
@@ -87,7 +107,10 @@ export async function POST(request: Request) {
       durationHours: b.duration_hours as number,
     }));
 
-  const availableSlots = generateAvailableSlots(occupied);
+  const availableSlots = generateAvailableSlots(occupied, {
+    startHour: artist.hours_start ?? 9,
+    endHour: artist.hours_end ?? 19,
+  });
 
   if (!availableSlots.includes(parsed.data.preferredTime)) {
     return NextResponse.json(
@@ -147,6 +170,31 @@ export async function POST(request: Request) {
       { error: "Échec de l'enregistrement de la demande" },
       { status: 500 }
     );
+  }
+
+  const { data: notifyPrefs } = await supabase
+    .from("artists")
+    .select("notify_new_request")
+    .eq("id", artist.id)
+    .single();
+
+  if (notifyPrefs?.notify_new_request) {
+    try {
+      const { data: artistUser } = await supabase.auth.admin.getUserById(
+        artist.id
+      );
+      if (artistUser.user?.email) {
+        const origin = request.headers.get("origin") ?? "http://localhost:3000";
+        await sendNewRequestEmail({
+          to: artistUser.user.email,
+          clientFirstName: parsed.data.firstName,
+          clientLastName: parsed.data.lastName,
+          dashboardUrl: `${origin}/dashboard`,
+        });
+      }
+    } catch {
+      // La demande reste enregistrée même si la notification échoue.
+    }
   }
 
   return NextResponse.json({ success: true }, { status: 201 });

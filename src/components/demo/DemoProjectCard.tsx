@@ -11,6 +11,7 @@ const STATUS_LABELS: Record<Project["status"], string> = {
   deposit_paid: "Acompte payé",
   declined: "Refusé",
   quote_declined: "Devis refusé",
+  expired: "Expiré",
 };
 
 const STATUS_BADGE_CLASSES: Record<Project["status"], string> = {
@@ -20,6 +21,7 @@ const STATUS_BADGE_CLASSES: Record<Project["status"], string> = {
   deposit_paid: "badge-paid",
   declined: "badge-declined",
   quote_declined: "badge-declined",
+  expired: "badge-declined",
 };
 
 const STATUS_BORDER_COLOR: Record<Project["status"], string> = {
@@ -29,6 +31,7 @@ const STATUS_BORDER_COLOR: Record<Project["status"], string> = {
   deposit_paid: "#22c55e",
   declined: "#c81e1e",
   quote_declined: "#c81e1e",
+  expired: "#c81e1e",
 };
 
 function formatDate(iso: string) {

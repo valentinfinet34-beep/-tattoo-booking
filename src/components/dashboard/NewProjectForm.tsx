@@ -240,6 +240,7 @@ export function NewProjectForm({
           value={time}
           onChange={setTime}
           artistSlug={artistSlug}
+          ignoreWorkingDays
         />
       </Field>
 

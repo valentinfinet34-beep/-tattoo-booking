@@ -20,6 +20,7 @@ const STATUS_LABELS: Record<Project["status"], string> = {
   deposit_paid: "Acompte payé",
   declined: "Refusé",
   quote_declined: "Devis refusé",
+  expired: "Expiré",
 };
 
 const STATUS_BADGE_CLASSES: Record<Project["status"], string> = {
@@ -29,6 +30,7 @@ const STATUS_BADGE_CLASSES: Record<Project["status"], string> = {
   deposit_paid: "badge-paid",
   declined: "badge-declined",
   quote_declined: "badge-declined",
+  expired: "badge-declined",
 };
 
 const STATUS_BORDER_COLOR: Record<Project["status"], string> = {
@@ -38,6 +40,7 @@ const STATUS_BORDER_COLOR: Record<Project["status"], string> = {
   deposit_paid: "#22c55e",
   declined: "#c81e1e",
   quote_declined: "#c81e1e",
+  expired: "#c81e1e",
 };
 
 function formatDate(iso: string) {
@@ -333,6 +336,17 @@ export function ProjectCard({
                 RDV confirmé : {formatDate(project.preferred_date)} à{" "}
                 {project.scheduled_start_time.slice(0, 5)} (
                 {project.duration_hours} h)
+              </p>
+            )}
+            {project.status === "accepted" && project.deposit_expires_at && (
+              <p className="text-xs text-zinc-500">
+                Lien valable jusqu&apos;au{" "}
+                {new Date(project.deposit_expires_at).toLocaleString("fr-FR", {
+                  day: "numeric",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </p>
             )}
             <label className="text-xs text-zinc-500">

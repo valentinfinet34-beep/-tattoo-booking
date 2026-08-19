@@ -24,15 +24,29 @@ export default async function PayPage({
   const { data: project } = await supabase
     .from("projects")
     .select(
-      "id, first_name, status, deposit_amount_cents, stripe_checkout_url, preferred_date, scheduled_start_time"
+      "id, first_name, status, deposit_amount_cents, stripe_checkout_url, preferred_date, scheduled_start_time, deposit_expires_at"
     )
     .eq("id", id)
     .maybeSingle();
 
   if (!project) notFound();
 
+  let status = project.status;
+  const isExpired =
+    status === "accepted" &&
+    project.deposit_expires_at &&
+    new Date(project.deposit_expires_at) < new Date();
+
+  if (isExpired) {
+    await supabase
+      .from("projects")
+      .update({ status: "expired", updated_at: new Date().toISOString() })
+      .eq("id", id);
+    status = "expired";
+  }
+
   const depositAmountEur = (project.deposit_amount_cents ?? 0) / 100;
-  const canPay = project.status === "accepted" && project.stripe_checkout_url;
+  const canPay = status === "accepted" && project.stripe_checkout_url;
 
   return (
     <div className="flex min-h-full flex-col items-center px-5 py-10">
@@ -56,9 +70,14 @@ export default async function PayPage({
           <p className="text-muted">Montant de l&apos;acompte</p>
         </div>
 
-        {project.status === "deposit_paid" ? (
+        {status === "deposit_paid" ? (
           <p className="card p-4 text-sm text-foreground">
             L&apos;acompte a déjà été réglé pour ce rendez-vous.
+          </p>
+        ) : status === "expired" ? (
+          <p className="card p-4 text-sm text-foreground">
+            Ce lien de paiement a expiré, le créneau n&apos;est plus réservé.
+            Contacte l&apos;artiste si tu es toujours intéressé·e.
           </p>
         ) : canPay ? (
           <PayConfirmation

@@ -21,12 +21,21 @@ const optionStyle = { backgroundColor: "#1e1714", color: "#f2f0e9" };
 export function TattooRequestForm({
   blockedDates,
   artistSlug,
+  workingDays,
+  minLeadDays,
+  practicedStyles,
 }: {
   blockedDates: string[];
   artistSlug: string;
+  workingDays?: number[];
+  minLeadDays?: number;
+  practicedStyles?: (typeof STYLES)[number][];
 }) {
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const availableStyles: (typeof STYLES)[number][] =
+    practicedStyles && practicedStyles.length > 0 ? practicedStyles : [...STYLES];
 
   const {
     register,
@@ -39,7 +48,7 @@ export function TattooRequestForm({
     defaultValues: {
       bodyLocation: BODY_LOCATIONS[0],
       sizeCategory: SIZE_CATEGORIES[0],
-      style: STYLES[0],
+      style: availableStyles[0],
       colorMode: COLOR_MODES[0],
       preferredDate: "",
       preferredTime: "",
@@ -176,7 +185,7 @@ export function TattooRequestForm({
             style={{ colorScheme: "dark" }}
             {...register("style")}
           >
-            {STYLES.map((style) => (
+            {availableStyles.map((style) => (
               <option key={style} value={style} style={optionStyle}>
                 {style}
               </option>
@@ -225,6 +234,8 @@ export function TattooRequestForm({
               value={field.value}
               onChange={field.onChange}
               blockedDates={blockedDates}
+              workingDays={workingDays}
+              minLeadDays={minLeadDays}
             />
           )}
         />

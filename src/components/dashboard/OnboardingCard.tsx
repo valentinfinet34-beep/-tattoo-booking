@@ -65,14 +65,14 @@ export function OnboardingCard({
           done={stripeConnected}
           title="Connecter mon compte Stripe"
           description="Obligatoire pour pouvoir encaisser les acomptes de tes clients."
-          href="/dashboard/payments"
+          href="/dashboard/settings#stripe"
           cta="Connecter"
         />
         <ChecklistItem
           done={pageCustomized}
           title="Personnaliser ma page"
           description="Ta photo, ta couleur — optionnel mais recommandé."
-          href="/dashboard/settings"
+          href="/dashboard/settings#page-client"
           cta="Personnaliser"
         />
         <ChecklistItem
