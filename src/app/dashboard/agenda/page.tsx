@@ -78,8 +78,11 @@ export default async function AgendaPage() {
                       </p>
                       <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500">
                         <span className="flex items-center gap-1.5">
-                          <MapPin size={12} /> {p.body_location} · {p.size_cm} cm
+                          <MapPin size={12} /> {p.body_location} ·{" "}
+                          {p.size_category ?? `${p.size_cm} cm`}
                         </span>
+                        {p.style && <span>{p.style}</span>}
+                        {p.color_mode && <span>{p.color_mode}</span>}
                         <span className="flex items-center gap-1.5">
                           <Phone size={12} /> {p.phone}
                         </span>

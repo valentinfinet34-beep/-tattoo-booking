@@ -3,7 +3,12 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
 import { sendDepositLinkEmail } from "@/lib/email";
-import { BODY_LOCATIONS } from "@/lib/validations/tattooRequest.schema";
+import {
+  BODY_LOCATIONS,
+  COLOR_MODES,
+  SIZE_CATEGORIES,
+  STYLES,
+} from "@/lib/validations/tattooRequest.schema";
 
 const manualProjectSchema = z.object({
   firstName: z.string().trim().min(2, "Prénom trop court").max(50),
@@ -12,7 +17,9 @@ const manualProjectSchema = z.object({
   phone: z.string().trim().min(10, "Numéro invalide").max(20),
   description: z.string().trim().min(10, "Décris le projet").max(1000),
   bodyLocation: z.enum(BODY_LOCATIONS),
-  sizeCm: z.coerce.number().positive().max(100),
+  sizeCategory: z.enum(SIZE_CATEGORIES),
+  style: z.enum(STYLES),
+  colorMode: z.enum(COLOR_MODES),
   preferredDate: z.string().min(1, "Choisis une date"),
   preferredTime: z
     .string()
@@ -98,7 +105,9 @@ export async function POST(request: Request) {
     phone: parsed.data.phone,
     description: parsed.data.description,
     body_location: parsed.data.bodyLocation,
-    size_cm: parsed.data.sizeCm,
+    size_category: parsed.data.sizeCategory,
+    style: parsed.data.style,
+    color_mode: parsed.data.colorMode,
     preferred_date: parsed.data.preferredDate,
     time_slot: parsed.data.preferredTime,
     image_urls: [],

@@ -6,12 +6,17 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   BODY_LOCATIONS,
+  COLOR_MODES,
+  SIZE_CATEGORIES,
+  STYLES,
   tattooRequestSchema,
   type TattooRequestInput,
 } from "@/lib/validations/tattooRequest.schema";
 import { ImageUploader } from "./ImageUploader";
 import { DatePicker } from "./DatePicker";
 import { TimeSlotPicker } from "./TimeSlotPicker";
+
+const optionStyle = { backgroundColor: "#1e1714", color: "#f2f0e9" };
 
 export function TattooRequestForm({
   blockedDates,
@@ -33,6 +38,9 @@ export function TattooRequestForm({
     resolver: zodResolver(tattooRequestSchema),
     defaultValues: {
       bodyLocation: BODY_LOCATIONS[0],
+      sizeCategory: SIZE_CATEGORIES[0],
+      style: STYLES[0],
+      colorMode: COLOR_MODES[0],
       preferredDate: "",
       preferredTime: "",
       images: [],
@@ -52,7 +60,9 @@ export function TattooRequestForm({
     formData.append("phone", data.phone);
     formData.append("description", data.description);
     formData.append("bodyLocation", data.bodyLocation);
-    formData.append("sizeCm", String(data.sizeCm));
+    formData.append("sizeCategory", data.sizeCategory);
+    formData.append("style", data.style);
+    formData.append("colorMode", data.colorMode);
     formData.append("preferredDate", data.preferredDate);
     formData.append("preferredTime", data.preferredTime);
     data.images.forEach((file) => formData.append("images", file));
@@ -102,42 +112,71 @@ export function TattooRequestForm({
         <textarea
           rows={4}
           className="input-field resize-none"
-          placeholder="Style, idée, références..."
+          placeholder="Précise ton idée, tes envies, tes références..."
           {...register("description")}
         />
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Emplacement" error={errors.bodyLocation?.message}>
+        <Field label="Zone du corps" error={errors.bodyLocation?.message}>
           <select
             className="input-field"
             style={{ colorScheme: "dark" }}
             {...register("bodyLocation")}
           >
             {BODY_LOCATIONS.map((loc) => (
-              <option
-                key={loc}
-                value={loc}
-                style={{ backgroundColor: "#1e1714", color: "#f2f0e9" }}
-              >
+              <option key={loc} value={loc} style={optionStyle}>
                 {loc}
               </option>
             ))}
           </select>
         </Field>
-        <Field label="Taille estimée (cm)" error={errors.sizeCm?.message}>
-          <input
-            type="number"
-            min={1}
-            max={100}
+        <Field label="Taille approximative" error={errors.sizeCategory?.message}>
+          <select
             className="input-field"
-            {...register("sizeCm", { valueAsNumber: true })}
-          />
+            style={{ colorScheme: "dark" }}
+            {...register("sizeCategory")}
+          >
+            {SIZE_CATEGORIES.map((size) => (
+              <option key={size} value={size} style={optionStyle}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </Field>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Style souhaité" error={errors.style?.message}>
+          <select
+            className="input-field"
+            style={{ colorScheme: "dark" }}
+            {...register("style")}
+          >
+            {STYLES.map((style) => (
+              <option key={style} value={style} style={optionStyle}>
+                {style}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Couleur" error={errors.colorMode?.message}>
+          <select
+            className="input-field"
+            style={{ colorScheme: "dark" }}
+            {...register("colorMode")}
+          >
+            {COLOR_MODES.map((mode) => (
+              <option key={mode} value={mode} style={optionStyle}>
+                {mode}
+              </option>
+            ))}
+          </select>
         </Field>
       </div>
 
       <Field
-        label="Visuels d'inspiration (1 à 3)"
+        label="Photo de référence (1 à 3)"
         error={errors.images?.message}
       >
         <Controller

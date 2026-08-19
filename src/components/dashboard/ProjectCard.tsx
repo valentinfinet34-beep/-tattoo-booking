@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Ruler, CalendarDays, Clock } from "lucide-react";
+import {
+  MapPin,
+  Ruler,
+  CalendarDays,
+  Clock,
+  Palette,
+  Droplet,
+} from "lucide-react";
 import type { Project } from "@/types/project";
 import { DURATION_OPTIONS } from "@/lib/scheduling";
 
@@ -144,8 +151,18 @@ export function ProjectCard({ project }: { project: Project }) {
           <MapPin size={13} /> {project.body_location}
         </span>
         <span className="flex items-center gap-1.5">
-          <Ruler size={13} /> {project.size_cm} cm
+          <Ruler size={13} /> {project.size_category ?? `${project.size_cm} cm`}
         </span>
+        {project.style && (
+          <span className="flex items-center gap-1.5">
+            <Palette size={13} /> {project.style}
+          </span>
+        )}
+        {project.color_mode && (
+          <span className="flex items-center gap-1.5">
+            <Droplet size={13} /> {project.color_mode}
+          </span>
+        )}
         <span className="flex items-center gap-1.5">
           <CalendarDays size={13} /> {formatDate(project.preferred_date)}
         </span>

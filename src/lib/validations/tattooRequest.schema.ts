@@ -1,18 +1,36 @@
 import { z } from "zod";
 
 export const BODY_LOCATIONS = [
-  "Avant-bras",
   "Bras",
-  "Épaule",
-  "Dos",
-  "Torse",
-  "Jambe",
+  "Avant-bras",
   "Cheville",
-  "Main",
+  "Dos",
   "Cou",
-  "Côtes",
+  "Poitrine",
+  "Cuisse",
+  "Mollet",
+  "Doigt",
   "Autre",
 ] as const;
+
+export const SIZE_CATEGORIES = [
+  "Petit (< 5 cm)",
+  "Moyen (5-15 cm)",
+  "Grand (15-30 cm)",
+  "Très grand (> 30 cm)",
+] as const;
+
+export const STYLES = [
+  "Réalisme",
+  "Japonais",
+  "Old school",
+  "Minimaliste",
+  "Géométrique",
+  "Tribal",
+  "Autre",
+] as const;
+
+export const COLOR_MODES = ["Couleur", "Noir et gris"] as const;
 
 const MAX_IMAGES = 3;
 const MAX_IMAGE_SIZE_MB = 5;
@@ -32,10 +50,9 @@ export const tattooRequestSchema = z.object({
     .min(10, "Décris ton projet en quelques mots")
     .max(1000, "1000 caractères maximum"),
   bodyLocation: z.enum(BODY_LOCATIONS),
-  sizeCm: z
-    .number({ message: "Taille invalide" })
-    .positive("Taille invalide")
-    .max(100, "100 cm maximum"),
+  sizeCategory: z.enum(SIZE_CATEGORIES),
+  style: z.enum(STYLES),
+  colorMode: z.enum(COLOR_MODES),
   preferredDate: z.string().min(1, "Choisis une date"),
   preferredTime: z
     .string()

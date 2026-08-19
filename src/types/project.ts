@@ -9,7 +9,10 @@ export interface Project {
   phone: string;
   description: string;
   body_location: string;
-  size_cm: number;
+  size_cm: number | null;
+  size_category: string | null;
+  style: string | null;
+  color_mode: string | null;
   preferred_date: string;
   time_slot: string;
   image_urls: string[];

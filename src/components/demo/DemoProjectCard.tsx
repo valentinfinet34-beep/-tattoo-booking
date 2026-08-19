@@ -66,8 +66,10 @@ export function DemoProjectCard({ project }: { project: Project }) {
           <MapPin size={13} /> {project.body_location}
         </span>
         <span className="flex items-center gap-1.5">
-          <Ruler size={13} /> {project.size_cm} cm
+          <Ruler size={13} /> {project.size_category ?? `${project.size_cm} cm`}
         </span>
+        {project.style && <span>{project.style}</span>}
+        {project.color_mode && <span>{project.color_mode}</span>}
         <span className="flex items-center gap-1.5">
           <CalendarDays size={13} /> {formatDate(project.preferred_date)}
         </span>

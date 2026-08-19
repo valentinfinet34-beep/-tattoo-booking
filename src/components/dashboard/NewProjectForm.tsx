@@ -2,10 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { BODY_LOCATIONS } from "@/lib/validations/tattooRequest.schema";
+import {
+  BODY_LOCATIONS,
+  COLOR_MODES,
+  SIZE_CATEGORIES,
+  STYLES,
+} from "@/lib/validations/tattooRequest.schema";
 import { DURATION_OPTIONS } from "@/lib/scheduling";
 import { DatePicker } from "@/components/client/DatePicker";
 import { TimeSlotPicker } from "@/components/client/TimeSlotPicker";
+
+const optionStyle = { backgroundColor: "#18181b", color: "#f4f4f5" };
 
 export function NewProjectForm({
   artistSlug,
@@ -23,7 +30,13 @@ export function NewProjectForm({
   const [bodyLocation, setBodyLocation] = useState<
     (typeof BODY_LOCATIONS)[number]
   >(BODY_LOCATIONS[0]);
-  const [sizeCm, setSizeCm] = useState("10");
+  const [sizeCategory, setSizeCategory] = useState<
+    (typeof SIZE_CATEGORIES)[number]
+  >(SIZE_CATEGORIES[0]);
+  const [style, setStyle] = useState<(typeof STYLES)[number]>(STYLES[0]);
+  const [colorMode, setColorMode] = useState<(typeof COLOR_MODES)[number]>(
+    COLOR_MODES[0]
+  );
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [durationHours, setDurationHours] = useState<number>(2);
@@ -51,7 +64,9 @@ export function NewProjectForm({
         phone,
         description,
         bodyLocation,
-        sizeCm: Number(sizeCm),
+        sizeCategory,
+        style,
+        colorMode,
         preferredDate: date,
         preferredTime: time,
         durationHours,
@@ -121,7 +136,7 @@ export function NewProjectForm({
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Emplacement">
+        <Field label="Zone du corps">
           <select
             value={bodyLocation}
             onChange={(e) =>
@@ -131,25 +146,60 @@ export function NewProjectForm({
             className="input-field"
           >
             {BODY_LOCATIONS.map((loc) => (
-              <option
-                key={loc}
-                value={loc}
-                style={{ backgroundColor: "#18181b", color: "#f4f4f5" }}
-              >
+              <option key={loc} value={loc} style={optionStyle}>
                 {loc}
               </option>
             ))}
           </select>
         </Field>
-        <Field label="Taille estimée (cm)">
-          <input
-            type="number"
-            min={1}
-            max={100}
-            value={sizeCm}
-            onChange={(e) => setSizeCm(e.target.value)}
+        <Field label="Taille approximative">
+          <select
+            value={sizeCategory}
+            onChange={(e) =>
+              setSizeCategory(e.target.value as (typeof SIZE_CATEGORIES)[number])
+            }
+            style={{ colorScheme: "dark" }}
             className="input-field"
-          />
+          >
+            {SIZE_CATEGORIES.map((size) => (
+              <option key={size} value={size} style={optionStyle}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </Field>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Style souhaité">
+          <select
+            value={style}
+            onChange={(e) => setStyle(e.target.value as (typeof STYLES)[number])}
+            style={{ colorScheme: "dark" }}
+            className="input-field"
+          >
+            {STYLES.map((s) => (
+              <option key={s} value={s} style={optionStyle}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Couleur">
+          <select
+            value={colorMode}
+            onChange={(e) =>
+              setColorMode(e.target.value as (typeof COLOR_MODES)[number])
+            }
+            style={{ colorScheme: "dark" }}
+            className="input-field"
+          >
+            {COLOR_MODES.map((mode) => (
+              <option key={mode} value={mode} style={optionStyle}>
+                {mode}
+              </option>
+            ))}
+          </select>
         </Field>
       </div>
 
@@ -175,11 +225,7 @@ export function NewProjectForm({
             className="input-field"
           >
             {DURATION_OPTIONS.map((h) => (
-              <option
-                key={h}
-                value={h}
-                style={{ backgroundColor: "#18181b", color: "#f4f4f5" }}
-              >
+              <option key={h} value={h} style={optionStyle}>
                 {h} h
               </option>
             ))}
