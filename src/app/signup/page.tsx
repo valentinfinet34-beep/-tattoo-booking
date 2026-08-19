@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/slug";
 
@@ -14,6 +15,7 @@ export default function SignupPage() {
   const [slugEdited, setSlugEdited] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pendingConfirmation, setPendingConfirmation] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -218,9 +220,37 @@ export default function SignupPage() {
             />
           </div>
 
+          <label className="flex items-start gap-2 text-xs text-muted">
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-accent"
+            />
+            <span>
+              J&apos;accepte les{" "}
+              <Link href="/cgu" target="_blank" className="text-accent hover:underline">
+                CGU
+              </Link>{" "}
+              et la{" "}
+              <Link
+                href="/confidentialite"
+                target="_blank"
+                className="text-accent hover:underline"
+              >
+                politique de confidentialité
+              </Link>
+              .
+            </span>
+          </label>
+
           {error && <p className="text-sm text-red-400">{error}</p>}
 
-          <button type="submit" disabled={loading} className="btn-primary w-full">
+          <button
+            type="submit"
+            disabled={loading || !acceptedTerms}
+            className="btn-primary w-full"
+          >
             {loading ? "Création..." : "Créer mon compte"}
           </button>
         </form>

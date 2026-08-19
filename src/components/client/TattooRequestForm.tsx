@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -274,6 +275,15 @@ export function TattooRequestForm({
       >
         {isSubmitting ? "Envoi..." : "Envoyer ma demande"}
       </button>
+
+      <p className="text-center text-[11px] text-muted">
+        En envoyant ce formulaire, tu acceptes que tes données soient
+        traitées conformément à notre{" "}
+        <Link href="/confidentialite" target="_blank" className="text-accent hover:underline">
+          politique de confidentialité
+        </Link>
+        .
+      </p>
     </form>
   );
 }
