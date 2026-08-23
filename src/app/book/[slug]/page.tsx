@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { MapPin } from "lucide-react";
 import { TattooRequestForm } from "@/components/client/TattooRequestForm";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isDayFullyBooked } from "@/lib/scheduling";
@@ -97,10 +98,11 @@ export default async function BookingPage({
       ? artist.accent_color
       : DEFAULT_ACCENT;
   const accent = ACCENT_PRESETS[accentKey];
+  const portfolio = (artist.portfolio_images ?? []).slice(0, 4);
 
   return (
     <div
-      className="relative flex min-h-full flex-col items-center px-5 py-10"
+      className="lg:flex lg:min-h-screen"
       style={
         {
           "--color-accent": accent.base,
@@ -108,78 +110,92 @@ export default async function BookingPage({
         } as React.CSSProperties
       }
     >
-      <div className="absolute inset-0 -z-10 overflow-hidden bg-background">
-        <Image
-          src={artist.cover_image_url || DEFAULT_COVER_IMAGE}
-          alt=""
-          fill
-          priority
-          className="object-cover object-top contrast-110 saturate-125"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/25 to-background" />
-      </div>
-
-      <div className="w-full max-w-sm">
-        <div className="mb-4 flex animate-fade-in-up items-center gap-3 [text-shadow:_0_2px_10px_rgb(0_0_0_/_75%)]">
-          {artist.avatar_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={artist.avatar_url}
-              alt={artist.display_name}
-              className="h-14 w-14 shrink-0 rounded-full border-2 border-white/25 object-cover"
-            />
-          ) : (
-            <div className="h-5 w-1.5 bg-accent" />
-          )}
-          <div>
-            <span className="font-display text-xl tracking-widest">
-              {artist.display_name}
-            </span>
-            {artist.city && (
-              <p className="text-xs text-muted">{artist.city}</p>
-            )}
-          </div>
+      {/* Panneau vitrine — épinglé sur desktop */}
+      <div className="relative flex min-h-[70vh] flex-col justify-end overflow-hidden px-6 pb-10 pt-20 lg:sticky lg:top-0 lg:h-screen lg:min-h-screen lg:w-[44%] lg:shrink-0 lg:justify-center lg:px-14 lg:py-16">
+        <div className="absolute inset-0 -z-10 bg-background">
+          <Image
+            src={artist.cover_image_url || DEFAULT_COVER_IMAGE}
+            alt=""
+            fill
+            priority
+            className="scale-105 object-cover object-top contrast-110 saturate-125"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/55 to-black/10 lg:bg-gradient-to-r lg:from-background/10 lg:via-black/15 lg:to-black/55" />
         </div>
 
-        {artist.bio && (
-          <p className="mb-6 animate-fade-in-up text-sm text-foreground/90 [text-shadow:_0_1px_8px_rgb(0_0_0_/_85%)]">
-            {artist.bio}
-          </p>
-        )}
-
-        {artist.portfolio_images && artist.portfolio_images.length > 0 && (
-          <div className="mb-8 grid animate-fade-in-up grid-cols-4 gap-2">
-            {artist.portfolio_images.map((url: string) => (
+        <div className="mx-auto w-full max-w-sm lg:mx-0 lg:max-w-md">
+          <div className="mb-5 flex animate-fade-in-up items-center gap-4">
+            {artist.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                key={url}
-                src={url}
-                alt="Réalisation"
-                className="aspect-square rounded-md border border-white/15 object-cover"
+                src={artist.avatar_url}
+                alt={artist.display_name}
+                className="h-20 w-20 shrink-0 rounded-full border-2 border-white/30 object-cover shadow-[0_0_40px_-6px_var(--color-accent)]"
               />
-            ))}
+            ) : (
+              <div className="h-6 w-1.5 shrink-0 bg-accent shadow-[0_0_20px_-2px_var(--color-accent)]" />
+            )}
+            <div>
+              <span className="font-display text-2xl tracking-widest text-foreground lg:text-3xl [text-shadow:_0_2px_10px_rgb(0_0_0_/_75%)]">
+                {artist.display_name}
+              </span>
+              {artist.city && (
+                <p className="mt-1 flex items-center gap-1 text-xs text-muted [text-shadow:_0_1px_6px_rgb(0_0_0_/_75%)]">
+                  <MapPin size={12} />
+                  {artist.city}
+                </p>
+              )}
+            </div>
           </div>
-        )}
 
-        <h1 className="mb-2 animate-fade-in-up text-4xl [animation-delay:250ms] [text-shadow:_0_2px_14px_rgb(0_0_0_/_75%)]">
-          Réservez votre séance
-        </h1>
-        <p className="mb-6 animate-fade-in-up text-sm text-muted [animation-delay:450ms] [text-shadow:_0_1px_8px_rgb(0_0_0_/_85%)]">
-          {artist.welcome_message ||
-            "Remplissez le formulaire, l'artiste valide sous 24-48h."}
-        </p>
+          {artist.bio && (
+            <p className="mb-6 animate-fade-in-up text-sm leading-relaxed text-foreground/90 [animation-delay:150ms] [text-shadow:_0_1px_8px_rgb(0_0_0_/_85%)]">
+              {artist.bio}
+            </p>
+          )}
 
-        <div className="animate-fade-in-up [animation-delay:700ms]">
-          <TattooRequestForm
-            blockedDates={blockedDates}
-            artistSlug={slug}
-            workingDays={artist.working_days ?? undefined}
-            minLeadDays={artist.min_lead_days ?? undefined}
-            practicedStyles={
-              (artist.practiced_styles as (typeof STYLES)[number][]) ??
-              undefined
-            }
-          />
+          {portfolio.length > 0 && (
+            <div className="grid animate-fade-in-up grid-cols-2 gap-3 [animation-delay:300ms]">
+              {portfolio.map((url: string) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={url}
+                  src={url}
+                  alt="Réalisation"
+                  className="aspect-square rounded-xl border border-white/15 object-cover shadow-lg shadow-black/40 transition-transform duration-300 hover:scale-[1.03]"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Panneau de réservation */}
+      <div className="flex justify-center bg-background px-5 py-14 lg:w-[56%] lg:px-16 lg:py-24">
+        <div className="w-full max-w-sm">
+          <p className="mb-2 animate-fade-in-up text-xs font-medium uppercase tracking-[0.2em] text-accent [animation-delay:450ms]">
+            Réservation en ligne
+          </p>
+          <h1 className="mb-3 animate-fade-in-up text-4xl [animation-delay:550ms] lg:text-5xl">
+            Réservez votre séance
+          </h1>
+          <p className="mb-8 animate-fade-in-up text-sm text-muted [animation-delay:650ms]">
+            {artist.welcome_message ||
+              "Remplissez le formulaire, l'artiste valide sous 24-48h."}
+          </p>
+
+          <div className="animate-fade-in-up [animation-delay:750ms]">
+            <TattooRequestForm
+              blockedDates={blockedDates}
+              artistSlug={slug}
+              workingDays={artist.working_days ?? undefined}
+              minLeadDays={artist.min_lead_days ?? undefined}
+              practicedStyles={
+                (artist.practiced_styles as (typeof STYLES)[number][]) ??
+                undefined
+              }
+            />
+          </div>
         </div>
       </div>
     </div>

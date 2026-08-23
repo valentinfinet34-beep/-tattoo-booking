@@ -110,156 +110,162 @@ export function TattooRequestForm({
     <form
       onSubmit={handleSubmit(onSubmit, onInvalid)}
       noValidate
-      className="flex flex-col gap-5 rounded-lg border border-white/10 bg-surface/50 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl"
+      className="flex flex-col gap-7 rounded-2xl border border-white/10 bg-surface/50 p-6 shadow-[0_25px_70px_-25px_rgba(0,0,0,0.65)] backdrop-blur-xl"
     >
-      <div className="grid grid-cols-2 gap-3">
-        <Field name="firstName" label="Prénom" error={errors.firstName?.message}>
-          <input className="input-field" {...register("firstName")} />
+      <FormSection title="Tes coordonnées">
+        <div className="grid grid-cols-2 gap-3">
+          <Field name="firstName" label="Prénom" error={errors.firstName?.message}>
+            <input className="input-field" {...register("firstName")} />
+          </Field>
+          <Field name="lastName" label="Nom" error={errors.lastName?.message}>
+            <input className="input-field" {...register("lastName")} />
+          </Field>
+        </div>
+
+        <Field name="email" label="Email" error={errors.email?.message}>
+          <input type="email" className="input-field" {...register("email")} />
         </Field>
-        <Field name="lastName" label="Nom" error={errors.lastName?.message}>
-          <input className="input-field" {...register("lastName")} />
+
+        <Field name="phone" label="Téléphone" error={errors.phone?.message}>
+          <input type="tel" className="input-field" {...register("phone")} />
         </Field>
-      </div>
+      </FormSection>
 
-      <Field name="email" label="Email" error={errors.email?.message}>
-        <input type="email" className="input-field" {...register("email")} />
-      </Field>
-
-      <Field name="phone" label="Téléphone" error={errors.phone?.message}>
-        <input type="tel" className="input-field" {...register("phone")} />
-      </Field>
-
-      <Field
-        name="description"
-        label="Description du projet"
-        error={errors.description?.message}
-      >
-        <textarea
-          rows={4}
-          className="input-field resize-none"
-          placeholder="Précise ton idée, tes envies, tes références..."
-          {...register("description")}
-        />
-      </Field>
-
-      <div className="grid grid-cols-2 gap-3">
+      <FormSection title="Ton projet">
         <Field
-          name="bodyLocation"
-          label="Zone du corps"
-          error={errors.bodyLocation?.message}
+          name="description"
+          label="Description du projet"
+          error={errors.description?.message}
         >
-          <select
-            className="input-field"
-            style={{ colorScheme: "dark" }}
-            {...register("bodyLocation")}
-          >
-            {BODY_LOCATIONS.map((loc) => (
-              <option key={loc} value={loc} style={optionStyle}>
-                {loc}
-              </option>
-            ))}
-          </select>
+          <textarea
+            rows={4}
+            className="input-field resize-none"
+            placeholder="Précise ton idée, tes envies, tes références..."
+            {...register("description")}
+          />
         </Field>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Field
+            name="bodyLocation"
+            label="Zone du corps"
+            error={errors.bodyLocation?.message}
+          >
+            <select
+              className="input-field"
+              style={{ colorScheme: "dark" }}
+              {...register("bodyLocation")}
+            >
+              {BODY_LOCATIONS.map((loc) => (
+                <option key={loc} value={loc} style={optionStyle}>
+                  {loc}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field
+            name="sizeCategory"
+            label="Taille approximative"
+            error={errors.sizeCategory?.message}
+          >
+            <select
+              className="input-field"
+              style={{ colorScheme: "dark" }}
+              {...register("sizeCategory")}
+            >
+              {SIZE_CATEGORIES.map((size) => (
+                <option key={size} value={size} style={optionStyle}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Field name="style" label="Style souhaité" error={errors.style?.message}>
+            <select
+              className="input-field"
+              style={{ colorScheme: "dark" }}
+              {...register("style")}
+            >
+              {availableStyles.map((style) => (
+                <option key={style} value={style} style={optionStyle}>
+                  {style}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field name="colorMode" label="Couleur" error={errors.colorMode?.message}>
+            <select
+              className="input-field"
+              style={{ colorScheme: "dark" }}
+              {...register("colorMode")}
+            >
+              {COLOR_MODES.map((mode) => (
+                <option key={mode} value={mode} style={optionStyle}>
+                  {mode}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+
         <Field
-          name="sizeCategory"
-          label="Taille approximative"
-          error={errors.sizeCategory?.message}
-        >
-          <select
-            className="input-field"
-            style={{ colorScheme: "dark" }}
-            {...register("sizeCategory")}
-          >
-            {SIZE_CATEGORIES.map((size) => (
-              <option key={size} value={size} style={optionStyle}>
-                {size}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field name="style" label="Style souhaité" error={errors.style?.message}>
-          <select
-            className="input-field"
-            style={{ colorScheme: "dark" }}
-            {...register("style")}
-          >
-            {availableStyles.map((style) => (
-              <option key={style} value={style} style={optionStyle}>
-                {style}
-              </option>
-            ))}
-          </select>
-        </Field>
-        <Field name="colorMode" label="Couleur" error={errors.colorMode?.message}>
-          <select
-            className="input-field"
-            style={{ colorScheme: "dark" }}
-            {...register("colorMode")}
-          >
-            {COLOR_MODES.map((mode) => (
-              <option key={mode} value={mode} style={optionStyle}>
-                {mode}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
-
-      <Field
-        name="images"
-        label="Photo de référence (optionnel, 3 max)"
-        error={errors.images?.message}
-      >
-        <Controller
           name="images"
-          control={control}
-          render={({ field }) => (
-            <ImageUploader value={field.value} onChange={field.onChange} />
-          )}
-        />
-      </Field>
+          label="Photo de référence (optionnel, 3 max)"
+          error={errors.images?.message}
+        >
+          <Controller
+            name="images"
+            control={control}
+            render={({ field }) => (
+              <ImageUploader value={field.value} onChange={field.onChange} />
+            )}
+          />
+        </Field>
+      </FormSection>
 
-      <Field
-        name="preferredDate"
-        label="Date souhaitée"
-        error={errors.preferredDate?.message}
-      >
-        <Controller
+      <FormSection title="Ton rendez-vous">
+        <Field
           name="preferredDate"
-          control={control}
-          render={({ field }) => (
-            <DatePicker
-              value={field.value}
-              onChange={field.onChange}
-              blockedDates={blockedDates}
-              workingDays={workingDays}
-              minLeadDays={minLeadDays}
-            />
-          )}
-        />
-      </Field>
+          label="Date souhaitée"
+          error={errors.preferredDate?.message}
+        >
+          <Controller
+            name="preferredDate"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                value={field.value}
+                onChange={field.onChange}
+                blockedDates={blockedDates}
+                workingDays={workingDays}
+                minLeadDays={minLeadDays}
+              />
+            )}
+          />
+        </Field>
 
-      <Field
-        name="preferredTime"
-        label="Horaire souhaité"
-        error={errors.preferredTime?.message}
-      >
-        <Controller
+        <Field
           name="preferredTime"
-          control={control}
-          render={({ field }) => (
-            <TimeSlotPicker
-              date={watchedDate}
-              value={field.value}
-              onChange={field.onChange}
-              artistSlug={artistSlug}
-            />
-          )}
-        />
-      </Field>
+          label="Horaire souhaité"
+          error={errors.preferredTime?.message}
+        >
+          <Controller
+            name="preferredTime"
+            control={control}
+            render={({ field }) => (
+              <TimeSlotPicker
+                date={watchedDate}
+                value={field.value}
+                onChange={field.onChange}
+                artistSlug={artistSlug}
+              />
+            )}
+          />
+        </Field>
+      </FormSection>
 
       {hasErrors && (
         <p className="text-sm text-red-400">
@@ -271,12 +277,12 @@ export function TattooRequestForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="btn-primary w-full animate-fade-in-up [animation-delay:1100ms]"
+        className="btn-primary w-full text-base transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0"
       >
-        {isSubmitting ? "Envoi..." : "Envoyer ma demande"}
+        {isSubmitting ? "Envoi..." : "Envoyer ma demande →"}
       </button>
 
-      <p className="text-center text-[11px] text-muted">
+      <p className="-mt-3 text-center text-[11px] text-muted">
         En envoyant ce formulaire, tu acceptes que tes données soient
         traitées conformément à notre{" "}
         <Link href="/confidentialite" target="_blank" className="text-accent hover:underline">
@@ -285,6 +291,26 @@ export function TattooRequestForm({
         .
       </p>
     </form>
+  );
+}
+
+function FormSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-2">
+        <span className="h-1 w-1 rounded-full bg-accent" />
+        <p className="text-[11px] font-medium uppercase tracking-[0.15em] text-muted">
+          {title}
+        </p>
+      </div>
+      {children}
+    </div>
   );
 }
 
