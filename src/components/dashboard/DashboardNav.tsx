@@ -14,14 +14,14 @@ export function DashboardNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="mb-6 flex gap-1 border-b border-zinc-800">
+    <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-zinc-800 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {TABS.map((tab) => {
         const active = pathname === tab.href;
         return (
           <Link
             key={tab.href}
             href={tab.href}
-            className={`-mb-px border-b-2 px-3 py-2 text-sm transition-colors ${
+            className={`-mb-px shrink-0 whitespace-nowrap border-b-2 px-3 py-2 text-sm transition-colors ${
               active
                 ? "border-accent text-zinc-100"
                 : "border-transparent text-zinc-500 hover:text-zinc-100"
