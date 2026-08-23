@@ -182,7 +182,7 @@ export default function SignupPage() {
               Adresse de ta page (modifiable)
             </label>
             <div className="input-field flex items-center gap-1 text-sm text-muted">
-              <span>/book/</span>
+              <span>/tattooer/</span>
               <input
                 required
                 value={slug}

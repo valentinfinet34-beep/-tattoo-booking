@@ -19,7 +19,7 @@ export default async function ConfirmationPage({
           régler l&apos;acompte et confirmer ton rendez-vous.
         </p>
         <Link
-          href={slug ? `/book/${slug}` : "/"}
+          href={slug ? `/tattooer/${slug}` : "/"}
           className="btn-secondary mt-2 w-full text-center"
         >
           Retour à l&apos;accueil

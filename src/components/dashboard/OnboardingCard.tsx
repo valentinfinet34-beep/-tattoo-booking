@@ -18,8 +18,8 @@ export function OnboardingCard({
   const [copied, setCopied] = useState(false);
   const bookingUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/book/${slug}`
-      : `/book/${slug}`;
+      ? `${window.location.origin}/tattooer/${slug}`
+      : `/tattooer/${slug}`;
 
   const handleCopy = async () => {
     try {
