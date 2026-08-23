@@ -45,7 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
-      className={`${fontDisplay.variable} ${fontSans.variable} h-full`}
+      className={`${fontDisplay.variable} ${fontSans.variable} h-full scroll-smooth`}
     >
       <body className="font-sans min-h-full antialiased">{children}</body>
     </html>
