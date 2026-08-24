@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const fontDisplay = Bebas_Neue({
@@ -47,7 +48,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="fr"
       className={`${fontDisplay.variable} ${fontSans.variable} h-full scroll-smooth`}
     >
-      <body className="font-sans min-h-full antialiased">{children}</body>
+      <body className="font-sans min-h-full antialiased">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
