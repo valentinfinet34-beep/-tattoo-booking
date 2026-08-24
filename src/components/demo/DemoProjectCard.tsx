@@ -114,7 +114,7 @@ export function DemoProjectCard({ project }: { project: Project }) {
             Lien de paiement ({(project.deposit_amount_cents ?? 0) / 100} €)
           </label>
           <div className="input-field truncate text-accent opacity-60">
-            https://tattoo-booking-tau.vercel.app/pay/••••••••••
+            https://tattflow.vercel.app/pay/••••••••••
           </div>
         </div>
       )}
