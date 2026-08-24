@@ -14,7 +14,7 @@ const fontSans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Réservation & Acompte | Studio Tattoo",
+  title: "Réservation & Acompte | TattFlow",
   description: "Réservez votre séance de tatouage en quelques clics.",
   manifest: "/manifest.json",
   icons: {
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Studio Ink",
+    title: "TattFlow",
   },
 };
 

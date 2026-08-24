@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { TattooRequestForm } from "@/components/client/TattooRequestForm";
+import { Footer } from "@/components/Footer";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPublicArtistBySlug } from "@/lib/public-artist";
 import { isDayFullyBooked } from "@/lib/scheduling";
@@ -128,6 +129,10 @@ export default async function BookingPage({
             }
           />
         </div>
+      </div>
+
+      <div className="mt-16 w-full">
+        <Footer />
       </div>
     </div>
   );

@@ -157,7 +157,7 @@ export default function SignupPage() {
         <div className="mb-8 flex items-center gap-2">
           <div className="h-5 w-1.5 bg-accent" />
           <span className="font-display text-xl tracking-widest">
-            STUDIO INK
+            TATTFLOW
           </span>
         </div>
 
@@ -173,7 +173,7 @@ export default function SignupPage() {
               value={displayName}
               onChange={(e) => handleNameChange(e.target.value)}
               className="input-field"
-              placeholder="Studio Ink"
+              placeholder="TattFlow"
             />
           </div>
 

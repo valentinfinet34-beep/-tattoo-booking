@@ -139,7 +139,7 @@ export default function DemoPage() {
           <div className="flex items-center gap-2">
             <div className="h-5 w-1.5 bg-accent" />
             <span className="font-display text-xl tracking-widest text-zinc-100">
-              STUDIO INK
+              TATTFLOW
             </span>
           </div>
           <div className="flex items-center gap-3">

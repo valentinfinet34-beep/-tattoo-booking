@@ -18,9 +18,9 @@ export default function DashboardLayout({
           <div className="flex items-center gap-2">
             <div className="h-5 w-1.5 bg-accent" />
             <span className="font-display text-xl tracking-widest text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.25)]">
-              STUDIO{" "}
+              TATT
               <span className="text-red-500 drop-shadow-[0_0_12px_rgba(239,68,68,0.8)]">
-                INK
+                FLOW
               </span>
             </span>
           </div>

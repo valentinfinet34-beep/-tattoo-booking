@@ -16,6 +16,7 @@ import {
 import { getPublicArtistBySlug } from "@/lib/public-artist";
 import { TiltCard } from "@/components/client/TiltCard";
 import { RevealSection } from "@/components/client/RevealSection";
+import { Footer } from "@/components/Footer";
 import {
   HeroParallaxBg,
   HeroParallaxContent,
@@ -383,6 +384,8 @@ export default async function TattooerShowcasePage({
           </Link>
         </RevealSection>
       </section>
+
+      <Footer />
     </div>
   );
 }

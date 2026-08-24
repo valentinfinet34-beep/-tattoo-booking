@@ -1,13 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import {
   removePortfolioImage,
+  reorderPortfolioImages,
   uploadPortfolioImage,
 } from "@/app/dashboard/settings/actions";
 
-const MAX_IMAGES = 4;
+const MAX_IMAGES = 12;
 
 export function PortfolioSettings({
   initialImages,
@@ -53,17 +54,35 @@ export function PortfolioSettings({
     }
   };
 
+  const handleMove = async (index: number, direction: -1 | 1) => {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= images.length) return;
+
+    const next = [...images];
+    [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+    const previous = images;
+    setImages(next);
+    setError(null);
+
+    try {
+      await reorderPortfolioImages(next);
+    } catch {
+      setError("Échec de la réorganisation, réessaie.");
+      setImages(previous);
+    }
+  };
+
   return (
     <div>
       <h2 className="mb-1 font-display text-lg tracking-wide text-zinc-100">
         Galerie de réalisations
       </h2>
       <p className="mb-3 text-xs text-zinc-500">
-        3 à 4 photos de tes tatouages, affichées en haut de ta page de
-        réservation pour donner confiance aux clients.
+        Jusqu&apos;à 12 photos de tes tatouages, affichées sur ta page de
+        réservation dans cet ordre pour donner confiance aux clients.
       </p>
-      <div className="grid grid-cols-4 gap-2">
-        {images.map((url) => (
+      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+        {images.map((url, index) => (
           <div
             key={url}
             className="group relative aspect-square overflow-hidden rounded-md border border-zinc-800"
@@ -82,6 +101,27 @@ export function PortfolioSettings({
             >
               <X size={12} />
             </button>
+            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/70 px-1 py-1 opacity-0 transition-opacity group-hover:opacity-100">
+              <button
+                type="button"
+                onClick={() => handleMove(index, -1)}
+                disabled={index === 0}
+                aria-label="Déplacer vers la gauche"
+                className="rounded p-0.5 text-white disabled:pointer-events-none disabled:opacity-30"
+              >
+                <ChevronLeft size={14} />
+              </button>
+              <span className="text-[9px] text-zinc-300">{index + 1}</span>
+              <button
+                type="button"
+                onClick={() => handleMove(index, 1)}
+                disabled={index === images.length - 1}
+                aria-label="Déplacer vers la droite"
+                className="rounded p-0.5 text-white disabled:pointer-events-none disabled:opacity-30"
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
           </div>
         ))}
 
@@ -106,6 +146,10 @@ export function PortfolioSettings({
         className="hidden"
         onChange={handleFileChange}
       />
+
+      <p className="mt-2 text-[10px] text-zinc-600">
+        {images.length}/{MAX_IMAGES} photos
+      </p>
 
       {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
     </div>

@@ -53,7 +53,7 @@ export function SubscriptionSection({
           <p className="text-sm text-zinc-400">
             {status
               ? `Statut actuel : ${STATUS_LABELS[status] ?? status}`
-              : "Aucun abonnement actif. Démarre ton essai gratuit de 14 jours pour utiliser Studio Ink."}
+              : "Aucun abonnement actif. Démarre ton essai gratuit de 14 jours pour utiliser TattFlow."}
           </p>
           <form action={startSubscriptionCheckout}>
             <button type="submit" className="btn-primary">

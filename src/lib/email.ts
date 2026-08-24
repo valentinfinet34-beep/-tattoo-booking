@@ -24,7 +24,7 @@ export async function sendDepositLinkEmail({
   payUrl: string;
 }) {
   const fromAddress =
-    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL ?? "TattFlow <onboarding@resend.dev>";
 
   await getResend().emails.send({
     from: fromAddress,
@@ -72,7 +72,7 @@ export async function sendQuoteEmail({
   quoteUrl: string;
 }) {
   const fromAddress =
-    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL ?? "TattFlow <onboarding@resend.dev>";
 
   await getResend().emails.send({
     from: fromAddress,
@@ -122,7 +122,7 @@ export async function sendQuoteDeclinedEmail({
   quotedPriceEur: number;
 }) {
   const fromAddress =
-    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL ?? "TattFlow <onboarding@resend.dev>";
 
   await getResend().emails.send({
     from: fromAddress,
@@ -153,7 +153,7 @@ export async function sendNewRequestEmail({
   dashboardUrl: string;
 }) {
   const fromAddress =
-    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL ?? "TattFlow <onboarding@resend.dev>";
 
   await getResend().emails.send({
     from: fromAddress,
@@ -194,7 +194,7 @@ export async function sendQuoteAcceptedEmail({
   dashboardUrl: string;
 }) {
   const fromAddress =
-    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL ?? "TattFlow <onboarding@resend.dev>";
 
   await getResend().emails.send({
     from: fromAddress,
@@ -235,7 +235,7 @@ export async function sendDepositPaidEmail({
   dashboardUrl: string;
 }) {
   const fromAddress =
-    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL ?? "TattFlow <onboarding@resend.dev>";
 
   await getResend().emails.send({
     from: fromAddress,
@@ -278,7 +278,7 @@ export async function sendAppointmentReminderEmail({
   dashboardUrl: string;
 }) {
   const fromAddress =
-    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL ?? "TattFlow <onboarding@resend.dev>";
 
   await getResend().emails.send({
     from: fromAddress,
@@ -316,7 +316,7 @@ export async function sendDeclineEmail({
   rescheduleUrl: string;
 }) {
   const fromAddress =
-    process.env.RESEND_FROM_EMAIL ?? "Studio Ink <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL ?? "TattFlow <onboarding@resend.dev>";
 
   await getResend().emails.send({
     from: fromAddress,

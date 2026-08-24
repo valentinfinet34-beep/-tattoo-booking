@@ -71,7 +71,7 @@ export default function LoginPage() {
         <div className="mb-8 flex items-center gap-2">
           <div className="h-5 w-1.5 bg-accent" />
           <span className="font-display text-xl tracking-widest">
-            STUDIO INK
+            TATTFLOW
           </span>
         </div>
 

@@ -1,6 +1,6 @@
 {
-  "name": "Studio Ink — Dashboard",
-  "short_name": "Studio Ink",
+  "name": "TattFlow — Dashboard",
+  "short_name": "TattFlow",
   "description": "Gérez vos demandes de tatouage, vos disponibilités et vos acomptes.",
   "start_url": "/dashboard",
   "scope": "/",

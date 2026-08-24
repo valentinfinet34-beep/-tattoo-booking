@@ -97,7 +97,7 @@ export async function resetAvatar() {
   revalidatePath("/dashboard/settings");
 }
 
-const MAX_PORTFOLIO_IMAGES = 4;
+const MAX_PORTFOLIO_IMAGES = 12;
 
 export async function uploadPortfolioImage(formData: FormData) {
   const { supabase, user } = await requireUser();
@@ -158,6 +158,31 @@ export async function removePortfolioImage(url: string) {
     .eq("id", user.id);
 
   if (error) throw new Error("Échec de la suppression");
+
+  revalidatePath("/dashboard/settings");
+}
+
+export async function reorderPortfolioImages(orderedUrls: string[]) {
+  const { supabase, user } = await requireUser();
+
+  const { data: artist } = await supabase
+    .from("artists")
+    .select("portfolio_images")
+    .eq("id", user.id)
+    .single();
+
+  const current: string[] = artist?.portfolio_images ?? [];
+  const sameSet =
+    current.length === orderedUrls.length &&
+    current.every((u) => orderedUrls.includes(u));
+  if (!sameSet) throw new Error("Liste invalide");
+
+  const { error } = await supabase
+    .from("artists")
+    .update({ portfolio_images: orderedUrls })
+    .eq("id", user.id);
+
+  if (error) throw new Error("Échec de la réorganisation");
 
   revalidatePath("/dashboard/settings");
 }
