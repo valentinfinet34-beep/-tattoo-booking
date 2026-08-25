@@ -1,11 +1,49 @@
+import Link from "next/link";
 import { LogoutButton } from "@/components/dashboard/LogoutButton";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
+import { createClient } from "@/lib/supabase/server";
+import { getStripe } from "@/lib/stripe";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let subscriptionStatus: string | null = null;
+  let trialDaysLeft: number | null = null;
+
+  if (user) {
+    const { data: artist } = await supabase
+      .from("artists")
+      .select("subscription_status, stripe_subscription_id")
+      .eq("id", user.id)
+      .single();
+
+    subscriptionStatus = artist?.subscription_status ?? null;
+
+    if (subscriptionStatus === "trialing" && artist?.stripe_subscription_id) {
+      try {
+        const subscription = await getStripe().subscriptions.retrieve(
+          artist.stripe_subscription_id
+        );
+        if (subscription.trial_end) {
+          const msLeft = subscription.trial_end * 1000 - Date.now();
+          trialDaysLeft = Math.max(
+            0,
+            Math.ceil(msLeft / (1000 * 60 * 60 * 24))
+          );
+        }
+      } catch {
+        trialDaysLeft = null;
+      }
+    }
+  }
+
   return (
     <div className="relative min-h-full overflow-hidden bg-[#0a0a0c] text-white">
       {/* Enseigne néon en haut de page */}
@@ -34,6 +72,25 @@ export default function DashboardLayout({
             <LogoutButton />
           </div>
         </div>
+
+        {subscriptionStatus === "trialing" && trialDaysLeft !== null && (
+          <Link
+            href="/dashboard/settings#abonnement"
+            className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm transition-colors hover:bg-accent/15"
+          >
+            <span className="flex items-center gap-2 text-zinc-100">
+              <span>🎁</span>
+              Essai gratuit —{" "}
+              <strong>
+                {trialDaysLeft} jour{trialDaysLeft > 1 ? "s" : ""} restant
+                {trialDaysLeft > 1 ? "s" : ""}
+              </strong>
+            </span>
+            <span className="shrink-0 text-xs text-accent underline">
+              Gérer l&apos;abonnement →
+            </span>
+          </Link>
+        )}
 
         <DashboardNav />
 
