@@ -304,6 +304,84 @@ export async function sendAppointmentReminderEmail({
   });
 }
 
+export async function sendQuoteReminderEmail({
+  to,
+  firstName,
+  quotedPriceEur,
+  quoteUrl,
+}: {
+  to: string;
+  firstName: string;
+  quotedPriceEur: number;
+  quoteUrl: string;
+}) {
+  const fromAddress =
+    process.env.RESEND_FROM_EMAIL ?? "TattFlow <onboarding@resend.dev>";
+
+  await getResend().emails.send({
+    from: fromAddress,
+    to,
+    subject: `Toujours partant·e ? Ton devis de ${quotedPriceEur} € t'attend`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
+        <h1 style="font-size: 22px;">Bonjour ${firstName},</h1>
+        <p style="font-size: 15px; line-height: 1.6;">
+          Petit rappel : l'artiste t'a proposé un devis de
+          <strong>${quotedPriceEur} €</strong> pour ton projet de tatouage.
+          Tu peux l'accepter ou le décliner directement en ligne, en un clic.
+        </p>
+        <p style="margin: 28px 0;">
+          <a
+            href="${quoteUrl}"
+            style="background: #c81e1e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;"
+          >
+            Voir mon devis
+          </a>
+        </p>
+      </div>
+    `,
+  });
+}
+
+export async function sendPaymentReminderEmail({
+  to,
+  firstName,
+  depositAmountEur,
+  payUrl,
+}: {
+  to: string;
+  firstName: string;
+  depositAmountEur: number;
+  payUrl: string;
+}) {
+  const fromAddress =
+    process.env.RESEND_FROM_EMAIL ?? "TattFlow <onboarding@resend.dev>";
+
+  await getResend().emails.send({
+    from: fromAddress,
+    to,
+    subject: `N'oublie pas de régler ton acompte de ${depositAmountEur} €`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
+        <h1 style="font-size: 22px;">Bonjour ${firstName},</h1>
+        <p style="font-size: 15px; line-height: 1.6;">
+          Ton rendez-vous n'est pas encore confirmé : il ne manque plus que
+          le règlement de l'acompte de <strong>${depositAmountEur} €</strong>
+          pour bloquer définitivement ton créneau.
+        </p>
+        <p style="margin: 28px 0;">
+          <a
+            href="${payUrl}"
+            style="background: #c81e1e; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; display: inline-block;"
+          >
+            Régler l'acompte
+          </a>
+        </p>
+      </div>
+    `,
+  });
+}
+
 export async function sendDeclineEmail({
   to,
   firstName,
