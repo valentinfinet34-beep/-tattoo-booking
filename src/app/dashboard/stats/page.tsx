@@ -32,18 +32,17 @@ export default async function StatsPage() {
             <Lock className="text-accent" size={20} />
           </span>
           <p className="font-display text-lg tracking-wide text-zinc-100">
-            Disponible avec la formule Pro
+            Disponible une fois ton abonnement actif
           </p>
           <p className="max-w-sm text-sm text-zinc-500">
-            Passe à la formule Pro pour suivre ton taux de conversion, tes
-            no-shows, et débloquer les relances automatiques et la collecte
-            d&apos;avis clients.
+            Active ton abonnement pour suivre ton taux de conversion et tes
+            no-shows.
           </p>
           <Link
             href="/dashboard/settings#abonnement"
             className="btn-primary mt-2"
           >
-            Voir les formules
+            Voir l&apos;abonnement
           </Link>
         </div>
       </div>

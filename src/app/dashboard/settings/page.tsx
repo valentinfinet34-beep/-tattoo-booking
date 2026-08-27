@@ -213,7 +213,6 @@ export default async function SettingsPage() {
           </h2>
           <SubscriptionSection
             status={artist?.subscription_status ?? null}
-            plan={artist?.subscription_plan ?? null}
             renewalDate={renewalDate}
           />
         </section>
