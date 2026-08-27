@@ -45,12 +45,21 @@ export async function POST(request: Request) {
     const artistId = subscription.metadata?.artist_id;
 
     if (artistId) {
+      const priceId = subscription.items.data[0]?.price.id;
+      const plan =
+        priceId === process.env.STRIPE_PRICE_PRO_ID
+          ? "pro"
+          : priceId === process.env.STRIPE_PRICE_NORMAL_ID
+            ? "normal"
+            : (subscription.metadata?.plan ?? null);
+
       const admin = createAdminClient();
       await admin
         .from("artists")
         .update({
           stripe_subscription_id: subscription.id,
           subscription_status: subscription.status,
+          subscription_plan: plan,
         })
         .eq("id", artistId);
     }

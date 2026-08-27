@@ -6,7 +6,12 @@ import { getStripe } from "@/lib/stripe";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
-export async function startSubscriptionCheckout() {
+const PLAN_PRICE_IDS = {
+  normal: process.env.STRIPE_PRICE_NORMAL_ID!,
+  pro: process.env.STRIPE_PRICE_PRO_ID!,
+} as const;
+
+export async function startSubscriptionCheckout(plan: "normal" | "pro") {
   const supabase = await createClient();
   const {
     data: { user },
@@ -40,10 +45,10 @@ export async function startSubscriptionCheckout() {
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
-    line_items: [{ price: process.env.STRIPE_SUBSCRIPTION_PRICE_ID!, quantity: 1 }],
+    line_items: [{ price: PLAN_PRICE_IDS[plan], quantity: 1 }],
     subscription_data: {
       trial_period_days: 14,
-      metadata: { artist_id: user.id },
+      metadata: { artist_id: user.id, plan },
     },
     success_url: `${SITE_URL}/dashboard/settings?success=1#abonnement`,
     cancel_url: `${SITE_URL}/dashboard/settings?canceled=1#abonnement`,

@@ -31,12 +31,32 @@ const VALUE_PROPS = [
   },
 ];
 
-const INCLUDED = [
-  "Page de réservation personnalisée (photo, couleur, galerie)",
-  "Devis et acomptes automatiques via Stripe, 0% de commission",
-  "Agenda avec disponibilités réelles, anti double-réservation",
-  "Emails automatiques : devis, paiement, rappels de RDV",
-  "Installable sur ton téléphone comme une vraie appli",
+const PLANS = [
+  {
+    name: "Normal",
+    price: "19€",
+    tagline: "L'essentiel pour sortir des DM",
+    features: [
+      "Page de réservation personnalisée (photo, couleur, galerie)",
+      "Devis et acompte automatique via Stripe, 0% de commission",
+      "Agenda avec disponibilités réelles, anti double-réservation",
+      "Emails automatiques : devis, paiement, confirmation",
+      "Installable sur ton téléphone comme une vraie appli",
+    ],
+  },
+  {
+    name: "Pro",
+    price: "35€",
+    tagline: "Pour optimiser, pas juste automatiser",
+    highlighted: true,
+    features: [
+      "Tout Normal, plus :",
+      "Relances automatiques (devis, paiement en attente)",
+      "Statistiques : taux de conversion, no-shows",
+      "Page encore plus personnalisable",
+      "Collecte automatique d'avis clients",
+    ],
+  },
 ];
 
 export default function Home() {
@@ -123,44 +143,67 @@ export default function Home() {
 
       {/* TARIF */}
       <section className="border-y border-white/10 bg-surface/30 px-6 py-24 md:px-16">
-        <div className="mx-auto max-w-lg">
-          <RevealSection className="text-center">
+        <div className="mx-auto max-w-3xl">
+          <RevealSection className="mb-14 text-center">
             <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-accent">
               Tarif
             </p>
-            <h2 className="mb-10 font-display text-3xl tracking-tight text-foreground md:text-4xl">
-              Un seul plan, tout inclus
+            <h2 className="mb-3 font-display text-3xl tracking-tight text-foreground md:text-4xl">
+              Deux formules, sans engagement
             </h2>
-
-            <div className="rounded-2xl border border-accent/30 bg-background p-8 shadow-[0_0_60px_-20px_rgba(200,30,30,0.4)]">
-              <p className="mb-1 inline-block rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-[11px] font-medium uppercase tracking-wide text-accent">
-                14 jours d&apos;essai gratuit
-              </p>
-              <p className="mt-4 font-display text-6xl text-foreground">
-                29€
-                <span className="text-lg font-normal text-muted">/mois</span>
-              </p>
-              <p className="mb-6 text-xs text-muted">
-                Résiliable à tout moment, sans engagement.
-              </p>
-
-              <ul className="mb-8 flex flex-col gap-2.5 text-left text-sm text-foreground/90">
-                {INCLUDED.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5">
-                    <Check size={16} className="mt-0.5 shrink-0 text-accent" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-
-              <Link
-                href="/signup"
-                className="block w-full rounded-full bg-accent px-6 py-3.5 text-center text-sm font-semibold uppercase tracking-[0.1em] text-white shadow-[0_0_30px_-8px_rgba(200,30,30,0.8)] transition-all duration-300 hover:-translate-y-0.5"
-              >
-                Démarrer l&apos;essai gratuit
-              </Link>
-            </div>
+            <p className="text-sm text-muted">
+              14 jours d&apos;essai gratuit sur les deux, aucune carte requise
+              pour démarrer.
+            </p>
           </RevealSection>
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            {PLANS.map((plan, i) => (
+              <RevealSection key={plan.name} delay={i * 0.1}>
+                <div
+                  className={`flex h-full flex-col gap-4 rounded-2xl border p-8 ${
+                    plan.highlighted
+                      ? "border-accent/50 bg-background shadow-[0_0_60px_-20px_rgba(200,30,30,0.4)]"
+                      : "border-white/10 bg-background"
+                  }`}
+                >
+                  <div>
+                    <p className="font-display text-xl tracking-wide text-foreground">
+                      {plan.name}
+                    </p>
+                    <p className="text-xs text-muted">{plan.tagline}</p>
+                  </div>
+                  <p className="font-display text-5xl text-foreground">
+                    {plan.price}
+                    <span className="text-base font-normal text-muted">
+                      /mois
+                    </span>
+                  </p>
+                  <ul className="flex flex-1 flex-col gap-2.5 text-left text-sm text-foreground/90">
+                    {plan.features.map((item) => (
+                      <li key={item} className="flex items-start gap-2.5">
+                        <Check
+                          size={16}
+                          className="mt-0.5 shrink-0 text-accent"
+                        />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href="/signup"
+                    className={
+                      plan.highlighted
+                        ? "block w-full rounded-full bg-accent px-6 py-3.5 text-center text-sm font-semibold uppercase tracking-[0.1em] text-white shadow-[0_0_30px_-8px_rgba(200,30,30,0.8)] transition-all duration-300 hover:-translate-y-0.5"
+                        : "block w-full rounded-full border border-white/15 px-6 py-3.5 text-center text-sm font-semibold uppercase tracking-[0.1em] text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-white/30"
+                    }
+                  >
+                    Démarrer l&apos;essai gratuit
+                  </Link>
+                </div>
+              </RevealSection>
+            ))}
+          </div>
         </div>
       </section>
 

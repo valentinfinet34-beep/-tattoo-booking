@@ -36,7 +36,7 @@ export default async function SettingsPage() {
       supabase
         .from("artists")
         .select(
-          "avatar_url, display_name, city, bio, instagram_handle, portfolio_images, cover_image_url, accent_color, welcome_message, practiced_styles, deposit_type, deposit_percentage, deposit_fixed_amount_cents, deposit_expiry_hours, working_days, hours_start, hours_end, min_lead_days, notify_new_request, notify_quote_accepted, notify_deposit_paid, notify_reminder_24h, stripe_account_id, stripe_charges_enabled, stripe_subscription_id, subscription_status"
+          "avatar_url, display_name, city, bio, instagram_handle, portfolio_images, cover_image_url, accent_color, welcome_message, practiced_styles, deposit_type, deposit_percentage, deposit_fixed_amount_cents, deposit_expiry_hours, working_days, hours_start, hours_end, min_lead_days, notify_new_request, notify_quote_accepted, notify_deposit_paid, notify_reminder_24h, stripe_account_id, stripe_charges_enabled, stripe_subscription_id, subscription_status, subscription_plan"
         )
         .eq("id", user!.id)
         .single(),
@@ -213,6 +213,7 @@ export default async function SettingsPage() {
           </h2>
           <SubscriptionSection
             status={artist?.subscription_status ?? null}
+            plan={artist?.subscription_plan ?? null}
             renewalDate={renewalDate}
           />
         </section>

@@ -97,10 +97,14 @@ export default function CguPage() {
         <h2>5. Abonnement et tarifs</h2>
         <p>
           L&apos;accès à la Plateforme est proposé sous forme d&apos;abonnement
-          mensuel au tarif de 29 € TTC/mois, précédé d&apos;une période
+          mensuel, selon la formule choisie par l&apos;Artiste (les tarifs en
+          vigueur sont affichés sur la page d&apos;inscription et dans
+          l&apos;espace « Paramètres »), précédé d&apos;une période
           d&apos;essai gratuite de 14 jours. L&apos;abonnement se renouvelle
           automatiquement chaque mois jusqu&apos;à résiliation par
           l&apos;Artiste, à tout moment, depuis son espace « Paramètres ».
+          L&apos;Artiste peut à tout moment changer de formule depuis son
+          espace de gestion de l&apos;abonnement.
         </p>
         <p>
           La résiliation prend effet à la fin de la période déjà payée ; aucun
