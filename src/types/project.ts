@@ -32,6 +32,7 @@ export interface Project {
   stripe_session_id: string | null;
   deposit_terms_accepted_at: string | null;
   deposit_expires_at: string | null;
+  no_show: boolean;
   created_at: string;
   updated_at: string;
 }
