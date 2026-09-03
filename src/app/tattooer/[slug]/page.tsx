@@ -30,7 +30,7 @@ import {
 export const dynamic = "force-dynamic";
 
 const DEFAULT_COVER_IMAGE =
-  "https://images.unsplash.com/photo-1532543149533-f0ed72f555c3?fm=jpg&q=80&w=1920&auto=format&fit=crop";
+  "https://images.unsplash.com/photo-1759247943108-39e23e97fde4?fm=jpg&q=80&w=1920&auto=format&fit=crop";
 
 const STEPS = [
   {
