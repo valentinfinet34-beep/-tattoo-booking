@@ -144,19 +144,28 @@ export default function Home() {
           </RevealSection>
 
           <RevealSection className="mx-auto max-w-sm">
-            <div className="flex h-full flex-col gap-4 rounded-2xl border border-accent/50 bg-background p-8 shadow-[0_0_60px_-20px_rgba(200,30,30,0.4)]">
+            <div className="relative flex h-full flex-col gap-4 rounded-2xl border border-accent/50 bg-background p-8 pt-10 shadow-[0_0_60px_-20px_rgba(200,30,30,0.4)]">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent px-5 py-2 text-xs font-bold uppercase tracking-[0.1em] text-white shadow-[0_0_25px_-6px_rgba(200,30,30,0.9)]">
+                14 jours offerts, sans carte
+              </div>
               <div>
                 <p className="font-display text-xl tracking-wide text-foreground">
                   {PLAN.name}
                 </p>
                 <p className="text-xs text-muted">{PLAN.tagline}</p>
               </div>
-              <p className="font-display text-5xl text-foreground">
-                {PLAN.price}
-                <span className="text-base font-normal text-muted">
-                  /mois
-                </span>
-              </p>
+              <div>
+                <p className="font-display text-5xl text-foreground">
+                  {PLAN.price}
+                  <span className="text-base font-normal text-muted">
+                    /mois
+                  </span>
+                </p>
+                <p className="mt-1.5 text-sm font-semibold text-accent">
+                  Gratuit 14 jours, puis {PLAN.price}/mois. Résiliable à tout
+                  moment.
+                </p>
+              </div>
               <ul className="flex flex-1 flex-col gap-2.5 text-left text-sm text-foreground/90">
                 {PLAN.features.map((item) => (
                   <li key={item} className="flex items-start gap-2.5">
@@ -169,7 +178,7 @@ export default function Home() {
                 href="/signup"
                 className="block w-full rounded-full bg-accent px-6 py-3.5 text-center text-sm font-semibold uppercase tracking-[0.1em] text-white shadow-[0_0_30px_-8px_rgba(200,30,30,0.8)] transition-all duration-300 hover:-translate-y-0.5"
               >
-                Démarrer l&apos;essai gratuit
+                Démarrer mon essai gratuit — 0€ aujourd&apos;hui
               </Link>
             </div>
           </RevealSection>

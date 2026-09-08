@@ -64,16 +64,24 @@ export function SubscriptionSection({
           : "Aucun abonnement actif. Démarre ton essai gratuit de 14 jours."}
       </p>
 
-      <div className="flex flex-col gap-4 rounded-2xl border border-accent/50 bg-accent/5 p-5 sm:max-w-sm">
+      <div className="relative flex flex-col gap-4 rounded-2xl border border-accent/50 bg-accent/5 p-5 pt-9 sm:max-w-sm">
+        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-white shadow-[0_0_20px_-5px_rgba(200,30,30,0.9)]">
+          14 jours offerts, sans carte
+        </div>
         <div>
           <p className="font-display text-lg tracking-wide text-zinc-100">
             TattFlow
           </p>
           <p className="text-xs text-zinc-500">Toutes les fonctionnalités</p>
         </div>
-        <p className="font-display text-3xl text-zinc-100">
-          29€<span className="text-sm font-normal text-zinc-500">/mois</span>
-        </p>
+        <div>
+          <p className="font-display text-3xl text-zinc-100">
+            29€<span className="text-sm font-normal text-zinc-500">/mois</span>
+          </p>
+          <p className="mt-1 text-xs font-semibold text-accent">
+            Gratuit 14 jours, puis 29€/mois. Résiliable à tout moment.
+          </p>
+        </div>
         <ul className="flex flex-col gap-2 text-xs text-zinc-400">
           {FEATURES.map((f) => (
             <li key={f} className="flex items-start gap-2">
@@ -84,7 +92,7 @@ export function SubscriptionSection({
         </ul>
         <form action={startSubscriptionCheckout}>
           <button type="submit" className="btn-primary w-full">
-            Démarrer l&apos;essai gratuit
+            Démarrer mon essai gratuit — 0€ aujourd&apos;hui
           </button>
         </form>
       </div>
