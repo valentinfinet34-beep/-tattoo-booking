@@ -97,11 +97,11 @@ export function PortfolioSettings({
               type="button"
               onClick={() => handleRemove(url)}
               aria-label="Retirer cette photo"
-              className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100"
+              className="absolute right-1 top-1 rounded-full bg-black/70 p-1 text-white transition-colors hover:bg-black/90"
             >
               <X size={12} />
             </button>
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/70 px-1 py-1 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/70 px-1 py-1">
               <button
                 type="button"
                 onClick={() => handleMove(index, -1)}
