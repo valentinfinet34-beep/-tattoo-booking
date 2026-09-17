@@ -104,14 +104,16 @@ export default async function SettingsPage() {
             Tes informations personnelles, visibles par les clients sur ta
             page.
           </p>
-          <ProfileSettings
-            avatarUrl={artist?.avatar_url ?? null}
-            displayName={artist?.display_name ?? ""}
-            city={artist?.city ?? ""}
-            bio={artist?.bio ?? ""}
-            instagramHandle={artist?.instagram_handle ?? ""}
-          />
-          <div className="mt-8">
+          <div className="card-glass">
+            <ProfileSettings
+              avatarUrl={artist?.avatar_url ?? null}
+              displayName={artist?.display_name ?? ""}
+              city={artist?.city ?? ""}
+              bio={artist?.bio ?? ""}
+              instagramHandle={artist?.instagram_handle ?? ""}
+            />
+          </div>
+          <div className="card-glass mt-4">
             <PortfolioSettings initialImages={artist?.portfolio_images ?? []} />
           </div>
         </section>
@@ -124,12 +126,14 @@ export default async function SettingsPage() {
             Ces réglages s&apos;appliquent directement à ta page de
             réservation publique.
           </p>
-          <PageSettings
-            coverImageUrl={artist?.cover_image_url ?? null}
-            accentColor={accentColor}
-            welcomeMessage={artist?.welcome_message ?? ""}
-            practicedStyles={artist?.practiced_styles ?? []}
-          />
+          <div className="card-glass">
+            <PageSettings
+              coverImageUrl={artist?.cover_image_url ?? null}
+              accentColor={accentColor}
+              welcomeMessage={artist?.welcome_message ?? ""}
+              practicedStyles={artist?.practiced_styles ?? []}
+            />
+          </div>
         </section>
 
         <section id="acomptes" className="scroll-mt-6">
@@ -140,14 +144,18 @@ export default async function SettingsPage() {
             Le montant proposé automatiquement au client quand il accepte un
             devis.
           </p>
-          <DepositSettings
-            depositType={
-              artist?.deposit_type === "fixed" ? "fixed" : "percentage"
-            }
-            depositPercentage={artist?.deposit_percentage ?? 20}
-            depositFixedAmountCents={artist?.deposit_fixed_amount_cents ?? null}
-            depositExpiryHours={artist?.deposit_expiry_hours ?? 48}
-          />
+          <div className="card-glass">
+            <DepositSettings
+              depositType={
+                artist?.deposit_type === "fixed" ? "fixed" : "percentage"
+              }
+              depositPercentage={artist?.deposit_percentage ?? 20}
+              depositFixedAmountCents={
+                artist?.deposit_fixed_amount_cents ?? null
+              }
+              depositExpiryHours={artist?.deposit_expiry_hours ?? 48}
+            />
+          </div>
         </section>
 
         <section id="disponibilites" className="scroll-mt-6">
@@ -157,14 +165,16 @@ export default async function SettingsPage() {
           <p className="mb-5 text-sm text-zinc-500">
             Tes jours et horaires de travail, ainsi que tes congés.
           </p>
-          <div className="flex flex-col gap-8">
-            <AvailabilitySettings
-              workingDays={artist?.working_days ?? [1, 2, 3, 4, 5, 6]}
-              hoursStart={artist?.hours_start ?? 9}
-              hoursEnd={artist?.hours_end ?? 19}
-              minLeadDays={artist?.min_lead_days ?? 0}
-            />
-            <div>
+          <div className="flex flex-col gap-4">
+            <div className="card-glass">
+              <AvailabilitySettings
+                workingDays={artist?.working_days ?? [1, 2, 3, 4, 5, 6]}
+                hoursStart={artist?.hours_start ?? 9}
+                hoursEnd={artist?.hours_end ?? 19}
+                minLeadDays={artist?.min_lead_days ?? 0}
+              />
+            </div>
+            <div className="card-glass">
               <h3 className="mb-3 text-sm font-medium text-zinc-300">
                 Congés / périodes bloquées
               </h3>
@@ -184,12 +194,14 @@ export default async function SettingsPage() {
           <p className="mb-5 text-sm text-zinc-500">
             Les emails que tu reçois selon l&apos;avancement de tes demandes.
           </p>
-          <NotificationSettings
-            notifyNewRequest={artist?.notify_new_request ?? true}
-            notifyQuoteAccepted={artist?.notify_quote_accepted ?? true}
-            notifyDepositPaid={artist?.notify_deposit_paid ?? true}
-            notifyReminder24h={artist?.notify_reminder_24h ?? true}
-          />
+          <div className="card-glass">
+            <NotificationSettings
+              notifyNewRequest={artist?.notify_new_request ?? true}
+              notifyQuoteAccepted={artist?.notify_quote_accepted ?? true}
+              notifyDepositPaid={artist?.notify_deposit_paid ?? true}
+              notifyReminder24h={artist?.notify_reminder_24h ?? true}
+            />
+          </div>
         </section>
 
         <section id="stripe" className="scroll-mt-6">
@@ -200,21 +212,25 @@ export default async function SettingsPage() {
             Connecte ton compte Stripe pour recevoir directement les
             acomptes de tes clients — 100% du montant, sans commission.
           </p>
-          <StripeSection
-            connected={!!artist?.stripe_charges_enabled}
-            hasAccount={!!artist?.stripe_account_id}
-            paymentHistory={paymentHistory ?? []}
-          />
+          <div className="card-glass">
+            <StripeSection
+              connected={!!artist?.stripe_charges_enabled}
+              hasAccount={!!artist?.stripe_account_id}
+              paymentHistory={paymentHistory ?? []}
+            />
+          </div>
         </section>
 
         <section id="abonnement" className="scroll-mt-6">
           <h2 className="mb-1 font-display text-xl tracking-wide text-zinc-100">
             Mon abonnement
           </h2>
-          <SubscriptionSection
-            status={artist?.subscription_status ?? null}
-            renewalDate={renewalDate}
-          />
+          <div className="card-glass">
+            <SubscriptionSection
+              status={artist?.subscription_status ?? null}
+              renewalDate={renewalDate}
+            />
+          </div>
         </section>
       </div>
     </div>

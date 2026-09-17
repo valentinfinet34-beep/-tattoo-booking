@@ -57,25 +57,25 @@ export default async function PayPage({
           rendez-vous.
         </p>
 
-        <div className="card mb-5 p-4 text-sm">
+        <div className="card-glass mb-5 text-sm">
           {project.scheduled_start_time && (
             <p className="text-foreground">
               {formatDate(project.preferred_date)} à{" "}
               {project.scheduled_start_time.slice(0, 5)}
             </p>
           )}
-          <p className="mt-1 font-display text-2xl text-accent">
+          <p className="mt-1 font-display text-3xl text-accent drop-shadow-[0_0_20px_rgba(200,30,30,0.5)]">
             {depositAmountEur} €
           </p>
           <p className="text-muted">Montant de l&apos;acompte</p>
         </div>
 
         {status === "deposit_paid" ? (
-          <p className="card p-4 text-sm text-foreground">
+          <p className="card-glass text-sm text-foreground">
             L&apos;acompte a déjà été réglé pour ce rendez-vous.
           </p>
         ) : status === "expired" ? (
-          <p className="card p-4 text-sm text-foreground">
+          <p className="card-glass text-sm text-foreground">
             Ce lien de paiement a expiré, le créneau n&apos;est plus réservé.
             Contacte l&apos;artiste si tu es toujours intéressé·e.
           </p>
@@ -86,7 +86,7 @@ export default async function PayPage({
             depositAmountEur={depositAmountEur}
           />
         ) : (
-          <p className="card p-4 text-sm text-foreground">
+          <p className="card-glass text-sm text-foreground">
             Ce lien de paiement n&apos;est plus valide.
           </p>
         )}

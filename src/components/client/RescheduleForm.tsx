@@ -54,7 +54,7 @@ export function RescheduleForm({
   };
 
   return (
-    <div className="flex flex-col gap-5 rounded-lg border border-white/10 bg-surface/50 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl">
+    <div className="flex flex-col gap-5 rounded-2xl border border-white/10 bg-surface/50 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl">
       <div>
         <label className="mb-1.5 block text-xs font-medium text-foreground/90">
           Nouvelle date

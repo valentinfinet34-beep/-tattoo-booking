@@ -53,8 +53,8 @@ export default async function QuotePage({
           l&apos;artiste pour ton projet.
         </p>
 
-        <div className="card mb-5 p-4 text-sm">
-          <p className="font-display text-3xl text-accent">
+        <div className="card-glass mb-5 text-sm">
+          <p className="font-display text-3xl text-accent drop-shadow-[0_0_20px_rgba(200,30,30,0.5)]">
             {quotedPriceEur} €
           </p>
           <p className="text-muted">Prix estimé du tatouage</p>
@@ -68,7 +68,7 @@ export default async function QuotePage({
             initialAction={action}
           />
         ) : project.status === "accepted" ? (
-          <p className="card p-4 text-sm text-foreground">
+          <p className="card-glass text-sm text-foreground">
             Tu as déjà accepté ce devis —{" "}
             <a href={`/pay/${project.id}`} className="text-accent hover:underline">
               règle ton acompte ici
@@ -76,15 +76,15 @@ export default async function QuotePage({
             .
           </p>
         ) : project.status === "deposit_paid" ? (
-          <p className="card p-4 text-sm text-foreground">
+          <p className="card-glass text-sm text-foreground">
             Tu as déjà accepté ce devis et réglé ton acompte, à bientôt !
           </p>
         ) : project.status === "quote_declined" ? (
-          <p className="card p-4 text-sm text-foreground">
+          <p className="card-glass text-sm text-foreground">
             Tu as décliné ce devis.
           </p>
         ) : (
-          <p className="card p-4 text-sm text-foreground">
+          <p className="card-glass text-sm text-foreground">
             Ce devis n&apos;est plus disponible.
           </p>
         )}

@@ -64,14 +64,14 @@ export function QuoteResponse({
 
   if (declined) {
     return (
-      <div className="card p-4 text-sm text-foreground">
+      <div className="card-glass text-sm text-foreground">
         Ta réponse a bien été transmise à l&apos;artiste. Merci !
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-5 rounded-lg border border-white/10 bg-surface/50 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl">
+    <div className="flex flex-col gap-5 rounded-2xl border border-white/10 bg-surface/50 p-5 shadow-2xl shadow-black/40 backdrop-blur-xl">
       <p className="text-sm text-muted">
         Si tu acceptes, un acompte de{" "}
         <strong className="text-foreground">{depositPreviewEur} €</strong> te
