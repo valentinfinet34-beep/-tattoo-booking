@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
 
     const supabase = createClient();
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reinitialiser-mot-de-passe`,
+      redirectTo: `${window.location.origin}/auth/confirmed`,
     });
 
     // Toujours afficher le meme message, meme si l'email n'existe pas
