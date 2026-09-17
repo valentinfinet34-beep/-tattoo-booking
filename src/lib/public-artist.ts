@@ -1,6 +1,7 @@
+import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export async function getPublicArtistBySlug(slug: string) {
+export const getPublicArtistBySlug = cache(async (slug: string) => {
   const supabase = createAdminClient();
 
   const { data: artist } = await supabase
@@ -12,4 +13,4 @@ export async function getPublicArtistBySlug(slug: string) {
     .maybeSingle();
 
   return artist;
-}
+});

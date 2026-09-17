@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -84,6 +85,43 @@ const FAQ = [
 function normalizeInstagramUrl(value: string) {
   if (value.startsWith("http")) return value;
   return `https://instagram.com/${value.replace(/^@/, "")}`;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const artist = await getPublicArtistBySlug(slug);
+
+  if (!artist) return {};
+
+  const title = artist.city
+    ? `${artist.display_name} — Tatoueur à ${artist.city}`
+    : `${artist.display_name} — Tatoueur`;
+  const description =
+    artist.bio?.slice(0, 160) ||
+    "Réserve ta séance de tatouage en ligne, devis et acompte sécurisé.";
+  const image = artist.cover_image_url || artist.avatar_url || undefined;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `/tattooer/${slug}`,
+      type: "profile",
+      ...(image ? { images: [{ url: image }] } : {}),
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(image ? { images: [image] } : {}),
+    },
+  };
 }
 
 export default async function TattooerShowcasePage({
