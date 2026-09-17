@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
@@ -34,6 +34,7 @@ export function TattooRequestForm({
 }) {
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const honeypotRef = useRef<HTMLInputElement>(null);
 
   const availableStyles: (typeof STYLES)[number][] =
     practicedStyles && practicedStyles.length > 0 ? practicedStyles : [...STYLES];
@@ -63,6 +64,7 @@ export function TattooRequestForm({
     setSubmitError(null);
 
     const formData = new FormData();
+    formData.append("website", honeypotRef.current?.value ?? "");
     formData.append("artistSlug", artistSlug);
     formData.append("firstName", data.firstName);
     formData.append("lastName", data.lastName);
@@ -112,6 +114,16 @@ export function TattooRequestForm({
       noValidate
       className="flex flex-col gap-7 rounded-2xl border border-white/10 bg-surface/50 p-6 shadow-[0_25px_70px_-25px_rgba(0,0,0,0.65)] backdrop-blur-xl"
     >
+      <input
+        ref={honeypotRef}
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute left-[-9999px] h-0 w-0 opacity-0"
+      />
+
       <FormSection title="Tes coordonnées">
         <div className="grid grid-cols-2 gap-3">
           <Field name="firstName" label="Prénom" error={errors.firstName?.message}>

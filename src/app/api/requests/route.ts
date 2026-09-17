@@ -7,6 +7,12 @@ import { sendNewRequestEmail } from "@/lib/email";
 export async function POST(request: Request) {
   const formData = await request.formData();
 
+  // Piege a bots : champ invisible pour un humain, rempli automatiquement
+  // par la plupart des bots de spam. On simule un succes sans rien enregistrer.
+  if (formData.get("website")) {
+    return NextResponse.json({ success: true }, { status: 201 });
+  }
+
   const images = formData
     .getAll("images")
     .filter((entry): entry is File => entry instanceof File);
