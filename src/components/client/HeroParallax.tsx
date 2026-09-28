@@ -9,8 +9,8 @@ import {
   useTransform,
 } from "framer-motion";
 
-const CONTENT_TILT_DEG = 9;
-const BG_TILT_DEG = 3;
+const CONTENT_TILT_DEG = 24;
+const BG_TILT_DEG = 9;
 
 export function Hero3D({
   background,
@@ -30,8 +30,8 @@ export function Hero3D({
 
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
-  const springX = useSpring(mouseX, { stiffness: 90, damping: 18 });
-  const springY = useSpring(mouseY, { stiffness: 90, damping: 18 });
+  const springX = useSpring(mouseX, { stiffness: 110, damping: 16 });
+  const springY = useSpring(mouseY, { stiffness: 110, damping: 16 });
 
   const rotateX = useTransform(
     springY,
@@ -43,8 +43,8 @@ export function Hero3D({
     [0, 1],
     [-CONTENT_TILT_DEG / 2, CONTENT_TILT_DEG / 2]
   );
-  const contentX = useTransform(springX, [0, 1], [-16, 16]);
-  const contentY = useTransform(springY, [0, 1], [-10, 10]);
+  const contentX = useTransform(springX, [0, 1], [-34, 34]);
+  const contentY = useTransform(springY, [0, 1], [-22, 22]);
 
   const bgRotateX = useTransform(
     springY,
@@ -78,13 +78,13 @@ export function Hero3D({
       {/* Fond : parallax au scroll + leger tilt 3D pour donner de la profondeur */}
       <motion.div
         style={{ y: bgScrollY, opacity: bgOpacity }}
-        className="absolute inset-0 -z-10 [perspective:1400px]"
+        className="absolute inset-0 -z-10 [perspective:1000px]"
       >
         <motion.div
           style={{
             rotateX: bgRotateX,
             rotateY: bgRotateY,
-            scale: 1.03,
+            scale: 1.12,
           }}
           className="relative h-full w-full"
         >
@@ -93,7 +93,7 @@ export function Hero3D({
       </motion.div>
 
       {/* Contenu : bascule en 3D au mouvement de la souris */}
-      <div className="flex h-full flex-col items-center justify-center px-6 [perspective:1400px]">
+      <div className="flex h-full flex-col items-center justify-center px-6 [perspective:1000px]">
         <motion.div
           style={{
             rotateX,
