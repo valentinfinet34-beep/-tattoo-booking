@@ -18,10 +18,7 @@ import { getPublicArtistBySlug } from "@/lib/public-artist";
 import { TiltCard } from "@/components/client/TiltCard";
 import { RevealSection } from "@/components/client/RevealSection";
 import { Footer } from "@/components/Footer";
-import {
-  HeroParallaxBg,
-  HeroParallaxContent,
-} from "@/components/client/HeroParallax";
+import { Hero3D } from "@/components/client/HeroParallax";
 import {
   ACCENT_PRESETS,
   DEFAULT_ACCENT,
@@ -153,21 +150,21 @@ export default async function TattooerShowcasePage({
     >
       {/* HERO */}
       <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-24 text-center">
-        <HeroParallaxBg>
-          <div className="absolute inset-0 bg-background">
-            <Image
-              src={artist.cover_image_url || DEFAULT_COVER_IMAGE}
-              alt=""
-              fill
-              priority
-              className="scale-110 object-cover object-top contrast-110 saturate-125"
-            />
-            <div className="absolute inset-0 bg-black/55" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-black/30" />
-          </div>
-        </HeroParallaxBg>
-
-        <HeroParallaxContent>
+        <Hero3D
+          background={
+            <>
+              <Image
+                src={artist.cover_image_url || DEFAULT_COVER_IMAGE}
+                alt=""
+                fill
+                priority
+                className="scale-110 object-cover object-top contrast-110 saturate-125"
+              />
+              <div className="absolute inset-0 bg-black/55" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-black/30" />
+            </>
+          }
+        >
           {artist.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -225,7 +222,7 @@ export default async function TattooerShowcasePage({
           >
             Réserver une séance
           </Link>
-        </HeroParallaxContent>
+        </Hero3D>
 
         <a href="#comment-ca-marche">
           <ChevronDown
