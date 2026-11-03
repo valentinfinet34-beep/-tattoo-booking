@@ -1,10 +1,12 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { TattooRequestForm } from "@/components/client/TattooRequestForm";
 import { Footer } from "@/components/Footer";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getPublicArtistBySlug } from "@/lib/public-artist";
+import { resolvePublicArtist, type PublicArtist } from "@/lib/public-artist";
+import { bookingPath } from "@/lib/slug";
 import { isDayFullyBooked } from "@/lib/scheduling";
 import { STYLES } from "@/lib/validations/tattooRequest.schema";
 import {
@@ -15,10 +17,7 @@ import {
 
 export const dynamic = "force-dynamic";
 
-async function getArtistAndBlockedDates(slug: string) {
-  const artist = await getPublicArtistBySlug(slug);
-  if (!artist) return null;
-
+async function getBlockedDates(artist: PublicArtist) {
   const supabase = createAdminClient();
   const todayIso = new Date().toISOString().split("T")[0];
 
@@ -69,7 +68,46 @@ async function getArtistAndBlockedDates(slug: string) {
     new Set([...manualDates, ...fullyBookedDates])
   );
 
-  return { artist, blockedDates };
+  return blockedDates;
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const resolved = await resolvePublicArtist(slug);
+
+  if (resolved.kind !== "found") return {};
+
+  const { artist } = resolved;
+  const title = `Réserver chez ${artist.display_name}`;
+  const description =
+    artist.welcome_message?.slice(0, 160) ||
+    artist.bio?.slice(0, 160) ||
+    "Envoie ta demande de tatouage en ligne : devis, puis acompte sécurisé.";
+  const image = artist.cover_image_url || artist.avatar_url || undefined;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: bookingPath(artist.slug),
+      siteName: "TattFlow",
+      locale: "fr_FR",
+      type: "website",
+      ...(image ? { images: [{ url: image }] } : {}),
+    },
+    twitter: {
+      card: image ? "summary_large_image" : "summary",
+      title,
+      description,
+      ...(image ? { images: [image] } : {}),
+    },
+  };
 }
 
 export default async function BookingPage({
@@ -78,11 +116,14 @@ export default async function BookingPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const result = await getArtistAndBlockedDates(slug);
+  const resolved = await resolvePublicArtist(slug);
 
-  if (!result) notFound();
+  // Ancien pseudo (encore en redirection) ou pseudo écrit avec des majuscules.
+  if (resolved.kind === "redirect") redirect(bookingPath(resolved.slug));
+  if (resolved.kind === "not_found") notFound();
 
-  const { artist, blockedDates } = result;
+  const { artist } = resolved;
+  const blockedDates = await getBlockedDates(artist);
 
   const accentKey =
     artist.accent_color && isAccentColorKey(artist.accent_color)

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateAvailableSlots, isDateBookable } from "@/lib/scheduling";
+import { withResolvedSlug } from "@/lib/public-artist";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -17,11 +18,14 @@ export async function GET(request: Request) {
 
   const supabase = createAdminClient();
 
-  const { data: artist } = await supabase
-    .from("artists")
-    .select("id, working_days, min_lead_days, hours_start, hours_end")
-    .eq("slug", slug)
-    .maybeSingle();
+  const artist = await withResolvedSlug(slug, async (current) => {
+    const { data } = await supabase
+      .from("artists")
+      .select("id, working_days, min_lead_days, hours_start, hours_end")
+      .eq("slug", current)
+      .maybeSingle();
+    return data;
+  });
 
   if (!artist) {
     return NextResponse.json({ slots: [] });

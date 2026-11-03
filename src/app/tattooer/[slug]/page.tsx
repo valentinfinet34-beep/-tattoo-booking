@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -14,7 +14,7 @@ import {
   Sparkles,
   Wallet,
 } from "lucide-react";
-import { getPublicArtistBySlug } from "@/lib/public-artist";
+import { resolvePublicArtist } from "@/lib/public-artist";
 import { TiltCard } from "@/components/client/TiltCard";
 import { RevealSection } from "@/components/client/RevealSection";
 import { Footer } from "@/components/Footer";
@@ -90,9 +90,11 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const artist = await getPublicArtistBySlug(slug);
+  const resolved = await resolvePublicArtist(slug);
 
-  if (!artist) return {};
+  if (resolved.kind !== "found") return {};
+
+  const { artist } = resolved;
 
   const title = artist.city
     ? `${artist.display_name} — Tatoueur à ${artist.city}`
@@ -127,9 +129,13 @@ export default async function TattooerShowcasePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const artist = await getPublicArtistBySlug(slug);
+  const resolved = await resolvePublicArtist(slug);
 
-  if (!artist) notFound();
+  // Ancien pseudo (encore en redirection) ou pseudo écrit avec des majuscules.
+  if (resolved.kind === "redirect") redirect(`/tattooer/${resolved.slug}`);
+  if (resolved.kind === "not_found") notFound();
+
+  const { artist } = resolved;
 
   const accentKey =
     artist.accent_color && isAccentColorKey(artist.accent_color)

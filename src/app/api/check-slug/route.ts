@@ -1,22 +1,18 @@
 import { NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { SLUG_REGEX } from "@/lib/slug";
+import { createClient } from "@/lib/supabase/server";
+import { checkSlugAvailability } from "@/lib/slug-availability";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get("slug") ?? "";
 
-  if (!SLUG_REGEX.test(slug) || slug.length < 3) {
-    return NextResponse.json({ available: false });
-  }
+  // Un tatoueur connecté peut garder son pseudo actuel ou reprendre un ancien.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const supabase = createAdminClient();
+  const result = await checkSlugAvailability(slug, { artistId: user?.id });
 
-  const { data } = await supabase
-    .from("artists")
-    .select("id")
-    .eq("slug", slug)
-    .maybeSingle();
-
-  return NextResponse.json({ available: !data });
+  return NextResponse.json(result);
 }

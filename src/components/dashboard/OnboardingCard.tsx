@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Check, Copy } from "lucide-react";
+import { bookingPath } from "@/lib/slug";
 
 interface OnboardingCardProps {
   slug: string;
@@ -18,8 +19,8 @@ export function OnboardingCard({
   const [copied, setCopied] = useState(false);
   const bookingUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/tattooer/${slug}`
-      : `/tattooer/${slug}`;
+      ? `${window.location.origin}${bookingPath(slug)}`
+      : bookingPath(slug);
 
   const handleCopy = async () => {
     try {
