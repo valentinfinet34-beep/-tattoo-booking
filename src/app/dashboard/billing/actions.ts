@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe";
 import { TRIAL_DAYS } from "@/lib/plan";
 
@@ -32,10 +33,15 @@ export async function startSubscriptionCheckout() {
     });
     customerId = customer.id;
 
-    await supabase
+    // Colonne réservée au serveur : le tatoueur ne peut pas l'écrire lui-même.
+    const { error: customerError } = await createAdminClient()
       .from("artists")
       .update({ stripe_customer_id: customerId })
       .eq("id", user.id);
+
+    if (customerError) {
+      throw new Error("Échec de l'enregistrement du client Stripe");
+    }
   }
 
   const session = await stripe.checkout.sessions.create({

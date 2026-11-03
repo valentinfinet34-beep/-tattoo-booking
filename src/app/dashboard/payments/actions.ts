@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -27,10 +28,15 @@ export async function connectStripeAccount() {
     const account = await stripe.accounts.create({ type: "standard" });
     accountId = account.id;
 
-    await supabase
+    // Colonne réservée au serveur : le tatoueur ne peut pas l'écrire lui-même.
+    const { error: accountError } = await createAdminClient()
       .from("artists")
       .update({ stripe_account_id: accountId })
       .eq("id", user.id);
+
+    if (accountError) {
+      throw new Error("Échec de l'enregistrement du compte Stripe");
+    }
   }
 
   const accountLink = await stripe.accountLinks.create({
