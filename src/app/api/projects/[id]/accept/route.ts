@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
 import { sendDepositLinkEmail } from "@/lib/email";
+import { getSiteUrl } from "@/lib/site-url";
 
 const acceptSchema = z.object({
   depositAmountEur: z.coerce.number().positive().max(5000),
@@ -62,7 +63,7 @@ export async function POST(
   }
 
   const amountCents = Math.round(parsed.data.depositAmountEur * 100);
-  const origin = request.headers.get("origin") ?? "http://localhost:3000";
+  const origin = getSiteUrl(request);
 
   const session = await getStripe().checkout.sessions.create(
     {

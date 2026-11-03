@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { sendQuoteEmail } from "@/lib/email";
+import { getSiteUrl } from "@/lib/site-url";
 
 const quoteSchema = z.object({
   quotedPriceEur: z.coerce.number().positive().max(50000),
@@ -65,7 +66,7 @@ export async function POST(
   }
 
   const quotedPriceCents = Math.round(parsed.data.quotedPriceEur * 100);
-  const origin = request.headers.get("origin") ?? "http://localhost:3000";
+  const origin = getSiteUrl(request);
 
   const { error: updateError } = await supabase
     .from("projects")

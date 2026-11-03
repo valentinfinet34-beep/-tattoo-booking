@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe";
 import { sendDepositLinkEmail, sendQuoteAcceptedEmail } from "@/lib/email";
+import { getSiteUrl } from "@/lib/site-url";
 
 export async function POST(
   request: Request,
@@ -46,7 +47,7 @@ export async function POST(
             100
         );
 
-  const origin = request.headers.get("origin") ?? "http://localhost:3000";
+  const origin = getSiteUrl(request);
   const depositExpiresAt = new Date(
     Date.now() + (artist.deposit_expiry_hours ?? 48) * 60 * 60 * 1000
   ).toISOString();

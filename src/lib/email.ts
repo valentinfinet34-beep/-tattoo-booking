@@ -12,6 +12,40 @@ function getResend(): Resend {
   return resendInstance;
 }
 
+type RawHtml = { __raw: string };
+
+function raw(value: string): RawHtml {
+  return { __raw: value };
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
+ * Gabarit pour le corps des emails : toute valeur insérée avec ${...} est
+ * échappée (prénoms, messages, liens…), sauf un bloc déjà sûr passé par raw().
+ */
+function html(strings: TemplateStringsArray, ...values: unknown[]): string {
+  let out = "";
+  strings.forEach((chunk, i) => {
+    out += chunk;
+    if (i < values.length) {
+      const value = values[i];
+      out +=
+        typeof value === "object" && value !== null && "__raw" in value
+          ? (value as RawHtml).__raw
+          : escapeHtml(String(value));
+    }
+  });
+  return out;
+}
+
 export async function sendDepositLinkEmail({
   to,
   firstName,
@@ -30,7 +64,7 @@ export async function sendDepositLinkEmail({
     from: fromAddress,
     to,
     subject: "Ton projet de tatouage est accepté — règle ton acompte",
-    html: `
+    html: html`
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 22px;">Bonne nouvelle, ${firstName} !</h1>
         <p style="font-size: 15px; line-height: 1.6;">
@@ -78,7 +112,7 @@ export async function sendQuoteEmail({
     from: fromAddress,
     to,
     subject: `Ton devis est prêt — ${quotedPriceEur} €`,
-    html: `
+    html: html`
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 22px;">Bonjour ${firstName},</h1>
         <p style="font-size: 15px; line-height: 1.6;">
@@ -128,7 +162,7 @@ export async function sendQuoteDeclinedEmail({
     from: fromAddress,
     to,
     subject: `Devis décliné — ${clientFirstName} ${clientLastName}`,
-    html: `
+    html: html`
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 22px;">Devis décliné</h1>
         <p style="font-size: 15px; line-height: 1.6;">
@@ -159,7 +193,7 @@ export async function sendNewRequestEmail({
     from: fromAddress,
     to,
     subject: `Nouvelle demande — ${clientFirstName} ${clientLastName}`,
-    html: `
+    html: html`
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 22px;">Nouvelle demande reçue</h1>
         <p style="font-size: 15px; line-height: 1.6;">
@@ -200,7 +234,7 @@ export async function sendQuoteAcceptedEmail({
     from: fromAddress,
     to,
     subject: `Devis accepté — ${clientFirstName} ${clientLastName}`,
-    html: `
+    html: html`
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 22px;">Devis accepté</h1>
         <p style="font-size: 15px; line-height: 1.6;">
@@ -241,7 +275,7 @@ export async function sendDepositPaidEmail({
     from: fromAddress,
     to,
     subject: `Acompte payé — ${clientFirstName} ${clientLastName}`,
-    html: `
+    html: html`
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 22px;">Acompte réglé 🎉</h1>
         <p style="font-size: 15px; line-height: 1.6;">
@@ -284,7 +318,7 @@ export async function sendAppointmentReminderEmail({
     from: fromAddress,
     to,
     subject: `Rappel — RDV demain avec ${clientFirstName} ${clientLastName}`,
-    html: `
+    html: html`
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 22px;">RDV demain</h1>
         <p style="font-size: 15px; line-height: 1.6;">
@@ -322,7 +356,7 @@ export async function sendQuoteReminderEmail({
     from: fromAddress,
     to,
     subject: `Toujours partant·e ? Ton devis de ${quotedPriceEur} € t'attend`,
-    html: `
+    html: html`
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 22px;">Bonjour ${firstName},</h1>
         <p style="font-size: 15px; line-height: 1.6;">
@@ -361,7 +395,7 @@ export async function sendPaymentReminderEmail({
     from: fromAddress,
     to,
     subject: `N'oublie pas de régler ton acompte de ${depositAmountEur} €`,
-    html: `
+    html: html`
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 22px;">Bonjour ${firstName},</h1>
         <p style="font-size: 15px; line-height: 1.6;">
@@ -400,7 +434,7 @@ export async function sendDeclineEmail({
     from: fromAddress,
     to,
     subject: "Choisis une autre date pour ta demande de tatouage",
-    html: `
+    html: html`
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
         <h1 style="font-size: 22px;">Bonjour ${firstName},</h1>
         <p style="font-size: 15px; line-height: 1.6;">
@@ -410,7 +444,9 @@ export async function sendDeclineEmail({
         </p>
         ${
           artistMessage
-            ? `<p style="font-size: 15px; line-height: 1.6; background: #f5f5f5; padding: 12px 16px; border-radius: 8px;">${artistMessage}</p>`
+            ? raw(
+                html`<p style="font-size: 15px; line-height: 1.6; background: #f5f5f5; padding: 12px 16px; border-radius: 8px;">${artistMessage}</p>`
+              )
             : ""
         }
         <p style="margin: 28px 0;">

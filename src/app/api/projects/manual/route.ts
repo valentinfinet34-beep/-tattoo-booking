@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
 import { sendDepositLinkEmail } from "@/lib/email";
+import { getSiteUrl } from "@/lib/site-url";
 import {
   BODY_LOCATIONS,
   COLOR_MODES,
@@ -65,7 +66,7 @@ export async function POST(request: Request) {
   }
 
   const amountCents = Math.round(parsed.data.depositAmountEur * 100);
-  const origin = request.headers.get("origin") ?? "http://localhost:3000";
+  const origin = getSiteUrl(request);
 
   // Généré à l'avance pour pouvoir le passer dans les metadata Stripe dès
   // la création de la session (le webhook en a besoin pour retrouver le

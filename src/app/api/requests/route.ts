@@ -3,6 +3,7 @@ import { tattooRequestSchema } from "@/lib/validations/tattooRequest.schema";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateAvailableSlots, isDateBookable } from "@/lib/scheduling";
 import { sendNewRequestEmail } from "@/lib/email";
+import { getSiteUrl } from "@/lib/site-url";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
@@ -190,7 +191,7 @@ export async function POST(request: Request) {
         artist.id
       );
       if (artistUser.user?.email) {
-        const origin = request.headers.get("origin") ?? "http://localhost:3000";
+        const origin = getSiteUrl(request);
         await sendNewRequestEmail({
           to: artistUser.user.email,
           clientFirstName: parsed.data.firstName,

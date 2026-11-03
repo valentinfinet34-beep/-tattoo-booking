@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { sendDeclineEmail } from "@/lib/email";
+import { getSiteUrl } from "@/lib/site-url";
 
 const declineSchema = z.object({
   message: z.string().trim().max(500).optional(),
@@ -52,7 +53,7 @@ export async function POST(
     );
   }
 
-  const origin = request.headers.get("origin") ?? "http://localhost:3000";
+  const origin = getSiteUrl(request);
   try {
     await sendDeclineEmail({
       to: project.email,
