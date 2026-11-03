@@ -53,7 +53,6 @@ const bSnapshot = async () => ({
   artist: (await db.query(`select * from public.artists where id = $1`, [B])).rows,
 });
 
-const json = async (res: Response) => res.json().catch(() => null);
 const params = (id: string) => ({ params: Promise.resolve({ id }) });
 const post = (path: string, body?: unknown) =>
   new Request(`http://localhost${path}`, {
