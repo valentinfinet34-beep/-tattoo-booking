@@ -2,6 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { checkSlugAvailability } from "@/lib/slug-availability";
+import { slugIssueFromDbError, slugIssueMessage } from "@/lib/slug";
 import { isAccentColorKey } from "@/lib/theme-presets";
 
 async function requireUser() {
@@ -323,6 +326,49 @@ export async function updateNotificationPrefs({
   if (error) throw new Error("Échec de la mise à jour");
 
   revalidatePath("/dashboard/settings");
+}
+
+export type ChangeSlugResult =
+  | { ok: true; slug: string }
+  | { ok: false; message: string; suggestions: string[] };
+
+/**
+ * Change le lien public du tatoueur connecté. Le pseudo vit dans une colonne
+ * verrouillée : le changement passe par la fonction change_artist_slug(), qui
+ * garde l'ancien lien 90 jours (redirection) et ne change rien en cas d'échec.
+ */
+export async function changeSlug(rawSlug: string): Promise<ChangeSlugResult> {
+  const { user } = await requireUser();
+  const slug = rawSlug.trim();
+
+  const availability = await checkSlugAvailability(slug, { artistId: user.id });
+  if (!availability.available) {
+    return {
+      ok: false,
+      message: availability.message ?? slugIssueMessage("taken"),
+      suggestions: availability.suggestions,
+    };
+  }
+
+  const { error } = await createAdminClient().rpc("change_artist_slug", {
+    p_artist_id: user.id,
+    p_new_slug: slug,
+  });
+
+  if (error) {
+    // Course perdue (le pseudo vient d'être pris) ou migration 0018 pas encore appliquée.
+    const issue = slugIssueFromDbError(error);
+    return {
+      ok: false,
+      message: issue
+        ? slugIssueMessage(issue)
+        : "Impossible de changer ton lien pour le moment. Réessaie dans un instant.",
+      suggestions: [],
+    };
+  }
+
+  revalidatePath("/dashboard", "layout");
+  return { ok: true, slug };
 }
 
 export async function setAccentColor(colorKey: string) {

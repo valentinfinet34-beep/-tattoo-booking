@@ -4,9 +4,17 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { slugify } from "@/lib/slug";
+import { SLUG_MAX_LENGTH, normalizeSlugInput, slugify } from "@/lib/slug";
 
 const RESEND_COOLDOWN_SECONDS = 30;
+
+type SlugCheck = {
+  slug: string;
+  available: boolean;
+  failed?: boolean;
+  message?: string;
+  suggestions: string[];
+};
 
 export default function SignupPage() {
   const router = useRouter();
@@ -22,6 +30,7 @@ export default function SignupPage() {
   const [resending, setResending] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
+  const [slugCheck, setSlugCheck] = useState<SlugCheck | null>(null);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -30,6 +39,46 @@ export default function SignupPage() {
     }, 1000);
     return () => clearInterval(timer);
   }, [cooldown]);
+
+  // Vérification en direct du pseudo, 350 ms après la dernière frappe.
+  useEffect(() => {
+    if (!slug) return;
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `/api/check-slug?slug=${encodeURIComponent(slug)}`,
+          { signal: controller.signal }
+        );
+        const data = await res.json();
+        setSlugCheck({
+          slug,
+          available: Boolean(data.available),
+          message: data.message,
+          suggestions: data.suggestions ?? [],
+        });
+      } catch {
+        if (controller.signal.aborted) return;
+        // Réseau coupé : l'envoi du formulaire revérifie de toute façon.
+        setSlugCheck({ slug, available: false, failed: true, suggestions: [] });
+      }
+    }, 350);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [slug]);
+
+  const currentCheck = slugCheck && slugCheck.slug === slug ? slugCheck : null;
+  const slugState = !slug
+    ? "idle"
+    : !currentCheck
+      ? "checking"
+      : currentCheck.failed
+        ? "unknown"
+        : currentCheck.available
+          ? "available"
+          : "unavailable";
 
   const handleNameChange = (value: string) => {
     setDisplayName(value);
@@ -42,12 +91,15 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const checkRes = await fetch(`/api/check-slug?slug=${slug}`);
+      const checkRes = await fetch(
+        `/api/check-slug?slug=${encodeURIComponent(slug)}`
+      );
       const checkData = await checkRes.json();
 
       if (!checkData.available) {
         setError(
-          "Ce nom de studio est déjà pris ou invalide (minimum 3 caractères, lettres/chiffres/tirets)."
+          checkData.message ??
+            "Ce lien n'est pas disponible, choisis-en un autre."
         );
         setLoading(false);
         return;
@@ -72,6 +124,10 @@ export default function SignupPage() {
           );
         } else if (signUpError.message.includes("already registered")) {
           setError("Un compte existe déjà avec cet email.");
+        } else if (signUpError.message.toLowerCase().includes("database error")) {
+          setError(
+            "Ce lien vient d'être pris ou n'est pas valide, choisis-en un autre."
+          );
         } else {
           setError("Échec de la création du compte. Réessaie.");
         }
@@ -178,21 +234,62 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs text-muted">
-              Adresse de ta page (modifiable)
+            <label
+              htmlFor="slug"
+              className="mb-1.5 block text-xs text-muted"
+            >
+              Ton lien de réservation (modifiable)
             </label>
             <div className="input-field flex items-center gap-1 text-sm text-muted">
-              <span>/tattooer/</span>
+              <span>/book/</span>
               <input
+                id="slug"
                 required
                 value={slug}
+                maxLength={SLUG_MAX_LENGTH}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 onChange={(e) => {
                   setSlugEdited(true);
-                  setSlug(slugify(e.target.value));
+                  setSlug(normalizeSlugInput(e.target.value));
                 }}
+                onBlur={() => setSlug((value) => value.replace(/-+$/, ""))}
                 className="w-full bg-transparent text-foreground outline-none"
               />
             </div>
+
+            {slugState === "checking" && (
+              <p className="mt-1.5 text-xs text-muted">Vérification…</p>
+            )}
+            {slugState === "available" && (
+              <p className="mt-1.5 text-xs text-success">
+                ✓ Ce lien est disponible
+              </p>
+            )}
+            {slugState === "unavailable" && currentCheck && (
+              <div className="mt-1.5">
+                <p className="text-xs text-red-400">{currentCheck.message}</p>
+                {currentCheck.suggestions.length > 0 && (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className="text-xs text-muted">Essaie plutôt :</span>
+                    {currentCheck.suggestions.map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        type="button"
+                        onClick={() => {
+                          setSlugEdited(true);
+                          setSlug(suggestion);
+                        }}
+                        className="rounded-full border border-white/15 px-3 py-1 text-xs text-foreground transition-colors hover:border-accent"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div>
@@ -248,7 +345,12 @@ export default function SignupPage() {
 
           <button
             type="submit"
-            disabled={loading || !acceptedTerms}
+            disabled={
+              loading ||
+              !acceptedTerms ||
+              slugState === "unavailable" ||
+              slugState === "checking"
+            }
             className="btn-primary w-full"
           >
             {loading ? "Création..." : "Créer mon compte"}

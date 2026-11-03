@@ -1,5 +1,8 @@
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
+import { getSiteUrl } from "@/lib/site-url";
+import { SlugSettings } from "@/components/dashboard/SlugSettings";
 import { ProfileSettings } from "@/components/dashboard/ProfileSettings";
 import { PortfolioSettings } from "@/components/dashboard/PortfolioSettings";
 import { PageSettings } from "@/components/dashboard/PageSettings";
@@ -17,6 +20,7 @@ import {
 
 const SECTIONS = [
   { id: "profil", label: "Mon profil" },
+  { id: "lien", label: "Mon lien" },
   { id: "page-client", label: "Ma page client" },
   { id: "acomptes", label: "Mes acomptes" },
   { id: "disponibilites", label: "Mes disponibilités" },
@@ -36,7 +40,7 @@ export default async function SettingsPage() {
       supabase
         .from("artists")
         .select(
-          "avatar_url, display_name, city, bio, instagram_handle, portfolio_images, cover_image_url, accent_color, welcome_message, practiced_styles, deposit_type, deposit_percentage, deposit_fixed_amount_cents, deposit_expiry_hours, working_days, hours_start, hours_end, min_lead_days, notify_new_request, notify_quote_accepted, notify_deposit_paid, notify_reminder_24h, stripe_account_id, stripe_charges_enabled, stripe_subscription_id, subscription_status, subscription_plan"
+          "slug, avatar_url, display_name, city, bio, instagram_handle, portfolio_images, cover_image_url, accent_color, welcome_message, practiced_styles, deposit_type, deposit_percentage, deposit_fixed_amount_cents, deposit_expiry_hours, working_days, hours_start, hours_end, min_lead_days, notify_new_request, notify_quote_accepted, notify_deposit_paid, notify_reminder_24h, stripe_account_id, stripe_charges_enabled, stripe_subscription_id, subscription_status, subscription_plan"
         )
         .eq("id", user!.id)
         .single(),
@@ -53,6 +57,8 @@ export default async function SettingsPage() {
         .order("updated_at", { ascending: false })
         .limit(20),
     ]);
+
+  const siteUrl = getSiteUrl({ headers: await headers() });
 
   const accentColor: AccentColorKey =
     artist?.accent_color && isAccentColorKey(artist.accent_color)
@@ -117,6 +123,21 @@ export default async function SettingsPage() {
             <PortfolioSettings initialImages={artist?.portfolio_images ?? []} />
           </div>
         </section>
+
+        {artist?.slug && (
+          <section id="lien" className="scroll-mt-6">
+            <h2 className="mb-1 font-display text-xl tracking-wide text-zinc-100">
+              Mon lien de réservation
+            </h2>
+            <p className="mb-5 text-sm text-zinc-500">
+              L&apos;adresse que tu partages avec tes clients, par exemple en
+              bio Instagram.
+            </p>
+            <div className="card-glass">
+              <SlugSettings currentSlug={artist.slug} siteUrl={siteUrl} />
+            </div>
+          </section>
+        )}
 
         <section id="page-client" className="scroll-mt-6">
           <h2 className="mb-1 font-display text-xl tracking-wide text-zinc-100">

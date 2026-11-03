@@ -95,6 +95,19 @@ export function normalizeSlugInput(input: string): string {
     .slice(0, SLUG_MAX_LENGTH);
 }
 
+/** Traduit une erreur renvoyée par la base lors d'un changement de pseudo. */
+export function slugIssueFromDbError(error: {
+  code?: string;
+  message?: string;
+}): SlugIssue | null {
+  const message = error.message ?? "";
+  const invalid = /slug_invalid:(too_short|too_long|invalid_format|reserved)/.exec(message);
+  if (invalid) return invalid[1] as SlugIssue;
+  if (message.includes("slug_held")) return "held";
+  if (error.code === "23505") return "taken";
+  return null;
+}
+
 /** Chemin public de réservation d'un tatoueur. */
 export function bookingPath(slug: string): string {
   return `/book/${slug}`;
