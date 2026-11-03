@@ -15,7 +15,7 @@ export default function CguPage() {
       <h1 className="mb-1 mt-4 text-3xl text-foreground">
         Conditions générales d&apos;utilisation et de vente
       </h1>
-      <p className="mb-8 text-xs text-muted">Dernière mise à jour : 19 août 2026</p>
+      <p className="mb-8 text-xs text-muted">Dernière mise à jour : 3 novembre 2026</p>
 
       <div className="legal-content">
         <h2>1. Objet</h2>
@@ -101,7 +101,9 @@ export default function CguPage() {
           mensuel, selon la formule choisie par l&apos;Artiste (les tarifs en
           vigueur sont affichés sur la page d&apos;inscription et dans
           l&apos;espace « Paramètres »), précédé d&apos;une période
-          d&apos;essai gratuite de {TRIAL_DAYS} jours. L&apos;abonnement se renouvelle
+          d&apos;essai gratuite de {TRIAL_DAYS} jours (une carte bancaire est
+          demandée à l&apos;inscription ; aucun prélèvement n&apos;est effectué
+          avant la fin de cette période). L&apos;abonnement se renouvelle
           automatiquement chaque mois jusqu&apos;à résiliation par
           l&apos;Artiste, à tout moment, depuis son espace « Paramètres ».
         </p>

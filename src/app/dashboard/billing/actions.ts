@@ -41,6 +41,8 @@ export async function startSubscriptionCheckout() {
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
+    // La carte est demandée dès l'inscription à l'essai (rien n'est prélevé avant la fin).
+    payment_method_collection: "always",
     line_items: [{ price: process.env.STRIPE_PRICE_SINGLE_ID!, quantity: 1 }],
     subscription_data: {
       trial_period_days: TRIAL_DAYS,

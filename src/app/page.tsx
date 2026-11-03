@@ -139,15 +139,15 @@ export default function Home() {
               Une formule, sans engagement
             </h2>
             <p className="text-sm text-muted">
-              {TRIAL_DAYS} jours d&apos;essai gratuit, aucune carte requise pour
-              démarrer.
+              {TRIAL_DAYS} jours d&apos;essai gratuit. Une carte est demandée
+              pour démarrer, mais rien n&apos;est prélevé pendant l&apos;essai.
             </p>
           </RevealSection>
 
           <RevealSection className="mx-auto max-w-sm">
             <div className="relative flex h-full flex-col gap-4 rounded-2xl border border-accent/50 bg-background p-8 pt-10 shadow-[0_0_60px_-20px_rgba(200,30,30,0.4)]">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent px-5 py-2 text-xs font-bold uppercase tracking-[0.1em] text-white shadow-[0_0_25px_-6px_rgba(200,30,30,0.9)]">
-                {TRIAL_DAYS} jours offerts, sans carte
+                {TRIAL_DAYS} jours offerts
               </div>
               <div>
                 <p className="font-display text-xl tracking-wide text-foreground">
@@ -194,8 +194,9 @@ export default function Home() {
             Prêt à arrêter de gérer ça dans tes DM ?
           </h2>
           <p className="mx-auto mb-8 max-w-md text-sm text-muted">
-            Crée ton compte en 2 minutes, aucune carte bancaire requise pour
-            l&apos;essai.
+            Crée ton compte en 2 minutes. Une carte est demandée pour
+            l&apos;essai, mais rien n&apos;est prélevé pendant les {TRIAL_DAYS}{" "}
+            jours.
           </p>
           <Link
             href="/signup"
