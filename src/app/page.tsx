@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { RevealSection } from "@/components/client/RevealSection";
 import { Footer } from "@/components/Footer";
+import { TRIAL_DAYS } from "@/lib/plan";
 
 const VALUE_PROPS = [
   {
@@ -138,7 +139,7 @@ export default function Home() {
               Une formule, sans engagement
             </h2>
             <p className="text-sm text-muted">
-              14 jours d&apos;essai gratuit, aucune carte requise pour
+              {TRIAL_DAYS} jours d&apos;essai gratuit, aucune carte requise pour
               démarrer.
             </p>
           </RevealSection>
@@ -146,7 +147,7 @@ export default function Home() {
           <RevealSection className="mx-auto max-w-sm">
             <div className="relative flex h-full flex-col gap-4 rounded-2xl border border-accent/50 bg-background p-8 pt-10 shadow-[0_0_60px_-20px_rgba(200,30,30,0.4)]">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent px-5 py-2 text-xs font-bold uppercase tracking-[0.1em] text-white shadow-[0_0_25px_-6px_rgba(200,30,30,0.9)]">
-                14 jours offerts, sans carte
+                {TRIAL_DAYS} jours offerts, sans carte
               </div>
               <div>
                 <p className="font-display text-xl tracking-wide text-foreground">
@@ -162,7 +163,7 @@ export default function Home() {
                   </span>
                 </p>
                 <p className="mt-1.5 text-sm font-semibold text-accent">
-                  Gratuit 14 jours, puis {PLAN.price}/mois. Résiliable à tout
+                  Gratuit {TRIAL_DAYS} jours, puis {PLAN.price}/mois. Résiliable à tout
                   moment.
                 </p>
               </div>

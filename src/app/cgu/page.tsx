@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TRIAL_DAYS } from "@/lib/plan";
 
 export const metadata = {
   title: "Conditions générales — TattFlow",
@@ -100,7 +101,7 @@ export default function CguPage() {
           mensuel, selon la formule choisie par l&apos;Artiste (les tarifs en
           vigueur sont affichés sur la page d&apos;inscription et dans
           l&apos;espace « Paramètres »), précédé d&apos;une période
-          d&apos;essai gratuite de 14 jours. L&apos;abonnement se renouvelle
+          d&apos;essai gratuite de {TRIAL_DAYS} jours. L&apos;abonnement se renouvelle
           automatiquement chaque mois jusqu&apos;à résiliation par
           l&apos;Artiste, à tout moment, depuis son espace « Paramètres ».
         </p>

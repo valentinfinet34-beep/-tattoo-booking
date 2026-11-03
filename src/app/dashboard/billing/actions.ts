@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
+import { TRIAL_DAYS } from "@/lib/plan";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -42,7 +43,7 @@ export async function startSubscriptionCheckout() {
     customer: customerId,
     line_items: [{ price: process.env.STRIPE_PRICE_SINGLE_ID!, quantity: 1 }],
     subscription_data: {
-      trial_period_days: 14,
+      trial_period_days: TRIAL_DAYS,
       metadata: { artist_id: user.id, plan: "pro" },
     },
     success_url: `${SITE_URL}/dashboard/settings?success=1#abonnement`,
