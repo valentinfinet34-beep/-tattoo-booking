@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AppointmentCard } from "@/components/dashboard/AppointmentCard";
 import type { Project } from "@/types/project";
@@ -24,6 +25,11 @@ function groupByDate(projects: Project[]) {
 
 export default async function AgendaPage() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
 
   const todayIso = new Date().toISOString().split("T")[0];
   const thirtyDaysAgoIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
@@ -34,6 +40,7 @@ export default async function AgendaPage() {
     supabase
       .from("projects")
       .select("*")
+      .eq("artist_id", user.id)
       .eq("status", "deposit_paid")
       .gte("preferred_date", todayIso)
       .order("preferred_date", { ascending: true })
@@ -42,6 +49,7 @@ export default async function AgendaPage() {
     supabase
       .from("projects")
       .select("*")
+      .eq("artist_id", user.id)
       .eq("status", "deposit_paid")
       .lt("preferred_date", todayIso)
       .gte("preferred_date", thirtyDaysAgoIso)

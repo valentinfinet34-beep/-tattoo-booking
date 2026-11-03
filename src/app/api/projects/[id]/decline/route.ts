@@ -35,6 +35,7 @@ export async function POST(
     .from("projects")
     .select("id, first_name, email")
     .eq("id", id)
+    .eq("artist_id", user.id)
     .single();
 
   if (fetchError || !project) {
@@ -44,7 +45,8 @@ export async function POST(
   const { error: updateError } = await supabase
     .from("projects")
     .update({ status: "declined", updated_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("artist_id", user.id);
 
   if (updateError) {
     return NextResponse.json(

@@ -34,6 +34,7 @@ export async function unblockDate(date: string) {
   const { error } = await supabase
     .from("blocked_dates")
     .delete()
+    .eq("artist_id", user.id)
     .eq("blocked_date", date);
 
   if (error) throw new Error("Échec du déblocage de la date");

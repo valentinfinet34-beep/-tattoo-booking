@@ -51,7 +51,8 @@ export default async function StatsPage() {
 
   const { data: projects } = await supabase
     .from("projects")
-    .select("status, quoted_price_cents, no_show, preferred_date");
+    .select("status, quoted_price_cents, no_show, preferred_date")
+    .eq("artist_id", user!.id);
 
   const all = projects ?? [];
   const todayIso = new Date().toISOString().split("T")[0];

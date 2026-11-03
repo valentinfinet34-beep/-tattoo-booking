@@ -15,6 +15,7 @@ export default async function DashboardPage() {
     supabase
       .from("projects")
       .select("*")
+      .eq("artist_id", user!.id)
       .order("created_at", { ascending: false })
       .returns<Project[]>(),
     supabase

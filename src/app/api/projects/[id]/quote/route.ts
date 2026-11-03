@@ -52,6 +52,7 @@ export async function POST(
     .from("projects")
     .select("id, first_name, email, status")
     .eq("id", id)
+    .eq("artist_id", user.id)
     .single();
 
   if (fetchError || !project) {
@@ -76,7 +77,8 @@ export async function POST(
       duration_hours: parsed.data.durationHours,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("artist_id", user.id);
 
   if (updateError) {
     return NextResponse.json(

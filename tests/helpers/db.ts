@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { PGlite } from "@electric-sql/pglite";
+import { PGlite, types } from "@electric-sql/pglite";
 
 /**
  * Faux Supabase pour les tests : un vrai PostgreSQL en mémoire (PGlite) avec
@@ -70,7 +70,17 @@ export function readRollback(file: string): string {
 }
 
 export async function createDb(): Promise<PGlite> {
-  const db = new PGlite();
+  // Même représentation que l'API réelle de Supabase : dates en texte
+  // ("2099-01-05"), nombres en nombres.
+  const db = new PGlite({
+    parsers: {
+      [types.DATE]: (value: string) => value,
+      [types.TIME]: (value: string) => value,
+      [types.TIMESTAMP]: (value: string) => value,
+      [types.TIMESTAMPTZ]: (value: string) => value,
+      [types.NUMERIC]: (value: string) => Number(value),
+    },
+  });
   await db.exec(BOOTSTRAP);
   return db;
 }
