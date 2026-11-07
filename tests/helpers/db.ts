@@ -61,12 +61,18 @@ export function migrationFiles(): string[] {
     .sort();
 }
 
+// Les fins de ligne dépendent du réglage git de chaque poste (LF ou CRLF) :
+// on les normalise pour que les tests donnent le même résultat partout.
+function readSql(directory: string, file: string): string {
+  return readFileSync(path.join(directory, file), "utf8").replace(/\r\n/g, "\n");
+}
+
 export function readMigration(file: string): string {
-  return readFileSync(path.join(MIGRATIONS_DIR, file), "utf8");
+  return readSql(MIGRATIONS_DIR, file);
 }
 
 export function readRollback(file: string): string {
-  return readFileSync(path.join(ROLLBACK_DIR, file), "utf8");
+  return readSql(ROLLBACK_DIR, file);
 }
 
 export async function createDb(): Promise<PGlite> {

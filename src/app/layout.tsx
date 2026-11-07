@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { getCanonicalSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const fontDisplay = Bebas_Neue({
@@ -15,7 +16,7 @@ const fontSans = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tattflow.vercel.app"),
+  metadataBase: new URL(getCanonicalSiteUrl()),
   title: "Réservation & Acompte | TattFlow",
   description: "Réservez votre séance de tatouage en quelques clics.",
   manifest: "/manifest.json",

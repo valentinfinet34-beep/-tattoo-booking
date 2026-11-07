@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
+import { getCanonicalSiteUrl } from "@/lib/site-url";
 
-const BASE_URL = "https://tattflow.vercel.app";
+const BASE_URL = getCanonicalSiteUrl();
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

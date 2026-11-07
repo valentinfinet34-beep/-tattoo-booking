@@ -41,7 +41,7 @@ describe("migration 0018 sur une copie de la base de la beta", () => {
   const functionBody = async (name: string) =>
     (
       await db.query<{ md5: string }>(
-        `select md5(prosrc) from pg_proc where proname = $1 and pronamespace = 'public'::regnamespace`,
+        `select md5(replace(prosrc, chr(13), '')) as md5 from pg_proc where proname = $1 and pronamespace = 'public'::regnamespace`,
         [name]
       )
     ).rows[0]?.md5;

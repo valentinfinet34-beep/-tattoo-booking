@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getCanonicalSiteUrl } from "@/lib/site-url";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -7,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/dashboard", "/api"],
     },
-    sitemap: "https://tattflow.vercel.app/sitemap.xml",
+    sitemap: `${getCanonicalSiteUrl()}/sitemap.xml`,
   };
 }
