@@ -43,7 +43,7 @@ export function SubscriptionSection({
         </div>
         {renewalDate && (
           <p className="text-xs text-zinc-500">
-            {status === "trialing" ? "Premier prélèvement" : "Renouvellement"}{" "}
+            {status === "trialing" ? "Fin de l'essai gratuit" : "Renouvellement"}{" "}
             le {renewalDate}
           </p>
         )}
@@ -67,7 +67,7 @@ export function SubscriptionSection({
 
       <div className="relative flex flex-col gap-4 rounded-2xl border border-accent/50 bg-accent/5 p-5 pt-9 sm:max-w-sm">
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-white shadow-[0_0_20px_-5px_rgba(200,30,30,0.9)]">
-          {TRIAL_DAYS} jours offerts
+          {TRIAL_DAYS} jours offerts, sans carte
         </div>
         <div>
           <p className="font-display text-lg tracking-wide text-zinc-100">
@@ -96,8 +96,7 @@ export function SubscriptionSection({
             Démarrer mon essai gratuit — 0€ aujourd&apos;hui
           </button>
           <p className="mt-2 text-center text-[11px] text-zinc-500">
-            Une carte est demandée, mais rien n&apos;est prélevé pendant
-            l&apos;essai.
+            Aucune carte bancaire demandée pour l&apos;essai.
           </p>
         </form>
       </div>

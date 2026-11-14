@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { SLUG_MAX_LENGTH, normalizeSlugInput, slugify } from "@/lib/slug";
+import { TRIAL_DAYS } from "@/lib/plan";
 
 const RESEND_COOLDOWN_SECONDS = 30;
 
@@ -217,7 +218,10 @@ export default function SignupPage() {
           </span>
         </div>
 
-        <h1 className="mb-6 text-3xl">Créer mon compte</h1>
+        <h1 className="mb-2 text-3xl">Créer mon compte</h1>
+        <p className="mb-6 text-sm text-muted">
+          {TRIAL_DAYS} jours d&apos;essai gratuit, sans carte bancaire.
+        </p>
 
         <form onSubmit={handleSubmit} className="card flex flex-col gap-4 p-5">
           <div>

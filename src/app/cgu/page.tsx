@@ -101,9 +101,9 @@ export default function CguPage() {
           mensuel, selon la formule choisie par l&apos;Artiste (les tarifs en
           vigueur sont affichés sur la page d&apos;inscription et dans
           l&apos;espace « Paramètres »), précédé d&apos;une période
-          d&apos;essai gratuite de {TRIAL_DAYS} jours (une carte bancaire est
-          demandée à l&apos;inscription ; aucun prélèvement n&apos;est effectué
-          avant la fin de cette période). L&apos;abonnement se renouvelle
+          d&apos;essai gratuite de {TRIAL_DAYS} jours (sans carte bancaire ; à la
+          fin de cette période, l&apos;abonnement s&apos;arrête, sauf si
+          l&apos;Artiste a ajouté un moyen de paiement). L&apos;abonnement se renouvelle
           automatiquement chaque mois jusqu&apos;à résiliation par
           l&apos;Artiste, à tout moment, depuis son espace « Paramètres ».
         </p>

@@ -20,9 +20,14 @@ export async function startSubscriptionCheckout() {
 
   const { data: artist } = await supabase
     .from("artists")
-    .select("display_name, stripe_customer_id")
+    .select("display_name, stripe_customer_id, stripe_subscription_id")
     .eq("id", user.id)
     .single();
+
+  // L'essai gratuit n'est offert qu'une fois : un tatoueur qui a déjà eu un
+  // abonnement (essai terminé ou annulé) doit passer par un abonnement normal,
+  // avec carte, sinon il pourrait enchaîner les essais sans jamais payer.
+  const hasHadSubscription = Boolean(artist?.stripe_subscription_id);
 
   const stripe = getStripe();
   let customerId = artist?.stripe_customer_id ?? null;
@@ -49,11 +54,20 @@ export async function startSubscriptionCheckout() {
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
-    // La carte est demandée dès l'inscription à l'essai (rien n'est prélevé avant la fin).
-    payment_method_collection: "always",
+    // Essai sans carte bancaire : Stripe ne demande une carte que si le premier
+    // paiement est supérieur à 0 € (donc jamais pendant l'essai).
+    payment_method_collection: hasHadSubscription ? "always" : "if_required",
     line_items: [{ price: process.env.STRIPE_PRICE_SINGLE_ID!, quantity: 1 }],
     subscription_data: {
-      trial_period_days: TRIAL_DAYS,
+      ...(hasHadSubscription
+        ? {}
+        : {
+            trial_period_days: TRIAL_DAYS,
+            // Sans carte à la fin de l'essai, l'abonnement s'arrête (aucun prélèvement possible).
+            trial_settings: {
+              end_behavior: { missing_payment_method: "cancel" as const },
+            },
+          }),
       metadata: { artist_id: user.id, plan: "pro" },
     },
     success_url: `${siteUrl}/dashboard/settings?success=1#abonnement`,
