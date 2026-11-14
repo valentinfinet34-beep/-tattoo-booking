@@ -220,8 +220,9 @@ export function ProjectCard({
                 min={1}
                 step={1}
                 value={quotedPrice}
+                placeholder="0"
                 onChange={(e) => setQuotedPrice(e.target.value)}
-                className="input-field"
+                className="input-field placeholder:text-zinc-600"
               />
             </div>
             <div>

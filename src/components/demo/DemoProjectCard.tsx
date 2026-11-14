@@ -90,7 +90,7 @@ export function DemoProjectCard({ project }: { project: Project }) {
       {project.status === "pending" && (
         <div className="flex flex-col gap-2 border-t border-zinc-800 pt-4">
           <div className="flex gap-2">
-            <div className="input-field w-28 opacity-60">250 €</div>
+            <div className="input-field w-28 text-zinc-600">0 €</div>
             <button
               type="button"
               onClick={() => setHint(true)}
