@@ -7,13 +7,13 @@ import { bookingPath } from "@/lib/slug";
 
 interface OnboardingCardProps {
   slug: string;
-  stripeConnected: boolean;
+  paymentReady: boolean;
   pageCustomized: boolean;
 }
 
 export function OnboardingCard({
   slug,
-  stripeConnected,
+  paymentReady,
   pageCustomized,
 }: OnboardingCardProps) {
   const [copied, setCopied] = useState(false);
@@ -32,7 +32,7 @@ export function OnboardingCard({
     }
   };
 
-  if (stripeConnected) {
+  if (paymentReady) {
     return (
       <div className="rounded-2xl border border-white/10 bg-zinc-900/80 p-4 shadow-2xl backdrop-blur-md transition-all hover:border-red-500/40">
         <p className="mb-2 text-xs text-zinc-500">
@@ -63,11 +63,11 @@ export function OnboardingCard({
       </p>
       <div className="flex flex-col gap-3">
         <ChecklistItem
-          done={stripeConnected}
-          title="Connecter mon compte Stripe"
-          description="Obligatoire pour pouvoir encaisser les acomptes de tes clients."
+          done={paymentReady}
+          title="Choisir comment encaisser mes acomptes"
+          description="Stripe ou ton propre lien de paiement — obligatoire pour envoyer des devis."
           href="/dashboard/settings#stripe"
-          cta="Connecter"
+          cta="Choisir"
         />
         <ChecklistItem
           done={pageCustomized}

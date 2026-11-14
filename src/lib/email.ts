@@ -51,14 +51,21 @@ export async function sendDepositLinkEmail({
   firstName,
   depositAmountEur,
   payUrl,
+  external = false,
 }: {
   to: string;
   firstName: string;
   depositAmountEur: number;
   payUrl: string;
+  external?: boolean;
 }) {
   const fromAddress =
     process.env.RESEND_FROM_EMAIL ?? "TattFlow <onboarding@resend.dev>";
+
+  // Avec un lien de paiement externe, TattFlow ne gère pas les remboursements.
+  const refundText = external
+    ? "Les conditions d'annulation et de remboursement sont celles de ton tatoueur — le détail est rappelé sur la page de paiement."
+    : "Si tu annules le rendez-vous, l'acompte n'est pas remboursable. Si l'artiste annule, il t'est intégralement remboursé sous 5 à 7 jours — le détail est rappelé sur la page de paiement.";
 
   await getResend().emails.send({
     from: fromAddress,
@@ -81,9 +88,7 @@ export async function sendDepositLinkEmail({
           </a>
         </p>
         <p style="font-size: 13px; color: #666;">
-          Si tu annules le rendez-vous, l'acompte n'est pas remboursable. Si
-          l'artiste annule, il t'est intégralement remboursé sous 5 à 7 jours
-          — le détail est rappelé sur la page de paiement.
+          ${refundText}
         </p>
         <p style="font-size: 13px; color: #666;">
           Si le bouton ne fonctionne pas, copie ce lien dans ton navigateur :

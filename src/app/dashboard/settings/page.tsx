@@ -11,6 +11,8 @@ import { AvailabilitySettings } from "@/components/dashboard/AvailabilitySetting
 import { AvailabilityCalendar } from "@/components/dashboard/AvailabilityCalendar";
 import { NotificationSettings } from "@/components/dashboard/NotificationSettings";
 import { StripeSection } from "@/components/dashboard/StripeSection";
+import { PaymentMethodSettings } from "@/components/dashboard/PaymentMethodSettings";
+import { paymentMethodOf } from "@/lib/payment";
 import { SubscriptionSection } from "@/components/dashboard/SubscriptionSection";
 import {
   DEFAULT_ACCENT,
@@ -25,7 +27,7 @@ const SECTIONS = [
   { id: "acomptes", label: "Mes acomptes" },
   { id: "disponibilites", label: "Mes disponibilités" },
   { id: "notifications", label: "Mes notifications" },
-  { id: "stripe", label: "Mon compte Stripe" },
+  { id: "stripe", label: "Mes encaissements" },
   { id: "abonnement", label: "Mon abonnement" },
 ];
 
@@ -40,7 +42,7 @@ export default async function SettingsPage() {
       supabase
         .from("artists")
         .select(
-          "slug, avatar_url, display_name, city, bio, instagram_handle, portfolio_images, cover_image_url, accent_color, welcome_message, practiced_styles, deposit_type, deposit_percentage, deposit_fixed_amount_cents, deposit_expiry_hours, working_days, hours_start, hours_end, min_lead_days, notify_new_request, notify_quote_accepted, notify_deposit_paid, notify_reminder_24h, stripe_account_id, stripe_charges_enabled, stripe_subscription_id, subscription_status, subscription_plan"
+          "slug, avatar_url, display_name, city, bio, instagram_handle, portfolio_images, cover_image_url, accent_color, welcome_message, practiced_styles, deposit_type, deposit_percentage, deposit_fixed_amount_cents, deposit_expiry_hours, working_days, hours_start, hours_end, min_lead_days, notify_new_request, notify_quote_accepted, notify_deposit_paid, notify_reminder_24h, stripe_account_id, stripe_charges_enabled, payment_method, payment_link_url, stripe_subscription_id, subscription_status, subscription_plan"
         )
         .eq("id", user!.id)
         .single(),
@@ -227,18 +229,27 @@ export default async function SettingsPage() {
 
         <section id="stripe" className="scroll-mt-6">
           <h2 className="mb-1 font-display text-xl tracking-wide text-zinc-100">
-            Mon compte Stripe
+            Mes encaissements
           </h2>
           <p className="mb-5 text-sm text-zinc-500">
-            Connecte ton compte Stripe pour recevoir directement les
-            acomptes de tes clients — 100% du montant, sans commission.
+            Choisis comment tu encaisses les acomptes de tes clients. TattFlow
+            ne prend aucune commission et ne touche jamais à l&apos;argent.
           </p>
-          <div className="card-glass">
-            <StripeSection
-              connected={!!artist?.stripe_charges_enabled}
-              hasAccount={!!artist?.stripe_account_id}
-              paymentHistory={paymentHistory ?? []}
-            />
+          <div className="flex flex-col gap-4">
+            <div className="card-glass">
+              <PaymentMethodSettings
+                method={paymentMethodOf(artist)}
+                link={artist?.payment_link_url ?? ""}
+              />
+            </div>
+            <div className="card-glass">
+              <StripeSection
+                connected={!!artist?.stripe_charges_enabled}
+                hasAccount={!!artist?.stripe_account_id}
+                paymentHistory={paymentHistory ?? []}
+                showConnect={paymentMethodOf(artist) === "stripe"}
+              />
+            </div>
           </div>
         </section>
 

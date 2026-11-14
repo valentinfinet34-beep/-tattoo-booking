@@ -16,7 +16,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 const FEATURES = [
   "Page de réservation personnalisée (photo, couleur, galerie)",
-  "Devis et acompte automatique via Stripe, 0% de commission",
+  "Devis et acompte en ligne (Stripe ou ton propre lien de paiement), 0% de commission",
   "Agenda avec disponibilités réelles, anti double-réservation",
   "Emails automatiques : devis, paiement, confirmation",
   "Relances automatiques (devis, paiement en attente)",

@@ -13,13 +13,16 @@ export function StripeSection({
   connected,
   hasAccount,
   paymentHistory,
+  showConnect = true,
 }: {
   connected: boolean;
   hasAccount: boolean;
   paymentHistory: PaymentHistoryRow[];
+  showConnect?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-6">
+      {showConnect && (
       <div>
         {connected ? (
           <div className="flex items-center gap-2 text-success">
@@ -45,6 +48,7 @@ export function StripeSection({
           </>
         )}
       </div>
+      )}
 
       <div>
         <h3 className="mb-3 text-sm font-medium text-zinc-300">

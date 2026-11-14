@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { sendQuoteEmail } from "@/lib/email";
 import { getSiteUrl } from "@/lib/site-url";
+import { PAYMENT_NOT_READY_MESSAGE, canReceivePayments } from "@/lib/payment";
 
 const quoteSchema = z.object({
   quotedPriceEur: z.coerce.number().positive().max(50000),
@@ -32,18 +33,14 @@ export async function POST(
 
   const { data: artist } = await supabase
     .from("artists")
-    .select("stripe_account_id, stripe_charges_enabled")
+    .select(
+      "stripe_account_id, stripe_charges_enabled, payment_method, payment_link_url"
+    )
     .eq("id", user.id)
     .single();
 
-  if (!artist?.stripe_account_id || !artist.stripe_charges_enabled) {
-    return NextResponse.json(
-      {
-        error:
-          "Connecte ton compte Stripe (onglet Paiements) avant d'envoyer un devis.",
-      },
-      { status: 400 }
-    );
+  if (!canReceivePayments(artist)) {
+    return NextResponse.json({ error: PAYMENT_NOT_READY_MESSAGE }, { status: 400 });
   }
 
   // La RLS ("Artists can view own projects") garantit qu'on ne récupère

@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe";
 import { sendDepositLinkEmail, sendQuoteAcceptedEmail } from "@/lib/email";
 import { getSiteUrl } from "@/lib/site-url";
+import { canReceivePayments, paymentMethodOf } from "@/lib/payment";
 
 export async function POST(
   request: Request,
@@ -26,12 +27,12 @@ export async function POST(
   const { data: artist } = await supabase
     .from("artists")
     .select(
-      "stripe_account_id, stripe_charges_enabled, deposit_type, deposit_percentage, deposit_fixed_amount_cents, deposit_expiry_hours, notify_quote_accepted"
+      "stripe_account_id, stripe_charges_enabled, payment_method, payment_link_url, deposit_type, deposit_percentage, deposit_fixed_amount_cents, deposit_expiry_hours, notify_quote_accepted"
     )
     .eq("id", project.artist_id)
     .single();
 
-  if (!artist?.stripe_account_id || !artist.stripe_charges_enabled) {
+  if (!artist || !canReceivePayments(artist)) {
     return NextResponse.json(
       { error: "Le paiement n'est pas disponible pour le moment." },
       { status: 400 }
@@ -52,38 +53,52 @@ export async function POST(
     Date.now() + (artist.deposit_expiry_hours ?? 48) * 60 * 60 * 1000
   ).toISOString();
 
-  const session = await getStripe().checkout.sessions.create(
-    {
-      mode: "payment",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "eur",
-            unit_amount: depositAmountCents,
-            product_data: {
-              name: `Acompte tatouage — ${project.first_name} ${project.last_name}`,
-              description: project.description.slice(0, 200),
+  // Le moyen d'encaisser est celui choisi par le tatoueur au moment de
+  // l'acceptation : Stripe (session de paiement) ou son lien externe (le
+  // tatoueur confirmera lui-même la réception de l'acompte).
+  const paymentMethod = paymentMethodOf(artist);
+  let paymentUrl: string | null;
+  let stripeSessionId: string | null = null;
+
+  if (paymentMethod === "external_link") {
+    paymentUrl = artist.payment_link_url;
+  } else {
+    const session = await getStripe().checkout.sessions.create(
+      {
+        mode: "payment",
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "eur",
+              unit_amount: depositAmountCents,
+              product_data: {
+                name: `Acompte tatouage — ${project.first_name} ${project.last_name}`,
+                description: project.description.slice(0, 200),
+              },
             },
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-      success_url: `${origin}/dashboard?paid=1`,
-      cancel_url: `${origin}/quote/${project.id}`,
-      metadata: { project_id: project.id },
-    },
-    { stripeAccount: artist.stripe_account_id }
-  );
+        ],
+        success_url: `${origin}/dashboard?paid=1`,
+        cancel_url: `${origin}/quote/${project.id}`,
+        metadata: { project_id: project.id },
+      },
+      { stripeAccount: artist.stripe_account_id }
+    );
+    paymentUrl = session.url;
+    stripeSessionId = session.id;
+  }
 
   const { error: updateError } = await supabase
     .from("projects")
     .update({
       status: "accepted",
+      payment_method: paymentMethod,
       deposit_amount_cents: depositAmountCents,
       scheduled_start_time: project.time_slot,
-      stripe_checkout_url: session.url,
-      stripe_session_id: session.id,
+      stripe_checkout_url: paymentUrl,
+      stripe_session_id: stripeSessionId,
       deposit_expires_at: depositExpiresAt,
       updated_at: new Date().toISOString(),
     })
@@ -96,13 +111,14 @@ export async function POST(
     );
   }
 
-  if (session.url) {
+  if (paymentUrl) {
     try {
       await sendDepositLinkEmail({
         to: project.email,
         firstName: project.first_name,
         depositAmountEur: depositAmountCents / 100,
         payUrl: `${origin}/pay/${project.id}`,
+        external: paymentMethod === "external_link",
       });
     } catch {
       // Le lien reste accessible sur /pay/[id] même si l'email échoue.

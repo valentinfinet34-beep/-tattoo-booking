@@ -75,7 +75,7 @@ const FAQ = [
   },
   {
     q: "Comment se passe le paiement de l'acompte ?",
-    a: "Une fois ton devis accepté, tu reçois un lien de paiement sécurisé Stripe pour régler l'acompte en ligne, en carte bancaire.",
+    a: "Une fois ton devis accepté, tu reçois un lien de paiement pour régler l'acompte en ligne (par Stripe ou par le lien choisi par ton tatoueur).",
   },
 ];
 
@@ -306,12 +306,12 @@ export default async function TattooerShowcasePage({
               </span>
             </div>
             <h2 className="mb-3 font-display text-3xl tracking-tight text-foreground md:text-4xl">
-              Paiement 100% sécurisé
+              Paiement en ligne
             </h2>
             <p className="mx-auto mb-8 max-w-xl text-sm leading-relaxed text-muted">
-              Les acomptes sont traités par Stripe, leader mondial du paiement
-              en ligne. Tes coordonnées bancaires ne transitent jamais par nos
-              serveurs et ne sont jamais stockées.
+              L&apos;acompte se règle en ligne, par Stripe ou par le lien de
+              paiement choisi par ton tatoueur. Tes coordonnées bancaires ne
+              transitent jamais par nos serveurs et ne sont jamais stockées.
             </p>
             <div className="flex flex-wrap justify-center gap-3 text-xs uppercase tracking-wide text-muted">
               <span className="rounded-full border border-white/10 px-3.5 py-1.5">

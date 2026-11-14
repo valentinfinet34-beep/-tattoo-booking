@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkSlugAvailability } from "@/lib/slug-availability";
+import { validatePaymentLink, type PaymentMethod } from "@/lib/payment";
 import { slugIssueFromDbError, slugIssueMessage } from "@/lib/slug";
 import { isAccentColorKey } from "@/lib/theme-presets";
 
@@ -326,6 +327,43 @@ export async function updateNotificationPrefs({
   if (error) throw new Error("Échec de la mise à jour");
 
   revalidatePath("/dashboard/settings");
+}
+
+export type PaymentMethodResult = { ok: true } | { ok: false; message: string };
+
+/** Choisit comment le tatoueur encaisse ses acomptes : Stripe ou son propre lien de paiement. */
+export async function updatePaymentMethod({
+  method,
+  link,
+}: {
+  method: PaymentMethod;
+  link: string;
+}): Promise<PaymentMethodResult> {
+  const { supabase, user } = await requireUser();
+
+  let changes: { payment_method: PaymentMethod; payment_link_url?: string };
+
+  if (method === "external_link") {
+    const checked = validatePaymentLink(link);
+    if (!checked.ok) return { ok: false, message: checked.message };
+    changes = { payment_method: "external_link", payment_link_url: checked.url };
+  } else if (method === "stripe") {
+    changes = { payment_method: "stripe" };
+  } else {
+    return { ok: false, message: "Moyen d'encaissement inconnu." };
+  }
+
+  const { error } = await supabase
+    .from("artists")
+    .update(changes)
+    .eq("id", user.id);
+
+  if (error) {
+    return { ok: false, message: "Échec de l'enregistrement, réessaie dans un instant." };
+  }
+
+  revalidatePath("/dashboard", "layout");
+  return { ok: true };
 }
 
 export type ChangeSlugResult =

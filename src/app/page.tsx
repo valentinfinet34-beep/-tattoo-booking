@@ -22,7 +22,7 @@ const VALUE_PROPS = [
     icon: Wallet,
     title: "Devis et acompte automatiques",
     description:
-      "Tu proposes un prix, le client accepte et paie son acompte en ligne via Stripe — versé directement sur ton propre compte, 0% de commission.",
+      "Tu proposes un prix, le client accepte et paie son acompte en ligne, par Stripe ou par ton propre lien de paiement — l'argent arrive directement chez toi, 0% de commission.",
   },
   {
     icon: Calendar,
@@ -38,7 +38,7 @@ const PLAN = {
   tagline: "Tout ce qu'il te faut pour gérer tes réservations",
   features: [
     "Page de réservation personnalisée (photo, couleur, galerie)",
-    "Devis et acompte automatique via Stripe, 0% de commission",
+    "Devis et acompte en ligne (Stripe ou ton propre lien de paiement), 0% de commission",
     "Agenda avec disponibilités réelles, anti double-réservation",
     "Emails et relances automatiques (devis, paiement, confirmation)",
     "Statistiques : taux de conversion, no-shows",

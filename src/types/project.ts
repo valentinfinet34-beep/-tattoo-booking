@@ -33,6 +33,7 @@ export interface Project {
   deposit_terms_accepted_at: string | null;
   deposit_expires_at: string | null;
   no_show: boolean;
+  payment_method: "stripe" | "external_link";
   created_at: string;
   updated_at: string;
 }

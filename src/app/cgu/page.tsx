@@ -134,6 +134,16 @@ export default function CguPage() {
           commission n&apos;est prélevée par la Plateforme sur les acomptes.
         </p>
         <p>
+          L&apos;Artiste peut aussi choisir d&apos;encaisser ses acomptes via
+          <strong> son propre lien de paiement</strong> (service de paiement
+          tiers de son choix). Dans ce cas, la Plateforme ne traite pas le
+          paiement, ne le vérifie pas et ne peut pas le rembourser : la
+          réception de l&apos;acompte est confirmée par l&apos;Artiste, et les
+          éventuels remboursements se règlent directement entre l&apos;Artiste
+          et son Client final. L&apos;Artiste est seul responsable du lien
+          qu&apos;il renseigne.
+        </p>
+        <p>
           L&apos;Artiste demeure seul responsable, vis-à-vis de son Client
           final, du respect des règles applicables à sa propre activité
           (droit de la consommation, obligations fiscales, facturation), la

@@ -90,7 +90,33 @@ export function ProjectCard({
   const [declineLoading, setDeclineLoading] = useState(false);
   const [declineError, setDeclineError] = useState<string | null>(null);
 
+  const [markPaidLoading, setMarkPaidLoading] = useState(false);
+  const [markPaidError, setMarkPaidError] = useState<string | null>(null);
+
   const depositPreview = computeDefaultAmount(depositDefaults, quotedPrice);
+
+  // Paiement par lien externe : c'est le tatoueur qui confirme la réception.
+  const handleMarkPaid = async () => {
+    setMarkPaidLoading(true);
+    setMarkPaidError(null);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/mark-paid`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setMarkPaidError(
+          typeof body?.error === "string" ? body.error : "Échec, réessaie."
+        );
+        return;
+      }
+      router.refresh();
+    } catch {
+      setMarkPaidError("Échec, réessaie.");
+    } finally {
+      setMarkPaidLoading(false);
+    }
+  };
 
   const handleSendQuote = async () => {
     setQuoteLoading(true);
@@ -361,6 +387,27 @@ export function ProjectCard({
             >
               {`/pay/${project.id}`}
             </a>
+            {project.status === "accepted" &&
+              project.payment_method === "external_link" && (
+                <div className="flex flex-col gap-2 rounded-md border border-zinc-800 p-3">
+                  <p className="text-xs text-zinc-400">
+                    Le client paie sur ton lien de paiement. Quand tu vois
+                    l&apos;acompte arriver, confirme-le ici : le rendez-vous
+                    passera en « confirmé ».
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleMarkPaid}
+                    disabled={markPaidLoading}
+                    className="btn-primary w-full text-sm"
+                  >
+                    {markPaidLoading ? "Confirmation..." : "J'ai reçu l'acompte"}
+                  </button>
+                  {markPaidError && (
+                    <p className="text-xs text-red-400">{markPaidError}</p>
+                  )}
+                </div>
+              )}
           </div>
         )}
     </div>

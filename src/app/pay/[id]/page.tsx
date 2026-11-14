@@ -24,7 +24,7 @@ export default async function PayPage({
   const { data: project } = await supabase
     .from("projects")
     .select(
-      "id, first_name, status, deposit_amount_cents, stripe_checkout_url, preferred_date, scheduled_start_time, deposit_expires_at"
+      "id, first_name, status, deposit_amount_cents, stripe_checkout_url, payment_method, preferred_date, scheduled_start_time, deposit_expires_at"
     )
     .eq("id", id)
     .maybeSingle();
@@ -84,6 +84,7 @@ export default async function PayPage({
             projectId={project.id}
             checkoutUrl={project.stripe_checkout_url!}
             depositAmountEur={depositAmountEur}
+            external={project.payment_method === "external_link"}
           />
         ) : (
           <p className="card-glass text-sm text-foreground">

@@ -5,6 +5,11 @@ import { getStripe } from "@/lib/stripe";
 import { sendDepositLinkEmail } from "@/lib/email";
 import { getSiteUrl } from "@/lib/site-url";
 import {
+  PAYMENT_NOT_READY_MESSAGE,
+  canReceivePayments,
+  paymentMethodOf,
+} from "@/lib/payment";
+import {
   BODY_LOCATIONS,
   COLOR_MODES,
   SIZE_CATEGORIES,
@@ -51,19 +56,17 @@ export async function POST(request: Request) {
 
   const { data: artist } = await supabase
     .from("artists")
-    .select("stripe_account_id, stripe_charges_enabled")
+    .select(
+      "stripe_account_id, stripe_charges_enabled, payment_method, payment_link_url"
+    )
     .eq("id", user.id)
     .single();
 
-  if (!artist?.stripe_account_id || !artist.stripe_charges_enabled) {
-    return NextResponse.json(
-      {
-        error:
-          "Connecte ton compte Stripe (onglet Paiements) avant de créer une demande.",
-      },
-      { status: 400 }
-    );
+  if (!artist || !canReceivePayments(artist)) {
+    return NextResponse.json({ error: PAYMENT_NOT_READY_MESSAGE }, { status: 400 });
   }
+
+  const paymentMethod = paymentMethodOf(artist);
 
   const amountCents = Math.round(parsed.data.depositAmountEur * 100);
   const origin = getSiteUrl(request);
@@ -73,29 +76,38 @@ export async function POST(request: Request) {
   // projet une fois le paiement confirmé).
   const projectId = crypto.randomUUID();
 
-  const session = await getStripe().checkout.sessions.create(
-    {
-      mode: "payment",
-      payment_method_types: ["card"],
-      line_items: [
-        {
-          price_data: {
-            currency: "eur",
-            unit_amount: amountCents,
-            product_data: {
-              name: `Acompte tatouage — ${parsed.data.firstName} ${parsed.data.lastName}`,
-              description: parsed.data.description.slice(0, 200),
+  let paymentUrl: string | null;
+  let stripeSessionId: string | null = null;
+
+  if (paymentMethod === "external_link") {
+    paymentUrl = artist.payment_link_url;
+  } else {
+    const session = await getStripe().checkout.sessions.create(
+      {
+        mode: "payment",
+        payment_method_types: ["card"],
+        line_items: [
+          {
+            price_data: {
+              currency: "eur",
+              unit_amount: amountCents,
+              product_data: {
+                name: `Acompte tatouage — ${parsed.data.firstName} ${parsed.data.lastName}`,
+                description: parsed.data.description.slice(0, 200),
+              },
             },
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-      success_url: `${origin}/dashboard?paid=1`,
-      cancel_url: `${origin}/dashboard?canceled=1`,
-      metadata: { project_id: projectId },
-    },
-    { stripeAccount: artist.stripe_account_id }
-  );
+        ],
+        success_url: `${origin}/dashboard?paid=1`,
+        cancel_url: `${origin}/dashboard?canceled=1`,
+        metadata: { project_id: projectId },
+      },
+      { stripeAccount: artist.stripe_account_id }
+    );
+    paymentUrl = session.url;
+    stripeSessionId = session.id;
+  }
 
   const { error: insertError } = await supabase.from("projects").insert({
     id: projectId,
@@ -116,8 +128,9 @@ export async function POST(request: Request) {
     deposit_amount_cents: amountCents,
     scheduled_start_time: parsed.data.preferredTime,
     duration_hours: parsed.data.durationHours,
-    stripe_checkout_url: session.url,
-    stripe_session_id: session.id,
+    payment_method: paymentMethod,
+    stripe_checkout_url: paymentUrl,
+    stripe_session_id: stripeSessionId,
   });
 
   if (insertError) {
@@ -127,18 +140,19 @@ export async function POST(request: Request) {
     );
   }
 
-  if (session.url) {
+  if (paymentUrl) {
     try {
       await sendDepositLinkEmail({
         to: parsed.data.email,
         firstName: parsed.data.firstName,
         depositAmountEur: parsed.data.depositAmountEur,
         payUrl: `${origin}/pay/${projectId}`,
+        external: paymentMethod === "external_link",
       });
     } catch {
       // Le lien reste affiché dans le dashboard même si l'email échoue.
     }
   }
 
-  return NextResponse.json({ success: true, checkoutUrl: session.url });
+  return NextResponse.json({ success: true, checkoutUrl: paymentUrl });
 }

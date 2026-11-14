@@ -6,10 +6,12 @@ export function PayConfirmation({
   projectId,
   checkoutUrl,
   depositAmountEur,
+  external = false,
 }: {
   projectId: string;
   checkoutUrl: string;
   depositAmountEur: number;
+  external?: boolean;
 }) {
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,16 +35,33 @@ export function PayConfirmation({
           Conditions d&apos;annulation
         </p>
         <ul className="flex flex-col gap-2 text-sm text-muted">
-          <li className="flex gap-2">
-            <span className="text-accent">•</span>
-            Si tu annules le rendez-vous, l&apos;acompte n&apos;est pas
-            remboursable.
-          </li>
-          <li className="flex gap-2">
-            <span className="text-accent">•</span>
-            Si l&apos;artiste annule le rendez-vous, l&apos;acompte est
-            intégralement remboursé sous 5 à 7 jours.
-          </li>
+          {external ? (
+            <>
+              <li className="flex gap-2">
+                <span className="text-accent">•</span>
+                Tu paies sur le lien de paiement de ton tatoueur. Une fois
+                l&apos;acompte reçu, il confirme ton rendez-vous.
+              </li>
+              <li className="flex gap-2">
+                <span className="text-accent">•</span>
+                Les conditions d&apos;annulation et de remboursement sont celles
+                de ton tatoueur : demande-les-lui avant de payer.
+              </li>
+            </>
+          ) : (
+            <>
+              <li className="flex gap-2">
+                <span className="text-accent">•</span>
+                Si tu annules le rendez-vous, l&apos;acompte n&apos;est pas
+                remboursable.
+              </li>
+              <li className="flex gap-2">
+                <span className="text-accent">•</span>
+                Si l&apos;artiste annule le rendez-vous, l&apos;acompte est
+                intégralement remboursé sous 5 à 7 jours.
+              </li>
+            </>
+          )}
         </ul>
       </div>
 

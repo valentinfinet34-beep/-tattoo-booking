@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ProjectCard } from "@/components/dashboard/ProjectCard";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { OnboardingCard } from "@/components/dashboard/OnboardingCard";
+import { canReceivePayments } from "@/lib/payment";
 import type { Project } from "@/types/project";
 
 export default async function DashboardPage() {
@@ -21,7 +22,7 @@ export default async function DashboardPage() {
     supabase
       .from("artists")
       .select(
-        "slug, stripe_charges_enabled, cover_image_url, deposit_type, deposit_percentage, deposit_fixed_amount_cents"
+        "slug, stripe_account_id, stripe_charges_enabled, payment_method, payment_link_url, cover_image_url, deposit_type, deposit_percentage, deposit_fixed_amount_cents"
       )
       .eq("id", user!.id)
       .single(),
@@ -48,7 +49,7 @@ export default async function DashboardPage() {
       {artist && (
         <OnboardingCard
           slug={artist.slug}
-          stripeConnected={artist.stripe_charges_enabled}
+          paymentReady={canReceivePayments(artist)}
           pageCustomized={!!artist.cover_image_url}
         />
       )}
