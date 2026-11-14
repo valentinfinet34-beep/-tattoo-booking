@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { acceptSalonInvite } from "@/app/dashboard/settings/salon-actions";
 
@@ -32,6 +33,11 @@ export function JoinSalonButton({ token }: { token: string }) {
         {busy ? "Un instant..." : "Rejoindre le salon"}
       </button>
       {error && <p className="text-xs text-red-400">{error}</p>}
+      {error?.includes("déjà") && (
+        <Link href="/dashboard/settings#salon" className="btn-secondary text-sm">
+          Aller à mon salon pour le quitter
+        </Link>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getMySalon } from "@/lib/salon";
 import { JoinSalonButton } from "./JoinSalonButton";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +23,7 @@ export default async function SalonInvitationPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const mySalon = user ? await getMySalon(supabase, user.id) : null;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-5 py-10 text-center">
@@ -43,6 +45,26 @@ export default async function SalonInvitationPage({
             <Link href="/" className="btn-primary inline-block">
               Retour à l&apos;accueil
             </Link>
+          </>
+        ) : user && mySalon ? (
+          <>
+            <p className="mb-3 text-sm text-muted">
+              {mySalon.isOwner
+                ? `Tu es le propriétaire du salon « ${mySalon.name} ».`
+                : `Tu fais déjà partie du salon « ${mySalon.name} ».`}{" "}
+              Un tatoueur ne peut être que dans un seul salon.
+            </p>
+            <p className="mb-6 text-sm text-muted">
+              {mySalon.isOwner
+                ? "Pour rejoindre un autre salon, supprime d’abord le tien. Tes demandes, devis et paiements ne sont pas touchés."
+                : "Pour rejoindre ce nouveau salon, quitte d’abord le tien. Tes demandes, devis et paiements ne sont pas touchés."}
+            </p>
+            <Link href="/dashboard/settings#salon" className="btn-primary inline-block">
+              {mySalon.isOwner ? "Gérer ou supprimer mon salon" : "Quitter mon salon"}
+            </Link>
+            <p className="mt-4 text-xs text-muted">
+              Ensuite, rouvre ton lien d’invitation.
+            </p>
           </>
         ) : user ? (
           <>
