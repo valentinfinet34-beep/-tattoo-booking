@@ -2,17 +2,17 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe";
+import { getSiteUrl } from "@/lib/site-url";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-
-export async function GET() {
+export async function GET(request: Request) {
+  const siteUrl = getSiteUrl(request);
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return NextResponse.redirect(`${SITE_URL}/login`);
+    return NextResponse.redirect(`${siteUrl}/login`);
   }
 
   const { data: artist } = await supabase
@@ -33,5 +33,5 @@ export async function GET() {
       .eq("id", user.id);
   }
 
-  return NextResponse.redirect(`${SITE_URL}/dashboard/settings#stripe`);
+  return NextResponse.redirect(`${siteUrl}/dashboard/settings#stripe`);
 }

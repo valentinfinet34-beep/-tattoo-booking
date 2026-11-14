@@ -5,7 +5,7 @@ import { getStripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendDepositPaidEmail } from "@/lib/email";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+import { getSiteUrl } from "@/lib/site-url";
 
 export async function POST(request: Request) {
   const body = await request.text();
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
                 clientFirstName: project.first_name,
                 clientLastName: project.last_name,
                 depositAmountEur: (project.deposit_amount_cents ?? 0) / 100,
-                dashboardUrl: `${SITE_URL}/dashboard/agenda`,
+                dashboardUrl: `${getSiteUrl(request)}/dashboard/agenda`,
               });
             }
           }

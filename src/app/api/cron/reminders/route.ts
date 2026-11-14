@@ -6,11 +6,13 @@ import {
   sendQuoteReminderEmail,
 } from "@/lib/email";
 import { isProPlan } from "@/lib/plan";
+import { getSiteUrl } from "@/lib/site-url";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const REMINDER_DELAY_HOURS = 24;
 
 export async function GET(request: Request) {
+  const SITE_URL = getSiteUrl(request);
+
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });

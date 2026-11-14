@@ -1,13 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { getSiteUrl } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export async function connectStripeAccount() {
+  const siteUrl = getSiteUrl({ headers: await headers() });
   const supabase = await createClient();
   const {
     data: { user },
@@ -41,8 +43,8 @@ export async function connectStripeAccount() {
 
   const accountLink = await stripe.accountLinks.create({
     account: accountId,
-    refresh_url: `${SITE_URL}/dashboard/settings#stripe`,
-    return_url: `${SITE_URL}/api/stripe/connect/callback`,
+    refresh_url: `${siteUrl}/dashboard/settings#stripe`,
+    return_url: `${siteUrl}/api/stripe/connect/callback`,
     type: "account_onboarding",
   });
 

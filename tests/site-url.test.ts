@@ -21,12 +21,18 @@ describe("getSiteUrl : adresse des liens d'emails et des retours Stripe", () => 
     ).toBe("https://tattoo-booking-tau.vercel.app");
   });
 
-  it("avec NEXT_PUBLIC_SITE_URL, c'est toujours cette valeur (sans « / » final), quoi que dise la requête", () => {
+  it("l'adresse réelle de la requête passe avant NEXT_PUBLIC_SITE_URL (même mal réglée)", () => {
+    clearSiteEnv();
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://tattflow.vercel.app");
+    expect(getSiteUrl(request({ host: "tattoo-booking-tau.vercel.app" }))).toBe(
+      "https://tattoo-booking-tau.vercel.app"
+    );
+  });
+
+  it("sans requête, on retombe sur NEXT_PUBLIC_SITE_URL (sans « / » final)", () => {
     clearSiteEnv();
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://tattflow.fr/");
-    expect(getSiteUrl(request({ host: "evil.example", origin: "https://evil.example" }))).toBe(
-      "https://tattflow.fr"
-    );
+    expect(getSiteUrl()).toBe("https://tattflow.fr");
   });
 
   it("en local, http ; hors requête, repli sur localhost", () => {

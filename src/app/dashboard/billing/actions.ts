@@ -1,14 +1,16 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { getSiteUrl } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getStripe } from "@/lib/stripe";
 import { TRIAL_DAYS } from "@/lib/plan";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export async function startSubscriptionCheckout() {
+  const siteUrl = getSiteUrl({ headers: await headers() });
   const supabase = await createClient();
   const {
     data: { user },
@@ -54,14 +56,15 @@ export async function startSubscriptionCheckout() {
       trial_period_days: TRIAL_DAYS,
       metadata: { artist_id: user.id, plan: "pro" },
     },
-    success_url: `${SITE_URL}/dashboard/settings?success=1#abonnement`,
-    cancel_url: `${SITE_URL}/dashboard/settings?canceled=1#abonnement`,
+    success_url: `${siteUrl}/dashboard/settings?success=1#abonnement`,
+    cancel_url: `${siteUrl}/dashboard/settings?canceled=1#abonnement`,
   });
 
   redirect(session.url!);
 }
 
 export async function openCustomerPortal() {
+  const siteUrl = getSiteUrl({ headers: await headers() });
   const supabase = await createClient();
   const {
     data: { user },
@@ -79,7 +82,7 @@ export async function openCustomerPortal() {
 
   const portalSession = await getStripe().billingPortal.sessions.create({
     customer: artist.stripe_customer_id,
-    return_url: `${SITE_URL}/dashboard/settings#abonnement`,
+    return_url: `${siteUrl}/dashboard/settings#abonnement`,
   });
 
   redirect(portalSession.url);

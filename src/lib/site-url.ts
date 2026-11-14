@@ -26,14 +26,13 @@ export function getCanonicalSiteUrl(): string {
  * que les domaines réellement rattachés à ce déploiement.
  */
 export function getSiteUrl(request?: HeadersSource): string {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  if (configured) return configured.replace(/\/+$/, "");
-
+  // L'adresse réelle d'où arrive la requête passe avant tout réglage : le site
+  // ne dépend plus d'une variable d'environnement mal réglée.
   const host = request?.headers.get("host");
   if (host) {
     const isLocal = /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host);
     return `${isLocal ? "http" : "https"}://${host}`;
   }
 
-  return "http://localhost:3000";
+  return getCanonicalSiteUrl();
 }
