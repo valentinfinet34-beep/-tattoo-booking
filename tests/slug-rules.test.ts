@@ -111,7 +111,7 @@ describe("pseudos réservés", () => {
   });
 
   it("la liste TypeScript est identique à celle de la migration SQL", () => {
-    const sql = readMigration("0018_multi_tenant_slugs.sql");
+    const sql = readMigration("0020_salons.sql");
     const body = sql.slice(
       sql.indexOf("create or replace function public.is_reserved_slug"),
       sql.indexOf("::text[])")

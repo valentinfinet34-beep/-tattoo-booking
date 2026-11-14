@@ -2,6 +2,8 @@ import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe";
 import { getSiteUrl } from "@/lib/site-url";
+import { SalonSettings } from "@/components/dashboard/SalonSettings";
+import { getMySalon } from "@/lib/salon";
 import { SlugSettings } from "@/components/dashboard/SlugSettings";
 import { ProfileSettings } from "@/components/dashboard/ProfileSettings";
 import { PortfolioSettings } from "@/components/dashboard/PortfolioSettings";
@@ -23,6 +25,7 @@ import {
 const SECTIONS = [
   { id: "profil", label: "Mon profil" },
   { id: "lien", label: "Mon lien" },
+  { id: "salon", label: "Mon salon" },
   { id: "page-client", label: "Ma page client" },
   { id: "acomptes", label: "Mes acomptes" },
   { id: "disponibilites", label: "Mes disponibilités" },
@@ -37,7 +40,7 @@ export default async function SettingsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: artist }, { data: blockedDates }, { data: paymentHistory }] =
+  const [{ data: artist }, { data: blockedDates }, { data: paymentHistory }, salon] =
     await Promise.all([
       supabase
         .from("artists")
@@ -58,6 +61,7 @@ export default async function SettingsPage() {
         .eq("status", "deposit_paid")
         .order("updated_at", { ascending: false })
         .limit(20),
+      getMySalon(supabase, user!.id),
     ]);
 
   const siteUrl = getSiteUrl({ headers: await headers() });
@@ -140,6 +144,18 @@ export default async function SettingsPage() {
             </div>
           </section>
         )}
+
+        <section id="salon" className="scroll-mt-6">
+          <h2 className="mb-1 font-display text-xl tracking-wide text-zinc-100">
+            Mon salon
+          </h2>
+          <p className="mb-5 text-sm text-zinc-500">
+            Regroupe les tatoueurs de ton salon sur une page commune.
+          </p>
+          <div className="card-glass">
+            <SalonSettings salon={salon} siteUrl={siteUrl} />
+          </div>
+        </section>
 
         <section id="page-client" className="scroll-mt-6">
           <h2 className="mb-1 font-display text-xl tracking-wide text-zinc-100">

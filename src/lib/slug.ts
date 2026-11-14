@@ -10,7 +10,7 @@ export const SLUG_HISTORY_DAYS = 90;
 
 export const SLUG_REGEX = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
-/** Même liste que public.is_reserved_slug() dans la migration 0018. */
+/** Même liste que public.is_reserved_slug() (dernière définition : migration 0020). */
 export const RESERVED_SLUGS: readonly string[] = [
   "404", "500", "about", "accueil", "account", "admin", "administrator",
   "agenda", "aide", "api", "app", "artist", "artists", "assets", "auth",
@@ -28,6 +28,8 @@ export const RESERVED_SLUGS: readonly string[] = [
   "support", "tarifs", "tatoueur", "tatoueurs", "tattflow", "tattooer",
   "tattoo", "tattoos", "terms", "test", "true", "undefined", "uploads",
   "user", "users", "vercel", "webhook", "webhooks", "window", "www",
+  // Ajoutés avec les salons (migration 0020) :
+  "invitation-salon", "salon", "salons",
 ];
 
 export type SlugIssue =
