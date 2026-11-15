@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { trustedStorageUrl } from "@/lib/storage-url";
 
 export const SALON_NAME_MAX = 80;
 export const SALON_CITY_MAX = 80;
@@ -71,7 +72,7 @@ export async function getMySalon(
       id: a.id as string,
       displayName: (a.display_name as string | null) ?? "Tatoueur",
       slug: (a.slug as string | null) ?? null,
-      avatarUrl: (a.avatar_url as string | null) ?? null,
+      avatarUrl: trustedStorageUrl(a.avatar_url as string | null),
       isOwner: a.id === salon.owner_id,
     }))
     .sort((a, b) => Number(b.isOwner) - Number(a.isOwner) || a.displayName.localeCompare(b.displayName, "fr"));
@@ -141,7 +142,7 @@ export const fetchPublicSalon = cache(
         id: a.id as string,
         slug: a.slug as string,
         displayName: (a.display_name as string | null) ?? "Tatoueur",
-        avatarUrl: (a.avatar_url as string | null) ?? null,
+        avatarUrl: trustedStorageUrl(a.avatar_url as string | null),
         city: (a.city as string | null) ?? null,
         instagramHandle: (a.instagram_handle as string | null) ?? null,
         practicedStyles: (a.practiced_styles as string[] | null) ?? [],

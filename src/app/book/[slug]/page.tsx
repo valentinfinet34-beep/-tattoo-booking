@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { TattooRequestForm } from "@/components/client/TattooRequestForm";
@@ -8,7 +9,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { resolvePublicArtist, type PublicArtist } from "@/lib/public-artist";
 import { bookingPath } from "@/lib/slug";
 import { isDayFullyBooked } from "@/lib/scheduling";
-import { STYLES } from "@/lib/validations/tattooRequest.schema";
+import { trustedStorageUrl } from "@/lib/storage-url";
 import {
   ACCENT_PRESETS,
   DEFAULT_ACCENT,
@@ -130,6 +131,7 @@ export default async function BookingPage({
       ? artist.accent_color
       : DEFAULT_ACCENT;
   const accent = ACCENT_PRESETS[accentKey];
+  const avatarUrl = trustedStorageUrl(artist.avatar_url);
 
   return (
     <div
@@ -150,6 +152,26 @@ export default async function BookingPage({
           {artist.display_name}
         </Link>
 
+        {avatarUrl && (
+          <div className="mb-5 flex animate-fade-in-up items-center gap-3 [animation-delay:50ms]">
+            <Image
+              src={avatarUrl}
+              alt={`Photo de ${artist.display_name}`}
+              width={56}
+              height={56}
+              className="h-14 w-14 shrink-0 rounded-full border border-white/15 object-cover"
+            />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">
+                {artist.display_name}
+              </p>
+              {artist.city && (
+                <p className="truncate text-xs text-muted">{artist.city}</p>
+              )}
+            </div>
+          </div>
+        )}
+
         <h1 className="mb-2 animate-fade-in-up text-4xl [animation-delay:100ms]">
           Réservez votre séance
         </h1>
@@ -164,10 +186,7 @@ export default async function BookingPage({
             artistSlug={slug}
             workingDays={artist.working_days ?? undefined}
             minLeadDays={artist.min_lead_days ?? undefined}
-            practicedStyles={
-              (artist.practiced_styles as (typeof STYLES)[number][]) ??
-              undefined
-            }
+            practicedStyles={(artist.practiced_styles as string[] | null) ?? undefined}
           />
         </div>
       </div>

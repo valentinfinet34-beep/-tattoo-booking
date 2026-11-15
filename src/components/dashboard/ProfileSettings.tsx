@@ -6,6 +6,11 @@ import {
   updateProfile,
   uploadAvatar,
 } from "@/app/dashboard/settings/actions";
+import {
+  UNSUPPORTED_IMAGE_MESSAGE,
+  UnsupportedImageError,
+  prepareImage,
+} from "@/lib/image-resize";
 
 export function ProfileSettings({
   avatarUrl,
@@ -38,17 +43,37 @@ export function ProfileSettings({
 
     setError(null);
     setUploading(true);
-    setPreview(URL.createObjectURL(file));
-
-    const formData = new FormData();
-    formData.append("avatar", file);
+    const before = preview;
 
     try {
-      await uploadAvatar(formData);
-    } catch {
-      setError("Échec de l'upload, réessaie.");
+      // Recadrée en carré et allégée : une photo de téléphone passe sans souci.
+      const photo = await prepareImage(file, {
+        maxSide: 512,
+        square: true,
+        maxBytes: 400_000,
+      });
+      setPreview(URL.createObjectURL(photo));
+
+      const formData = new FormData();
+      formData.append("avatar", photo);
+
+      const result = await uploadAvatar(formData);
+      if (!result.ok) {
+        setError(result.message);
+        setPreview(before);
+        return;
+      }
+      setPreview(result.url);
+    } catch (err) {
+      setPreview(before);
+      setError(
+        err instanceof UnsupportedImageError
+          ? UNSUPPORTED_IMAGE_MESSAGE
+          : "Échec de l’envoi de la photo. Réessaie dans un instant."
+      );
     } finally {
       setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
   };
 
@@ -106,7 +131,11 @@ export function ProfileSettings({
               disabled={uploading}
               className="btn-secondary text-sm"
             >
-              {uploading ? "Envoi..." : "Changer la photo"}
+              {uploading
+                ? "Envoi..."
+                : preview
+                  ? "Changer la photo"
+                  : "Ajouter ma photo"}
             </button>
             {preview && (
               <button
@@ -119,7 +148,10 @@ export function ProfileSettings({
               </button>
             )}
           </div>
-          <p className="mt-1.5 text-xs text-zinc-500">JPG ou PNG, format carré.</p>
+          <p className="mt-1.5 text-xs leading-relaxed text-zinc-500">
+            Une photo de toi : tes clients voient à qui ils parlent. Elle est
+            recadrée en carré automatiquement.
+          </p>
         </div>
         <input
           ref={inputRef}

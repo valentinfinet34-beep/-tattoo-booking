@@ -5,6 +5,11 @@ import { generateAvailableSlots, isDateBookable } from "@/lib/scheduling";
 import { sendNewRequestEmail } from "@/lib/email";
 import { getSiteUrl } from "@/lib/site-url";
 import { withResolvedSlug } from "@/lib/public-artist";
+import { composeBodyLocation, composeStyle } from "@/lib/tattoo-catalog";
+
+/** Un champ de formulaire facultatif : absent ou vide, c’est pareil. */
+const optionalText = (value: FormDataEntryValue | null) =>
+  typeof value === "string" ? value : undefined;
 
 export async function POST(request: Request) {
   const formData = await request.formData();
@@ -26,8 +31,11 @@ export async function POST(request: Request) {
     phone: formData.get("phone"),
     description: formData.get("description"),
     bodyLocation: formData.get("bodyLocation"),
+    bodyLocationDetail: optionalText(formData.get("bodyLocationDetail")),
     sizeCategory: formData.get("sizeCategory"),
     style: formData.get("style"),
+    styleDetail: optionalText(formData.get("styleDetail")),
+    letteringStyle: optionalText(formData.get("letteringStyle")),
     colorMode: formData.get("colorMode"),
     preferredDate: formData.get("preferredDate"),
     preferredTime: formData.get("preferredTime"),
@@ -167,9 +175,15 @@ export async function POST(request: Request) {
     email: parsed.data.email,
     phone: parsed.data.phone,
     description: parsed.data.description,
-    body_location: parsed.data.bodyLocation,
+    body_location: composeBodyLocation(
+      parsed.data.bodyLocation,
+      parsed.data.bodyLocationDetail
+    ),
     size_category: parsed.data.sizeCategory,
-    style: parsed.data.style,
+    style: composeStyle(parsed.data.style, {
+      detail: parsed.data.styleDetail,
+      letteringStyle: parsed.data.letteringStyle,
+    }),
     color_mode: parsed.data.colorMode,
     preferred_date: parsed.data.preferredDate,
     time_slot: parsed.data.preferredTime,

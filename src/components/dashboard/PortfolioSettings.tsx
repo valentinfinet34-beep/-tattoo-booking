@@ -7,6 +7,11 @@ import {
   reorderPortfolioImages,
   uploadPortfolioImage,
 } from "@/app/dashboard/settings/actions";
+import {
+  UNSUPPORTED_IMAGE_MESSAGE,
+  UnsupportedImageError,
+  prepareImage,
+} from "@/lib/image-resize";
 
 const MAX_IMAGES = 12;
 
@@ -27,15 +32,19 @@ export function PortfolioSettings({
     setError(null);
     setUploading(true);
 
-    const formData = new FormData();
-    formData.append("photo", file);
-
     try {
+      const photo = await prepareImage(file, { maxSide: 1600, maxBytes: 900_000 });
+
+      const formData = new FormData();
+      formData.append("photo", photo);
+
       await uploadPortfolioImage(formData);
-      setImages((prev) => [...prev, URL.createObjectURL(file)]);
+      setImages((prev) => [...prev, URL.createObjectURL(photo)]);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Échec de l'upload, réessaie."
+        err instanceof UnsupportedImageError
+          ? UNSUPPORTED_IMAGE_MESSAGE
+          : "Échec de l’envoi de la photo, réessaie."
       );
     } finally {
       setUploading(false);

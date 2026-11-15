@@ -3,11 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  BODY_LOCATIONS,
   COLOR_MODES,
   SIZE_CATEGORIES,
-  STYLES,
 } from "@/lib/validations/tattooRequest.schema";
+import {
+  BODY_LOCATION_GROUPS,
+  DETAIL_MAX_LENGTH,
+  LETTERING,
+  LETTERING_STYLES,
+  OTHER,
+  STYLE_GROUPS,
+  cleanDetail,
+  itemLabel,
+} from "@/lib/tattoo-catalog";
+import { CatalogPicker } from "@/components/CatalogPicker";
 import { DURATION_OPTIONS } from "@/lib/scheduling";
 import { DatePicker } from "@/components/client/DatePicker";
 import { TimeSlotPicker } from "@/components/client/TimeSlotPicker";
@@ -50,13 +59,14 @@ export function NewProjectForm({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [description, setDescription] = useState("");
-  const [bodyLocation, setBodyLocation] = useState<
-    (typeof BODY_LOCATIONS)[number]
-  >(BODY_LOCATIONS[0]);
+  const [bodyLocation, setBodyLocation] = useState("");
+  const [bodyLocationDetail, setBodyLocationDetail] = useState("");
   const [sizeCategory, setSizeCategory] = useState<
     (typeof SIZE_CATEGORIES)[number]
   >(SIZE_CATEGORIES[0]);
-  const [style, setStyle] = useState<(typeof STYLES)[number]>(STYLES[0]);
+  const [style, setStyle] = useState("");
+  const [styleDetail, setStyleDetail] = useState("");
+  const [letteringStyle, setLetteringStyle] = useState("");
   const [colorMode, setColorMode] = useState<(typeof COLOR_MODES)[number]>(
     COLOR_MODES[0]
   );
@@ -71,8 +81,29 @@ export function NewProjectForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isLettering = style === LETTERING;
+  const needsStyleDetail =
+    style === OTHER || (isLettering && letteringStyle === OTHER);
+
   const handleSubmit = async () => {
     setError(null);
+
+    if (!bodyLocation || !style) {
+      setError("Choisis une zone du corps et un style.");
+      return;
+    }
+    if (bodyLocation === OTHER && !cleanDetail(bodyLocationDetail)) {
+      setError("Précise la zone du corps.");
+      return;
+    }
+    if (isLettering && !letteringStyle) {
+      setError("Choisis un style d’écriture.");
+      return;
+    }
+    if (needsStyleDetail && !cleanDetail(styleDetail)) {
+      setError(isLettering ? "Précise le style d’écriture." : "Précise le style.");
+      return;
+    }
 
     if (!date || !time) {
       setError("Choisis une date et un horaire.");
@@ -91,8 +122,11 @@ export function NewProjectForm({
         phone,
         description,
         bodyLocation,
+        bodyLocationDetail,
         sizeCategory,
         style,
+        styleDetail,
+        letteringStyle,
         colorMode,
         preferredDate: date,
         preferredTime: time,
@@ -162,23 +196,76 @@ export function NewProjectForm({
         />
       </Field>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Zone du corps">
+      <Field label="Zone du corps">
+        <CatalogPicker
+          title="Zone du corps"
+          groups={BODY_LOCATION_GROUPS}
+          placeholder="Choisis une zone"
+          searchPlaceholder="Rechercher une zone"
+          value={bodyLocation}
+          onChange={setBodyLocation}
+        />
+      </Field>
+
+      <Field
+        label={
+          bodyLocation === OTHER
+            ? "Précise la zone du corps"
+            : "Précision sur l’emplacement (optionnel)"
+        }
+      >
+        <input
+          value={bodyLocationDetail}
+          maxLength={DETAIL_MAX_LENGTH}
+          onChange={(e) => setBodyLocationDetail(e.target.value)}
+          placeholder="Ex. côté gauche, face intérieure…"
+          className="input-field"
+        />
+      </Field>
+
+      <Field label="Style souhaité">
+        <CatalogPicker
+          title="Style souhaité"
+          groups={STYLE_GROUPS}
+          placeholder="Choisis un style"
+          searchPlaceholder="Rechercher un style"
+          value={style}
+          onChange={setStyle}
+        />
+      </Field>
+
+      {isLettering && (
+        <Field label="Style d’écriture">
           <select
-            value={bodyLocation}
-            onChange={(e) =>
-              setBodyLocation(e.target.value as (typeof BODY_LOCATIONS)[number])
-            }
+            value={letteringStyle}
+            onChange={(e) => setLetteringStyle(e.target.value)}
             style={{ colorScheme: "dark" }}
             className="input-field"
           >
-            {BODY_LOCATIONS.map((loc) => (
-              <option key={loc} value={loc} style={optionStyle}>
-                {loc}
+            <option value="" style={optionStyle}>
+              Choisis un style d&apos;écriture
+            </option>
+            {LETTERING_STYLES.map((item) => (
+              <option key={item.value} value={item.value} style={optionStyle}>
+                {itemLabel(item)}
               </option>
             ))}
           </select>
         </Field>
+      )}
+
+      {needsStyleDetail && (
+        <Field label={isLettering ? "Précise le style d’écriture" : "Précise le style"}>
+          <input
+            value={styleDetail}
+            maxLength={DETAIL_MAX_LENGTH}
+            onChange={(e) => setStyleDetail(e.target.value)}
+            className="input-field"
+          />
+        </Field>
+      )}
+
+      <div className="grid grid-cols-2 gap-3">
         <Field label="Taille approximative">
           <select
             value={sizeCategory}
@@ -191,23 +278,6 @@ export function NewProjectForm({
             {SIZE_CATEGORIES.map((size) => (
               <option key={size} value={size} style={optionStyle}>
                 {size}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Style souhaité">
-          <select
-            value={style}
-            onChange={(e) => setStyle(e.target.value as (typeof STYLES)[number])}
-            style={{ colorScheme: "dark" }}
-            className="input-field"
-          >
-            {STYLES.map((s) => (
-              <option key={s} value={s} style={optionStyle}>
-                {s}
               </option>
             ))}
           </select>

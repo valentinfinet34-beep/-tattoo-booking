@@ -2,7 +2,12 @@
 
 import { useRef, useState, useTransition } from "react";
 import { ACCENT_PRESETS, type AccentColorKey } from "@/lib/theme-presets";
-import { STYLES } from "@/lib/validations/tattooRequest.schema";
+import { X } from "lucide-react";
+import {
+  PRACTICE_STYLE_GROUPS,
+  sanitizePracticedStyles,
+} from "@/lib/tattoo-catalog";
+import { CatalogMultiPicker } from "@/components/CatalogPicker";
 import {
   resetCoverImage,
   setAccentColor,
@@ -10,6 +15,11 @@ import {
   updateWelcomeMessage,
   uploadCoverImage,
 } from "@/app/dashboard/settings/actions";
+import {
+  UNSUPPORTED_IMAGE_MESSAGE,
+  UnsupportedImageError,
+  prepareImage,
+} from "@/lib/image-resize";
 
 export function PageSettings({
   coverImageUrl,
@@ -26,7 +36,9 @@ export function PageSettings({
   const [preview, setPreview] = useState(coverImageUrl);
   const [selectedColor, setSelectedColor] = useState(accentColor);
   const [message, setMessage] = useState(welcomeMessage);
-  const [styles, setStyles] = useState<Set<string>>(new Set(practicedStyles));
+  const [styles, setStyles] = useState<string[]>(() =>
+    sanitizePracticedStyles(practicedStyles)
+  );
   const [uploading, setUploading] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,15 +54,12 @@ export function PageSettings({
     });
   };
 
-  const toggleStyle = (style: string) => {
-    const next = new Set(styles);
-    if (next.has(style)) next.delete(style);
-    else next.add(style);
+  const saveStyles = (next: string[]) => {
     setStyles(next);
 
     startTransition(async () => {
       try {
-        await updatePracticedStyles(Array.from(next));
+        await updatePracticedStyles(next);
       } catch {
         setError("Échec de la mise à jour des styles.");
       }
@@ -65,17 +74,25 @@ export function PageSettings({
 
     setError(null);
     setUploading(true);
-    setPreview(URL.createObjectURL(file));
-
-    const formData = new FormData();
-    formData.append("cover", file);
+    const before = preview;
 
     try {
+      const photo = await prepareImage(file, { maxSide: 1920, maxBytes: 900_000 });
+      setPreview(URL.createObjectURL(photo));
+
+      const formData = new FormData();
+      formData.append("cover", photo);
       await uploadCoverImage(formData);
-    } catch {
-      setError("Échec de l'upload, réessaie.");
+    } catch (err) {
+      setPreview(before);
+      setError(
+        err instanceof UnsupportedImageError
+          ? UNSUPPORTED_IMAGE_MESSAGE
+          : "Échec de l’envoi de la photo, réessaie."
+      );
     } finally {
       setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
     }
   };
 
@@ -204,30 +221,41 @@ export function PageSettings({
         <h2 className="mb-1 font-display text-lg tracking-wide text-zinc-100">
           Styles pratiqués
         </h2>
-        <p className="mb-3 text-xs text-zinc-500">
-          Seuls ces styles seront proposés aux clients sur ta page — évite
-          les demandes hors sujet. Aucune sélection = tous les styles
+        <p className="mb-3 text-xs leading-relaxed text-zinc-500">
+          Coche les styles que tu pratiques : seuls ceux-là seront proposés à
+          tes clients (avec « Je ne sais pas encore » et « Autre », pour que
+          personne ne reste bloqué). Aucune sélection = tous les styles
           proposés.
         </p>
-        <div className="flex flex-wrap gap-2">
-          {STYLES.map((style) => {
-            const active = styles.has(style);
-            return (
-              <button
-                key={style}
-                type="button"
-                onClick={() => toggleStyle(style)}
-                className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
-                  active
-                    ? "border-accent bg-accent/10 text-accent"
-                    : "border-zinc-800 text-zinc-500 hover:text-zinc-100"
-                }`}
-              >
-                {style}
-              </button>
-            );
-          })}
-        </div>
+        {styles.length > 0 && (
+          <ul className="mb-3 flex flex-wrap gap-2">
+            {styles.map((style) => (
+              <li key={style}>
+                <button
+                  type="button"
+                  onClick={() => saveStyles(styles.filter((s) => s !== style))}
+                  aria-label={`Retirer ${style}`}
+                  className="flex items-center gap-1.5 rounded-full border border-accent bg-accent/10 px-3 py-1.5 text-xs text-accent"
+                >
+                  {style}
+                  <X size={12} aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <CatalogMultiPicker
+          title="Styles pratiqués"
+          groups={PRACTICE_STYLE_GROUPS}
+          searchPlaceholder="Rechercher un style"
+          values={styles}
+          onChange={saveStyles}
+          buttonLabel={
+            styles.length > 0
+              ? `Modifier mes styles (${styles.length})`
+              : "Choisir mes styles"
+          }
+        />
       </div>
 
       {error && <p className="text-sm text-red-400">{error}</p>}

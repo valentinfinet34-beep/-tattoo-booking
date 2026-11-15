@@ -1,18 +1,26 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  BODY_LOCATIONS,
   COLOR_MODES,
   SIZE_CATEGORIES,
-  STYLES,
   tattooRequestSchema,
   type TattooRequestInput,
 } from "@/lib/validations/tattooRequest.schema";
+import {
+  BODY_LOCATION_GROUPS,
+  DETAIL_MAX_LENGTH,
+  LETTERING,
+  LETTERING_STYLES,
+  OTHER,
+  itemLabel,
+  styleGroupsFor,
+} from "@/lib/tattoo-catalog";
+import { CatalogPicker } from "@/components/CatalogPicker";
 import { ImageUploader } from "./ImageUploader";
 import { DatePicker } from "./DatePicker";
 import { TimeSlotPicker } from "./TimeSlotPicker";
@@ -30,14 +38,13 @@ export function TattooRequestForm({
   artistSlug: string;
   workingDays?: number[];
   minLeadDays?: number;
-  practicedStyles?: (typeof STYLES)[number][];
+  practicedStyles?: string[];
 }) {
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const honeypotRef = useRef<HTMLInputElement>(null);
 
-  const availableStyles: (typeof STYLES)[number][] =
-    practicedStyles && practicedStyles.length > 0 ? practicedStyles : [...STYLES];
+  const styleGroups = useMemo(() => styleGroupsFor(practicedStyles), [practicedStyles]);
 
   const {
     register,
@@ -48,9 +55,14 @@ export function TattooRequestForm({
   } = useForm<TattooRequestInput>({
     resolver: zodResolver(tattooRequestSchema),
     defaultValues: {
-      bodyLocation: BODY_LOCATIONS[0],
+      // Zone et style démarrent vides : le client choisit vraiment, au lieu
+      // d'envoyer par erreur le premier choix de la liste.
+      bodyLocation: "",
+      bodyLocationDetail: "",
       sizeCategory: SIZE_CATEGORIES[0],
-      style: availableStyles[0],
+      style: "",
+      styleDetail: "",
+      letteringStyle: "",
       colorMode: COLOR_MODES[0],
       preferredDate: "",
       preferredTime: "",
@@ -59,6 +71,13 @@ export function TattooRequestForm({
   });
 
   const watchedDate = watch("preferredDate");
+  const watchedBodyLocation = watch("bodyLocation");
+  const watchedStyle = watch("style");
+  const watchedLettering = watch("letteringStyle");
+
+  const isLettering = watchedStyle === LETTERING;
+  const needsStyleDetail =
+    watchedStyle === OTHER || (isLettering && watchedLettering === OTHER);
 
   const onSubmit = async (data: TattooRequestInput) => {
     setSubmitError(null);
@@ -72,8 +91,11 @@ export function TattooRequestForm({
     formData.append("phone", data.phone);
     formData.append("description", data.description);
     formData.append("bodyLocation", data.bodyLocation);
+    formData.append("bodyLocationDetail", data.bodyLocationDetail ?? "");
     formData.append("sizeCategory", data.sizeCategory);
     formData.append("style", data.style);
+    formData.append("styleDetail", data.styleDetail ?? "");
+    formData.append("letteringStyle", data.letteringStyle ?? "");
     formData.append("colorMode", data.colorMode);
     formData.append("preferredDate", data.preferredDate);
     formData.append("preferredTime", data.preferredTime);
@@ -86,10 +108,20 @@ export function TattooRequestForm({
 
     if (!res.ok) {
       const body = await res.json().catch(() => null);
+      const fieldErrors =
+        body?.error && typeof body.error === "object"
+          ? (Object.values(body.error) as unknown[])
+          : [];
+      const firstFieldError = fieldErrors
+        .flat()
+        .find((entry): entry is string => typeof entry === "string");
       const message =
         body?.error?.preferredDate?.[0] ??
         body?.error?.preferredTime?.[0] ??
-        "Une erreur est survenue, réessaie dans un instant.";
+        firstFieldError ??
+        (res.status === 413
+          ? "Tes photos sont trop lourdes. Retire-en une ou choisis des images plus légères."
+          : "Une erreur est survenue, réessaie dans un instant.");
       setSubmitError(message);
       return;
     }
@@ -157,24 +189,118 @@ export function TattooRequestForm({
           />
         </Field>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Field
+        <Field
+          name="bodyLocation"
+          label="Zone du corps"
+          error={errors.bodyLocation?.message}
+        >
+          <Controller
             name="bodyLocation"
-            label="Zone du corps"
-            error={errors.bodyLocation?.message}
+            control={control}
+            render={({ field }) => (
+              <CatalogPicker
+                title="Zone du corps"
+                groups={BODY_LOCATION_GROUPS}
+                placeholder="Choisis une zone"
+                searchPlaceholder="Rechercher une zone"
+                value={field.value}
+                onChange={field.onChange}
+                invalid={Boolean(errors.bodyLocation)}
+              />
+            )}
+          />
+        </Field>
+
+        <Field
+          name="bodyLocationDetail"
+          label={
+            watchedBodyLocation === OTHER
+              ? "Précise la zone du corps"
+              : "Précision sur l'emplacement (optionnel)"
+          }
+          error={errors.bodyLocationDetail?.message}
+        >
+          <input
+            className="input-field"
+            maxLength={DETAIL_MAX_LENGTH}
+            placeholder={
+              watchedBodyLocation === OTHER
+                ? "Ex. derrière le genou, entre les omoplates…"
+                : "Ex. côté gauche, face intérieure…"
+            }
+            {...register("bodyLocationDetail")}
+          />
+        </Field>
+
+        <Field name="style" label="Style souhaité" error={errors.style?.message}>
+          <Controller
+            name="style"
+            control={control}
+            render={({ field }) => (
+              <CatalogPicker
+                title="Style souhaité"
+                groups={styleGroups}
+                placeholder="Choisis un style"
+                searchPlaceholder="Rechercher un style"
+                value={field.value}
+                onChange={field.onChange}
+                invalid={Boolean(errors.style)}
+              />
+            )}
+          />
+          <p className="mt-1.5 text-[11px] text-muted">
+            Tu ne connais pas le nom du style ? Choisis « Je ne sais pas encore »
+            ou « Autre » et décris-le avec tes mots.
+          </p>
+        </Field>
+
+        {isLettering && (
+          <Field
+            name="letteringStyle"
+            label="Style d'écriture souhaité"
+            error={errors.letteringStyle?.message}
           >
             <select
               className="input-field"
               style={{ colorScheme: "dark" }}
-              {...register("bodyLocation")}
+              {...register("letteringStyle")}
             >
-              {BODY_LOCATIONS.map((loc) => (
-                <option key={loc} value={loc} style={optionStyle}>
-                  {loc}
+              <option value="" style={optionStyle}>
+                Choisis un style d&apos;écriture
+              </option>
+              {LETTERING_STYLES.map((item) => (
+                <option key={item.value} value={item.value} style={optionStyle}>
+                  {itemLabel(item)}
                 </option>
               ))}
             </select>
+            <p className="mt-1.5 text-[11px] text-muted">
+              Pense à écrire le texte exact à tatouer dans la description du
+              projet.
+            </p>
           </Field>
+        )}
+
+        {needsStyleDetail && (
+          <Field
+            name="styleDetail"
+            label={isLettering ? "Précise le style d'écriture" : "Précise le style souhaité"}
+            error={errors.styleDetail?.message}
+          >
+            <input
+              className="input-field"
+              maxLength={DETAIL_MAX_LENGTH}
+              placeholder={
+                isLettering
+                  ? "Ex. comme l'écriture de ma grand-mère, police d'un film…"
+                  : "Ex. mélange de gravure et d'aquarelle…"
+              }
+              {...register("styleDetail")}
+            />
+          </Field>
+        )}
+
+        <div className="grid grid-cols-2 gap-3">
           <Field
             name="sizeCategory"
             label="Taille approximative"
@@ -188,22 +314,6 @@ export function TattooRequestForm({
               {SIZE_CATEGORIES.map((size) => (
                 <option key={size} value={size} style={optionStyle}>
                   {size}
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <Field name="style" label="Style souhaité" error={errors.style?.message}>
-            <select
-              className="input-field"
-              style={{ colorScheme: "dark" }}
-              {...register("style")}
-            >
-              {availableStyles.map((style) => (
-                <option key={style} value={style} style={optionStyle}>
-                  {style}
                 </option>
               ))}
             </select>

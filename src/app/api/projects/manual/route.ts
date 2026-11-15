@@ -10,21 +10,22 @@ import {
   paymentMethodOf,
 } from "@/lib/payment";
 import {
-  BODY_LOCATIONS,
   COLOR_MODES,
   SIZE_CATEGORIES,
-  STYLES,
+  checkProjectDetails,
+  projectDetailFields,
 } from "@/lib/validations/tattooRequest.schema";
+import { composeBodyLocation, composeStyle } from "@/lib/tattoo-catalog";
 
-const manualProjectSchema = z.object({
+const manualProjectSchema = z
+  .object({
   firstName: z.string().trim().min(2, "Prénom trop court").max(50),
   lastName: z.string().trim().min(2, "Nom trop court").max(50),
   email: z.string().trim().email("Email invalide"),
   phone: z.string().trim().min(10, "Numéro invalide").max(20),
   description: z.string().trim().min(10, "Décris le projet").max(1000),
-  bodyLocation: z.enum(BODY_LOCATIONS),
+  ...projectDetailFields,
   sizeCategory: z.enum(SIZE_CATEGORIES),
-  style: z.enum(STYLES),
   colorMode: z.enum(COLOR_MODES),
   preferredDate: z.string().min(1, "Choisis une date"),
   preferredTime: z
@@ -32,7 +33,8 @@ const manualProjectSchema = z.object({
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, "Choisis un horaire"),
   durationHours: z.coerce.number().positive().max(12),
   depositAmountEur: z.coerce.number().positive().max(5000),
-});
+  })
+  .superRefine(checkProjectDetails);
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -117,9 +119,15 @@ export async function POST(request: Request) {
     email: parsed.data.email,
     phone: parsed.data.phone,
     description: parsed.data.description,
-    body_location: parsed.data.bodyLocation,
+    body_location: composeBodyLocation(
+      parsed.data.bodyLocation,
+      parsed.data.bodyLocationDetail
+    ),
     size_category: parsed.data.sizeCategory,
-    style: parsed.data.style,
+    style: composeStyle(parsed.data.style, {
+      detail: parsed.data.styleDetail,
+      letteringStyle: parsed.data.letteringStyle,
+    }),
     color_mode: parsed.data.colorMode,
     preferred_date: parsed.data.preferredDate,
     time_slot: parsed.data.preferredTime,
