@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   Calendar,
@@ -8,8 +9,13 @@ import {
   Wallet,
 } from "lucide-react";
 import { RevealSection } from "@/components/client/RevealSection";
+import { Hero3D } from "@/components/client/HeroParallax";
+import { ScrollSteps, type ScrollStep } from "@/components/client/ScrollSteps";
 import { Footer } from "@/components/Footer";
 import { TRIAL_DAYS } from "@/lib/plan";
+
+const HERO_IMAGE =
+  "https://images.unsplash.com/photo-1759247943108-39e23e97fde4?fm=jpg&q=80&w=1920&auto=format&fit=crop";
 
 const VALUE_PROPS = [
   {
@@ -32,6 +38,29 @@ const VALUE_PROPS = [
   },
 ];
 
+const HOW_IT_WORKS: ScrollStep[] = [
+  {
+    title: "Ton client t'envoie sa demande",
+    description:
+      "Depuis ton lien en bio : il décrit son projet, la zone, le style, et joint une photo de référence si besoin.",
+  },
+  {
+    title: "Tu envoies ton devis",
+    description:
+      "Tu regardes la demande, tu fixes ton prix, et ton client reçoit le devis par email.",
+  },
+  {
+    title: "Il accepte et paie l'acompte",
+    description:
+      "Par Stripe ou ton lien de paiement. Ton créneau est bloqué dès que l'acompte est réglé.",
+  },
+  {
+    title: "Le rendez-vous est confirmé",
+    description:
+      "Date, heure et détails partent par email. Ton agenda se met à jour tout seul.",
+  },
+];
+
 const PLAN = {
   name: "TattFlow",
   price: "29€",
@@ -49,53 +78,70 @@ const PLAN = {
 export default function Home() {
   return (
     <div>
-      {/* HERO */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-24 text-center">
-        <div
-          className="absolute inset-0 -z-10 opacity-25"
-          style={{
-            background:
-              "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(200,30,30,0.35), transparent 70%)",
-          }}
-        />
+      {/* HERO : photo qui bouge légèrement avec la souris et au défilement */}
+      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden text-center">
+        <Hero3D
+          background={
+            <>
+              <Image
+                src={HERO_IMAGE}
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover opacity-45"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/75 to-background" />
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(200,30,30,0.35), transparent 70%)",
+                }}
+              />
+            </>
+          }
+        >
+          <div className="flex flex-col items-center px-6 py-24">
+            <div className="mb-8 flex items-center justify-center gap-2">
+              <div className="h-5 w-1.5 bg-accent" />
+              <span className="font-display text-xl tracking-widest">
+                TATTFLOW
+              </span>
+            </div>
+
+            <h1 className="max-w-4xl animate-fade-in-up font-display text-6xl uppercase leading-[0.95] tracking-tight text-white [animation-delay:150ms] drop-shadow-[0_0_30px_rgba(200,30,30,0.5)] md:text-8xl">
+              Fini les DM Instagram
+            </h1>
+            <p className="mt-6 max-w-xl animate-fade-in-up text-balance text-base leading-relaxed text-foreground/85 [animation-delay:300ms] md:text-lg">
+              Donne à tes clients une vraie page de réservation, avec devis et
+              acompte automatique par Stripe. Toi, tu valides le prix. Le reste
+              se fait tout seul.
+            </p>
+
+            <div className="mt-10 flex animate-fade-in-up flex-col items-center gap-3 [animation-delay:450ms]">
+              <Link
+                href="/signup"
+                className="rounded-full bg-accent px-9 py-4 text-sm font-semibold uppercase tracking-[0.15em] text-white shadow-[0_0_35px_-6px_rgba(200,30,30,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_55px_-6px_rgba(200,30,30,0.9)]"
+              >
+                Créer mon compte tatoueur
+              </Link>
+              <Link
+                href="/demo"
+                className="text-xs text-muted hover:text-foreground"
+              >
+                Voir une démo avant de s&apos;inscrire →
+              </Link>
+            </div>
+          </div>
+        </Hero3D>
 
         <Link
           href="/login"
-          className="absolute right-6 top-6 text-xs text-muted hover:text-foreground"
+          className="absolute right-6 top-6 z-10 text-xs text-muted hover:text-foreground"
         >
           Se connecter
         </Link>
-
-        <div className="mb-8 flex items-center justify-center gap-2">
-          <div className="h-5 w-1.5 bg-accent" />
-          <span className="font-display text-xl tracking-widest">
-            TATTFLOW
-          </span>
-        </div>
-
-        <h1 className="max-w-4xl animate-fade-in-up font-display text-6xl uppercase leading-[0.95] tracking-tight text-white [animation-delay:150ms] drop-shadow-[0_0_30px_rgba(200,30,30,0.5)] md:text-8xl">
-          Fini les DM Instagram
-        </h1>
-        <p className="mt-6 max-w-xl animate-fade-in-up text-balance text-base leading-relaxed text-foreground/85 [animation-delay:300ms] md:text-lg">
-          Donne à tes clients une vraie page de réservation, avec devis et
-          acompte automatique par Stripe. Toi, tu valides le prix. Le reste
-          se fait tout seul.
-        </p>
-
-        <div className="mt-10 flex animate-fade-in-up flex-col items-center gap-3 [animation-delay:450ms]">
-          <Link
-            href="/signup"
-            className="rounded-full bg-accent px-9 py-4 text-sm font-semibold uppercase tracking-[0.15em] text-white shadow-[0_0_35px_-6px_rgba(200,30,30,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_55px_-6px_rgba(200,30,30,0.9)]"
-          >
-            Créer mon compte tatoueur
-          </Link>
-          <Link
-            href="/demo"
-            className="text-xs text-muted hover:text-foreground"
-          >
-            Voir une démo avant de s&apos;inscrire →
-          </Link>
-        </div>
       </section>
 
       {/* VALEUR */}
@@ -128,8 +174,23 @@ export default function Home() {
         </div>
       </section>
 
+      {/* COMMENT ÇA MARCHE : chaque étape arrive au défilement */}
+      <section className="overflow-hidden border-y border-white/10 bg-surface/30 px-6 py-24 md:px-16">
+        <div className="mx-auto max-w-5xl">
+          <RevealSection className="mb-16 text-center">
+            <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-accent">
+              Comment ça marche
+            </p>
+            <h2 className="font-display text-3xl tracking-tight text-foreground md:text-5xl">
+              De la demande au rendez-vous
+            </h2>
+          </RevealSection>
+          <ScrollSteps steps={HOW_IT_WORKS} />
+        </div>
+      </section>
+
       {/* TARIF */}
-      <section className="border-y border-white/10 bg-surface/30 px-6 py-24 md:px-16">
+      <section className="px-6 py-24 md:px-16">
         <div className="mx-auto max-w-3xl">
           <RevealSection className="mb-14 text-center">
             <p className="mb-2 text-xs font-medium uppercase tracking-[0.2em] text-accent">
