@@ -14,14 +14,10 @@ export type ScrollStep = {
 
 export function ScrollSteps({ steps }: { steps: ScrollStep[] }) {
   return (
-    <ol className="relative mx-auto flex max-w-3xl flex-col gap-10 md:gap-14">
-      <motion.span
+    <ol className="relative mx-auto flex max-w-3xl flex-col gap-10 pl-10 md:gap-14 md:pl-0">
+      <span
         aria-hidden="true"
-        initial={{ scaleY: 0 }}
-        whileInView={{ scaleY: 1 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-        className="absolute bottom-4 left-6 top-4 w-px origin-top bg-gradient-to-b from-accent via-accent/50 to-transparent md:left-1/2"
+        className="absolute bottom-4 left-[0.9rem] top-4 w-0.5 rounded-full bg-accent/70 md:left-1/2"
       />
       {steps.map((step, index) => {
         const fromLeft = index % 2 === 0;
